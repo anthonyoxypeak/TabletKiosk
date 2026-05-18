@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosk Dashboard</title>
+    <style>
+        body {
+            background-color: #121212; /* Dark background to hide screen bleed */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 95vh;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns. Change to 3 if you want smaller buttons */
+            gap: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+        .app-button {
+            background-color: #333333; /* Dark grey button */
+            color: #ffffff; /* White text */
+            text-decoration: none;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            padding: 60px 20px;
+            border-radius: 15px;
+            border: 2px solid #555555;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.2s ease;
+        }
+        .app-button:active {
+            background-color: #555555; /* Lighter grey when tapped */
+            transform: scale(0.98); /* Slight click effect */
+        }
+        /* Specific button colors (Optional, but looks nice) */
+        .btn-cognifit { border-bottom: 5px solid #8e44ad; } /* Purple */
+        .btn-youtube { border-bottom: 5px solid #e74c3c; } /* Red */
+        .btn-news { border-bottom: 5px solid #3498db; } /* Blue */
+        .btn-google { border-bottom: 5px solid #2ecc71; } /* Green */
+    </style>
+</head>
+<body>
+
+    <div class="grid-container">
+        <a href="https://www.cognifit.com" class="app-button btn-cognifit">CogniFit</a>
+        <a href="https://www.youtube.com" class="app-button btn-youtube">YouTube</a>
+        <a href="https://news.google.com" class="app-button btn-news">News</a>
+        <a href="https://www.google.com" class="app-button btn-google">Google</a>
+    </div>
+
+</body>
+</html>
