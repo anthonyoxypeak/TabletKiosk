@@ -6,7 +6,7 @@
     <title>Chamber Dashboard</title>
     <style>
         body {
-            background-color: #121212; /* Dark background */
+            background-color: #121212; 
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
@@ -16,7 +16,6 @@
             height: 95vh;
             color: white;
         }
-        /* New Splash Header CSS */
         .splash-header {
             text-align: center;
             margin-bottom: 40px;
@@ -24,7 +23,7 @@
             background-color: #1e1e1e;
             border-radius: 15px;
             width: 100%;
-            max-width: 760px; /* Aligns with the grid width */
+            max-width: 760px; 
             border-bottom: 5px solid #8e44ad;
             box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
         }
@@ -62,12 +61,48 @@
             background-color: #555555;
             transform: scale(0.98);
         }
-        /* Button Colors */
-        .btn-cognifit { border-bottom: 5px solid #8e44ad; } /* Purple */
-        .btn-aviv { border-bottom: 5px solid #2ecc71; } /* Green */
-        .btn-youtube { border-bottom: 5px solid #e74c3c; } /* Red */
-        .btn-music { border-bottom: 5px solid #f39c12; } /* Orange */
-        .btn-news { border-bottom: 5px solid #3498db; } /* Blue */
+        /* App Button Colors */
+        .btn-cognifit { border-bottom: 5px solid #8e44ad; } 
+        .btn-aviv { border-bottom: 5px solid #2ecc71; } 
+        .btn-youtube { border-bottom: 5px solid #e74c3c; } 
+        .btn-music { border-bottom: 5px solid #f39c12; } 
+        .btn-news { border-bottom: 5px solid #3498db; } 
+
+        /* New Volume Controls CSS */
+        .volume-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            width: 100%;
+            max-width: 800px;
+            background-color: #1e1e1e;
+            padding: 20px 40px;
+            border-radius: 15px;
+            border: 2px solid #555;
+            box-sizing: border-box;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+        }
+        .vol-btn {
+            background-color: #555;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 40px;
+            cursor: pointer;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .vol-btn:active {
+            background-color: #777;
+            transform: scale(0.95);
+        }
+        .vol-label {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaaaaa;
+        }
     </style>
 </head>
 <body>
@@ -82,8 +117,34 @@
         <a href="https://aviv-clinics.com" class="app-button btn-aviv">Aviv Clinics</a>
         <a href="https://www.youtube.com" class="app-button btn-youtube">YouTube</a>
         <a href="https://music.youtube.com" class="app-button btn-music" target="_blank">YT Music</a>
-        <a href="https://news.google.com" class="app-button btn-news">News</a>
     </div>
+
+    <div class="volume-container">
+        <button class="vol-btn" onclick="changeVolume(-1)">-</button>
+        <div class="vol-label">DEVICE VOLUME</div>
+        <button class="vol-btn" onclick="changeVolume(1)">+</button>
+    </div>
+
+    <script>
+        function changeVolume(change) {
+            // Check if page is actually running inside Fully Kiosk
+            if (typeof fully !== 'undefined') {
+                // Stream 3 is the native Android Media/Music audio stream
+                var currentVol = fully.getAudioVolume(3);
+                var newVol = currentVol + change;
+                
+                // Prevent volume from dropping below 0
+                if (newVol < 0) {
+                    newVol = 0;
+                }
+                
+                // Set the new volume level
+                fully.setAudioVolume(newVol, 3);
+            } else {
+                alert("Volume control only works when running inside the Fully Kiosk app.");
+            }
+        }
+    </script>
 
 </body> 
 </html>
