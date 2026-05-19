@@ -3,56 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiosk Dashboard</title>
+    <title>Chamber Dashboard</title>
     <style>
         body {
-            background-color: #121212; /* Dark background to hide screen bleed */
+            background-color: #121212; /* Dark background */
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             height: 95vh;
+            color: white;
+        }
+        /* New Splash Header CSS */
+        .splash-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background-color: #1e1e1e;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 760px; /* Aligns with the grid width */
+            border-bottom: 5px solid #8e44ad;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+        }
+        .splash-header h1 {
+            margin: 0;
+            font-size: 42px;
+            letter-spacing: 2px;
+        }
+        .splash-header p {
+            margin: 10px 0 0 0;
+            font-size: 22px;
+            color: #aaaaaa;
         }
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 columns. Change to 3 if you want smaller buttons */
+            grid-template-columns: repeat(2, 1fr);
             gap: 30px;
             width: 100%;
             max-width: 800px;
         }
         .app-button {
-            background-color: #333333; /* Dark grey button */
-            color: #ffffff; /* White text */
+            background-color: #333333;
+            color: #ffffff;
             text-decoration: none;
             font-size: 32px;
             font-weight: bold;
             text-align: center;
-            padding: 60px 20px;
+            padding: 50px 20px;
             border-radius: 15px;
             border: 2px solid #555555;
             box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
             transition: background-color 0.2s ease;
         }
         .app-button:active {
-            background-color: #555555; /* Lighter grey when tapped */
-            transform: scale(0.98); /* Slight click effect */
+            background-color: #555555;
+            transform: scale(0.98);
         }
-        /* Specific button colors (Optional, but looks nice) */
+        /* Button Colors */
         .btn-cognifit { border-bottom: 5px solid #8e44ad; } /* Purple */
+        .btn-aviv { border-bottom: 5px solid #2ecc71; } /* Green */
         .btn-youtube { border-bottom: 5px solid #e74c3c; } /* Red */
+        .btn-music { border-bottom: 5px solid #f39c12; } /* Orange */
         .btn-news { border-bottom: 5px solid #3498db; } /* Blue */
-        .btn-google { border-bottom: 5px solid #2ecc71; } /* Green */
     </style>
 </head>
 <body>
 
+    <div class="splash-header">
+        <h1>Aviv Clinics</h1>
+        <p>Welcome to your CogniFit Session</p>
+    </div>
+
     <div class="grid-container">
         <a href="https://www.cognifit.com" class="app-button btn-cognifit">CogniFit</a>
+        <a href="https://aviv-clinics.com" class="app-button btn-aviv">Aviv Clinics</a>
         <a href="https://www.youtube.com" class="app-button btn-youtube">YouTube</a>
+        <a href="https://music.youtube.com" class="app-button btn-music" target="_blank">YT Music</a>
         <a href="https://news.google.com" class="app-button btn-news">News</a>
-        <a href="https://www.google.com" class="app-button btn-google">Google</a>
     </div>
 
 </body> 
