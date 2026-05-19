@@ -4,89 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OxyPeak — Chamber Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-base: #0a0f1c;
-            --border: rgba(255, 255, 255, 0.08);
-            --border-strong: rgba(255, 255, 255, 0.16);
-            --text-primary: #f0ebe2;
-            --text-secondary: rgba(240, 235, 226, 0.65);
-            --text-tertiary: rgba(240, 235, 226, 0.38);
-
-            --accent-cognifit: #d4a574;
-            --accent-aviv: #5eb8a8;
-            --accent-youtube: #e26a5a;
-            --accent-radio: #c97b5a;
-        }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        html {
+        html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        body {
-            margin: 0;
             height: 100vh;
-            background: var(--bg-base);
-            color: var(--text-primary);
-            font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow: hidden;
+            background: #0c1422;
+            color: #f0ebe2;
+            font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background:
-                radial-gradient(ellipse 70% 50% at 50% -10%, rgba(94, 184, 168, 0.18), transparent 65%),
-                radial-gradient(ellipse 50% 40% at 90% 100%, rgba(212, 165, 116, 0.10), transparent 60%),
-                radial-gradient(ellipse 60% 50% at 0% 90%, rgba(94, 184, 168, 0.07), transparent 65%),
-                var(--bg-base);
-            height: 100vh;
-            padding: 16px 20px 16px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: stretch;
+            padding: 14px 16px;
         }
 
-        /* Subtle grain for depth */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            opacity: 0.035;
-            pointer-events: none;
-            mix-blend-mode: overlay;
-            z-index: 1;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 880px;
-            position: relative;
-            z-index: 2;
-            flex: 1;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* === HEADER === */
+        /* === TOP BAR === */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
-            padding: 0 4px;
-            width: 100%;
             flex-shrink: 0;
+            padding: 0 2px;
         }
 
         .session-tag {
@@ -96,25 +41,24 @@
         }
 
         .pulse-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: var(--accent-aviv);
-            box-shadow: 0 0 12px var(--accent-aviv);
+            background: #5eb8a8;
             animation: pulse 2.4s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.45; transform: scale(0.85); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
         }
 
         .session-label {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 500;
-            letter-spacing: 0.24em;
+            letter-spacing: 0.2em;
             text-transform: uppercase;
-            color: var(--text-tertiary);
+            color: rgba(240, 235, 226, 0.55);
         }
 
         .clock {
@@ -123,486 +67,354 @@
         }
 
         .clock-time {
-            font-family: 'Fraunces', serif;
             font-size: 22px;
-            font-weight: 300;
-            color: var(--text-primary);
+            font-weight: 400;
+            color: #f0ebe2;
             font-variant-numeric: tabular-nums;
-            font-variation-settings: "opsz" 144;
         }
 
         .clock-date {
             font-size: 11px;
-            color: var(--text-tertiary);
-            letter-spacing: 0.2em;
+            color: rgba(240, 235, 226, 0.45);
+            letter-spacing: 0.18em;
             text-transform: uppercase;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         /* === SPLASH === */
         .splash {
             text-align: center;
-            padding: 20px 24px 20px;
-            background: linear-gradient(180deg, rgba(94, 184, 168, 0.07) 0%, rgba(94, 184, 168, 0.01) 100%);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
+            padding: 16px 20px 18px;
+            background: #16223a;
+            border: 1px solid #2c3d5c;
+            border-radius: 14px;
             flex-shrink: 0;
         }
 
-        .splash::before {
-            content: '';
-            position: absolute;
-            top: -60%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            height: 220%;
-            background: radial-gradient(ellipse at center, rgba(94, 184, 168, 0.14) 0%, transparent 55%);
-            pointer-events: none;
-        }
-
-        .splash::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            bottom: 12px;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-aviv), transparent);
-            opacity: 0.5;
-        }
-
         .splash h1 {
-            font-family: 'Fraunces', serif;
+            font-family: "Noto Serif", Georgia, "Times New Roman", serif;
             font-weight: 400;
-            font-size: 44px;
-            line-height: 0.95;
-            letter-spacing: -0.02em;
+            font-size: 40px;
+            line-height: 1;
+            letter-spacing: -0.01em;
             margin: 0;
-            position: relative;
-            font-variation-settings: "opsz" 144, "SOFT" 50;
-        }
-
-        .splash h1 .accent {
-            font-style: italic;
-            font-weight: 300;
-            color: var(--accent-aviv);
+            color: #f0ebe2;
         }
 
         .splash .subtitle {
-            font-family: 'Fraunces', serif;
+            font-family: "Noto Serif", Georgia, "Times New Roman", serif;
             font-style: italic;
-            font-weight: 300;
-            font-size: 18px;
-            color: var(--accent-aviv);
+            font-weight: 400;
+            font-size: 19px;
+            color: #5eb8a8;
             margin-top: 2px;
-            letter-spacing: 0.01em;
-            font-variation-settings: "opsz" 144;
-            position: relative;
         }
 
         .splash p {
-            margin: 8px 0 0;
-            font-size: 11px;
-            color: var(--text-secondary);
-            letter-spacing: 0.12em;
-            position: relative;
+            margin: 10px 0 0;
+            font-size: 12px;
+            color: rgba(240, 235, 226, 0.55);
+            letter-spacing: 0.18em;
             text-transform: uppercase;
-            font-weight: 400;
+            font-weight: 500;
         }
 
         /* === APP GRID === */
         .grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 14px;
-            width: 100%;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 12px;
             flex: 1;
             min-height: 0;
-            margin: 14px 0;
+            margin: 12px 0;
         }
 
         .app-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 20px 22px;
+            border-radius: 14px;
+            padding: 18px 22px;
             text-decoration: none;
-            color: var(--text-primary);
+            color: #f5f0e8;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.12s ease, border-color 0.25s ease, background 0.25s ease;
-            cursor: pointer;
+            min-height: 0;
+            transition: transform 0.08s ease;
             user-select: none;
             -webkit-user-select: none;
-            min-height: 0;
-        }
-
-        /* Color glow per card */
-        .app-card::before {
-            content: '';
-            position: absolute;
-            top: -40%;
-            right: -20%;
-            width: 60%;
-            height: 100%;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 60%);
-            opacity: 0.18;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        /* Bottom accent bar */
-        .app-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 26px;
-            right: 26px;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 40%, transparent 100%);
-            opacity: 0.7;
+            border: 1px solid;
         }
 
         .app-card:active {
             transform: scale(0.97);
-            border-color: var(--accent);
-        }
-        .app-card:active::before {
-            opacity: 0.35;
         }
 
         .app-icon {
-            width: 44px;
-            height: 44px;
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.05);
-            color: var(--accent);
-            position: relative;
-            z-index: 1;
+            flex-shrink: 0;
         }
 
         .app-icon svg {
-            width: 24px;
-            height: 24px;
+            width: 30px;
+            height: 30px;
         }
 
         .app-text {
-            position: relative;
-            z-index: 1;
+            margin-top: 8px;
         }
 
         .app-name {
-            font-family: 'Fraunces', serif;
-            font-size: 26px;
+            font-family: "Noto Serif", Georgia, "Times New Roman", serif;
+            font-size: 30px;
             font-weight: 400;
-            letter-spacing: -0.01em;
             line-height: 1;
-            font-variation-settings: "opsz" 144;
         }
 
         .app-tagline {
-            font-size: 11px;
-            color: var(--text-tertiary);
+            font-size: 12px;
             letter-spacing: 0.2em;
             text-transform: uppercase;
-            margin-top: 5px;
+            margin-top: 6px;
             font-weight: 500;
+            opacity: 0.7;
         }
 
-        .card-cognifit { --accent: var(--accent-cognifit); }
-        .card-aviv     { --accent: var(--accent-aviv); }
-        .card-youtube  { --accent: var(--accent-youtube); }
-        .card-radio    { --accent: var(--accent-radio); }
+        /* Solid card colors — each clearly distinct */
+        .card-cognifit {
+            background: #3a2d1a;
+            border-color: #6b5333;
+        }
+        .card-cognifit .app-name { color: #efc790; }
+        .card-cognifit .app-icon { background: #d4a574; color: #2a1f10; }
+
+        .card-aviv {
+            background: #173d36;
+            border-color: #2e6b5f;
+        }
+        .card-aviv .app-name { color: #8fdcca; }
+        .card-aviv .app-icon { background: #5eb8a8; color: #0c1f1c; }
+
+        .card-youtube {
+            background: #3a1f1a;
+            border-color: #6b3329;
+        }
+        .card-youtube .app-name { color: #f29485; }
+        .card-youtube .app-icon { background: #e26a5a; color: #2a120e; }
+
+        .card-radio {
+            background: #38241a;
+            border-color: #6b4329;
+        }
+        .card-radio .app-name { color: #e4a181; }
+        .card-radio .app-icon { background: #c97b5a; color: #2a150e; }
 
         /* === VOLUME === */
         .volume {
-            background: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid var(--border);
-            border-radius: 18px;
+            background: #16223a;
+            border: 1px solid #2c3d5c;
+            border-radius: 14px;
             padding: 10px 14px;
             display: grid;
             grid-template-columns: auto 1fr auto;
             gap: 16px;
             align-items: center;
-            width: 100%;
             flex-shrink: 0;
         }
 
         .vol-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 14px;
-            border: 1px solid var(--border-strong);
-            background: rgba(255,255,255,0.04);
-            color: var(--text-primary);
-            font-size: 28px;
-            font-weight: 300;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            border: 1px solid #3d557a;
+            background: #1d3357;
+            color: #f0ebe2;
+            font-size: 30px;
+            font-weight: 400;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.08s ease, background 0.2s ease, border-color 0.2s ease;
-            font-family: 'Fraunces', serif;
-            line-height: 1;
             padding: 0;
-            user-select: none;
+            line-height: 1;
+            font-family: Roboto, Arial, sans-serif;
             -webkit-user-select: none;
+            user-select: none;
         }
 
         .vol-btn:active {
-            transform: scale(0.92);
-            background: rgba(94, 184, 168, 0.12);
-            border-color: var(--accent-aviv);
+            background: #2a4574;
         }
 
         .vol-display {
             text-align: center;
-            padding: 4px 0;
         }
 
         .vol-label {
             font-size: 10px;
-            letter-spacing: 0.28em;
+            letter-spacing: 0.25em;
             text-transform: uppercase;
-            color: var(--text-tertiary);
-            margin-bottom: 12px;
-            font-weight: 500;
+            color: rgba(240, 235, 226, 0.5);
+            margin-bottom: 8px;
+            font-weight: 600;
         }
 
         .vol-bar {
             display: flex;
             gap: 5px;
             justify-content: center;
-            height: 26px;
+            height: 22px;
             align-items: flex-end;
         }
 
         .vol-segment {
-            width: 7px;
-            background: rgba(255,255,255,0.07);
+            width: 9px;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 2px;
-            transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
         }
 
-        .vol-segment.active {
-            background: var(--accent-aviv);
-            box-shadow: 0 0 6px rgba(94, 184, 168, 0.5);
-        }
-
-        /* Top quarter glows warm */
-        .vol-segment.active.high {
-            background: var(--accent-cognifit);
-            box-shadow: 0 0 8px rgba(212, 165, 116, 0.55);
-        }
+        .vol-segment.active { background: #5eb8a8; }
+        .vol-segment.active.high { background: #d4a574; }
 
         .vol-value {
-            font-family: 'Fraunces', serif;
             font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 10px;
+            color: rgba(240, 235, 226, 0.7);
+            margin-top: 6px;
             font-variant-numeric: tabular-nums;
-            letter-spacing: 0.08em;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 8px;
+            letter-spacing: 0.04em;
         }
 
         .vol-cap-tag {
-            font-family: 'Geist', sans-serif;
-            font-style: normal;
             font-size: 9px;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.18em;
             text-transform: uppercase;
             padding: 3px 7px;
-            border-radius: 4px;
-            background: rgba(212, 165, 116, 0.15);
-            color: var(--accent-cognifit);
-            border: 1px solid rgba(212, 165, 116, 0.35);
-            opacity: 0;
-            transition: opacity 0.25s ease;
+            border-radius: 3px;
+            background: rgba(212, 165, 116, 0.18);
+            color: #d4a574;
+            border: 1px solid rgba(212, 165, 116, 0.4);
+            display: none;
+            font-weight: 600;
         }
 
-        .vol-cap-tag.show {
-            opacity: 1;
-        }
-
+        .vol-cap-tag.show { display: inline-block; }
         .vol-cap-tag.warn {
-            background: rgba(226, 106, 90, 0.15);
-            color: var(--accent-youtube);
-            border-color: rgba(226, 106, 90, 0.4);
-            animation: capFlash 0.4s ease;
-        }
-
-        @keyframes capFlash {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-        }
-
-        /* Press feedback flash */
-        @keyframes flash {
-            0%   { transform: scale(1); }
-            40%  { transform: scale(1.08); }
-            100% { transform: scale(1); }
-        }
-        .vol-segment.flash { animation: flash 0.25s ease; }
-
-        /* === RESPONSIVE === */
-        /* Layout now flexes to fill viewport, so most sizing adapts
-           automatically. These tweaks help on very narrow screens. */
-        @media (max-width: 700px) {
-            .splash h1 { font-size: 36px; }
-            .splash .subtitle { font-size: 16px; }
-            .app-name { font-size: 20px; }
-            .vol-btn { width: 54px; height: 54px; font-size: 24px; }
-        }
-
-        /* Staggered entrance */
-        .splash, .grid > *, .volume {
-            opacity: 0;
-            transform: translateY(8px);
-            animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .splash         { animation-delay: 0.05s; }
-        .grid > :nth-child(1) { animation-delay: 0.18s; }
-        .grid > :nth-child(2) { animation-delay: 0.26s; }
-        .grid > :nth-child(3) { animation-delay: 0.34s; }
-        .grid > :nth-child(4) { animation-delay: 0.42s; }
-        .volume         { animation-delay: 0.52s; }
-
-        @keyframes rise {
-            to { opacity: 1; transform: translateY(0); }
+            background: rgba(226, 106, 90, 0.2);
+            color: #e26a5a;
+            border-color: rgba(226, 106, 90, 0.5);
         }
     </style>
 </head>
 <body>
-    <div class="container">
 
-        <div class="top-bar">
-            <div class="session-tag">
-                <div class="pulse-dot"></div>
-                <div class="session-label">Session · Active</div>
+    <div class="top-bar">
+        <div class="session-tag">
+            <div class="pulse-dot"></div>
+            <div class="session-label">Session · Active</div>
+        </div>
+        <div class="clock">
+            <div class="clock-time" id="clockTime">—:—</div>
+            <div class="clock-date" id="clockDate">—</div>
+        </div>
+    </div>
+
+    <div class="splash">
+        <h1>OxyPeak</h1>
+        <div class="subtitle">Longevity Institute</div>
+        <p>Welcome to your Hyperbaric session</p>
+    </div>
+
+    <div class="grid">
+
+        <a href="https://www.cognifit.com" class="app-card card-cognifit">
+            <div class="app-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="6" y2="12"/>
+                    <line x1="12" y1="5" x2="18" y2="12"/>
+                    <line x1="6" y1="12" x2="12" y2="19"/>
+                    <line x1="18" y1="12" x2="12" y2="19"/>
+                    <line x1="6" y1="12" x2="18" y2="12"/>
+                    <circle cx="12" cy="5" r="2.2" fill="currentColor"/>
+                    <circle cx="6" cy="12" r="2.2" fill="currentColor"/>
+                    <circle cx="18" cy="12" r="2.2" fill="currentColor"/>
+                    <circle cx="12" cy="19" r="2.2" fill="currentColor"/>
+                </svg>
             </div>
-            <div class="clock">
-                <div class="clock-time" id="clockTime">—:—</div>
-                <div class="clock-date" id="clockDate">—</div>
+            <div class="app-text">
+                <div class="app-name">CogniFit</div>
+                <div class="app-tagline">Cognitive Training</div>
             </div>
-        </div>
+        </a>
 
-        <div class="splash">
-            <h1>OxyPeak</h1>
-            <div class="subtitle">Longevity Institute</div>
-            <p>Welcome to your Hyperbaric session</p>
-        </div>
-
-        <div class="grid">
-
-            <a href="https://www.cognifit.com" class="app-card card-cognifit">
-                <div class="app-icon">
-                    <!-- Neural network nodes -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="6" y2="12"/>
-                        <line x1="12" y1="5" x2="18" y2="12"/>
-                        <line x1="6" y1="12" x2="12" y2="19"/>
-                        <line x1="18" y1="12" x2="12" y2="19"/>
-                        <line x1="6" y1="12" x2="18" y2="12"/>
-                        <circle cx="12" cy="5" r="2" fill="currentColor"/>
-                        <circle cx="6" cy="12" r="2" fill="currentColor"/>
-                        <circle cx="18" cy="12" r="2" fill="currentColor"/>
-                        <circle cx="12" cy="19" r="2" fill="currentColor"/>
-                    </svg>
-                </div>
-                <div class="app-text">
-                    <div class="app-name">CogniFit</div>
-                    <div class="app-tagline">Cognitive Training</div>
-                </div>
-            </a>
-
-            <a href="https://aviv-clinics.com" class="app-card card-aviv">
-                <div class="app-icon">
-                    <!-- Oxygen droplet -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/>
-                        <path d="M9 15a3 3 0 0 0 3 3" opacity="0.5"/>
-                    </svg>
-                </div>
-                <div class="app-text">
-                    <div class="app-name">OxyPeak</div>
-                    <div class="app-tagline">Longevity Institute</div>
-                </div>
-            </a>
-
-            <a href="https://www.youtube.com" class="app-card card-youtube">
-                <div class="app-icon">
-                    <!-- Play -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-                        <path d="M8 5.5v13l11-6.5z" fill="currentColor"/>
-                    </svg>
-                </div>
-                <div class="app-text">
-                    <div class="app-name">YouTube</div>
-                    <div class="app-tagline">Videos &amp; Streaming</div>
-                </div>
-            </a>
-
-            <a href="https://www.iheart.com" target="_blank" class="app-card card-radio">
-                <div class="app-icon">
-                    <!-- Broadcast waves -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
-                        <path d="M8.5 8.5a5 5 0 0 0 0 7"/>
-                        <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
-                        <path d="M5.5 5.5a9 9 0 0 0 0 13"/>
-                        <path d="M18.5 5.5a9 9 0 0 1 0 13"/>
-                    </svg>
-                </div>
-                <div class="app-text">
-                    <div class="app-name">Radio</div>
-                    <div class="app-tagline">iHeartRadio</div>
-                </div>
-            </a>
-
-        </div>
-
-        <div class="volume">
-            <button class="vol-btn" onclick="changeVolume(-1)" aria-label="Decrease volume">−</button>
-            <div class="vol-display">
-                <div class="vol-label">Device Volume</div>
-                <div class="vol-bar" id="volBar"></div>
-                <div class="vol-value">
-                    <span id="volValue">— / —</span>
-                    <span class="vol-cap-tag" id="volCapTag">Limit reached</span>
-                </div>
+        <a href="https://aviv-clinics.com" class="app-card card-aviv">
+            <div class="app-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z" fill="currentColor" fill-opacity="0.25"/>
+                    <path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/>
+                </svg>
             </div>
-            <button class="vol-btn" onclick="changeVolume(1)" aria-label="Increase volume">+</button>
-        </div>
+            <div class="app-text">
+                <div class="app-name">OxyPeak</div>
+                <div class="app-tagline">Longevity Institute</div>
+            </div>
+        </a>
+
+        <a href="https://www.youtube.com" class="app-card card-youtube">
+            <div class="app-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5.5v13l11-6.5z"/>
+                </svg>
+            </div>
+            <div class="app-text">
+                <div class="app-name">YouTube</div>
+                <div class="app-tagline">Videos &amp; Streaming</div>
+            </div>
+        </a>
+
+        <a href="https://www.iheart.com" target="_blank" class="app-card card-radio">
+            <div class="app-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="1.8" fill="currentColor"/>
+                    <path d="M8.5 8.5a5 5 0 0 0 0 7"/>
+                    <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+                    <path d="M5.5 5.5a9 9 0 0 0 0 13"/>
+                    <path d="M18.5 5.5a9 9 0 0 1 0 13"/>
+                </svg>
+            </div>
+            <div class="app-text">
+                <div class="app-name">Radio</div>
+                <div class="app-tagline">iHeartRadio</div>
+            </div>
+        </a>
 
     </div>
 
+    <div class="volume">
+        <button class="vol-btn" onclick="changeVolume(-1)" aria-label="Decrease volume">−</button>
+        <div class="vol-display">
+            <div class="vol-label">Device Volume</div>
+            <div class="vol-bar" id="volBar"></div>
+            <div class="vol-value">
+                <span id="volValue">— %</span>
+                <span class="vol-cap-tag" id="volCapTag">Max</span>
+            </div>
+        </div>
+        <button class="vol-btn" onclick="changeVolume(1)" aria-label="Increase volume">+</button>
+    </div>
+
     <script>
-        // ============================================================
-        // VOLUME CONTROL — Fully Kiosk Browser
-        // The Fully Kiosk JS API takes/returns volume as a PERCENT
-        // (0–100), NOT the raw Android stream level (0–15).
-        // Stream type 3 = STREAM_MUSIC (media audio)
-        // ============================================================
+        // VOLUME — Fully Kiosk uses 0–100 percent for stream 3 (music)
         var STREAM = 3;
-        var MAX_VOL = 100;   // percent
-        var STEP = 10;       // 10 distinct volume levels
-        var demoVol = 50;    // fallback when not running in Fully Kiosk
+        var MAX_VOL = 100;
+        var STEP = 10;
+        var demoVol = 50;
 
         function getCurrentVol() {
             if (typeof fully !== 'undefined') {
@@ -616,100 +428,74 @@
 
         function setVol(level) {
             if (typeof fully !== 'undefined') {
-                try {
-                    fully.setAudioVolume(level, STREAM);
-                    return true;
-                } catch (e) {
-                    console.error('setAudioVolume failed:', e);
-                    return false;
-                }
+                try { fully.setAudioVolume(level, STREAM); return true; }
+                catch (e) { return false; }
             }
             demoVol = level;
             return true;
         }
 
         function changeVolume(direction) {
-            // Snap current to nearest step so we always land on clean values,
-            // even if hardware buttons left us at an odd %
             var current = getCurrentVol();
             var snapped = Math.round(current / STEP) * STEP;
-            var attempted = snapped + (direction * STEP);
+            var target = snapped + (direction * STEP);
+            if (target < 0) target = 0;
+            if (target > MAX_VOL) target = MAX_VOL;
 
-            if (attempted < 0) attempted = 0;
-            if (attempted > MAX_VOL) attempted = MAX_VOL;
-
-            setVol(attempted);
-
-            // Re-read so the meter reflects what actually applied
+            setVol(target);
             var after = getCurrentVol();
-            renderVolume(after, MAX_VOL, true);
+            renderVolume(after);
 
-            // If we tried to raise but nothing moved (and there was headroom),
-            // Fully Kiosk's "Limit the Volume Level" setting is capping us.
             var blocked = (direction > 0) && (after === current) && (current < MAX_VOL);
-            updateCapTag(after, MAX_VOL, blocked);
+            updateCapTag(after, blocked);
         }
 
-        function updateCapTag(level, max, justBlocked) {
-            var tag = document.getElementById('volCapTag');
-            if (!tag) return;
-
-            if (justBlocked) {
-                // Pressed + but volume didn't move = Fully Kiosk limit hit
-                tag.textContent = 'Limit reached';
-                tag.classList.add('show', 'warn');
-                clearTimeout(tag._t);
-                tag._t = setTimeout(function () {
-                    tag.classList.remove('warn');
-                }, 600);
-            } else if (level >= max) {
-                tag.textContent = 'Max';
-                tag.classList.add('show');
-                tag.classList.remove('warn');
-            } else {
-                tag.classList.remove('show', 'warn');
-            }
-        }
-
-        function renderVolume(level, max, flash) {
+        // Build segments once, only flip classes after that
+        function buildSegments() {
             var bar = document.getElementById('volBar');
-            var value = document.getElementById('volValue');
-            if (!bar || !value) return;
-
-            // One segment per 10% step → 10 segments total
-            var totalSegments = Math.round(max / STEP);
+            var total = MAX_VOL / STEP;
             bar.innerHTML = '';
-
-            for (var i = 0; i < totalSegments; i++) {
+            for (var i = 0; i < total; i++) {
                 var seg = document.createElement('div');
                 seg.className = 'vol-segment';
-
-                // This segment lights up when level reaches its threshold
-                var threshold = (i + 1) * STEP;
-                if (level >= threshold) {
-                    seg.classList.add('active');
-                    if (i >= Math.floor(totalSegments * 0.75)) {
-                        seg.classList.add('high');
-                    }
-                }
-
-                // Each segment slightly taller than the last
-                seg.style.height = (45 + (i / (totalSegments - 1)) * 55) + '%';
-
-                if (flash) {
-                    seg.style.animationDelay = (i * 18) + 'ms';
-                    seg.classList.add('flash');
-                }
-
+                seg.style.height = (45 + (i / (total - 1)) * 55) + '%';
                 bar.appendChild(seg);
             }
-
-            value.textContent = level + ' %';
         }
 
-        // ============================================================
+        function renderVolume(level) {
+            var bar = document.getElementById('volBar');
+            var val = document.getElementById('volValue');
+            if (!bar || !val) return;
+            var total = MAX_VOL / STEP;
+            if (bar.children.length !== total) buildSegments();
+            for (var i = 0; i < total; i++) {
+                var seg = bar.children[i];
+                var threshold = (i + 1) * STEP;
+                var isActive = level >= threshold;
+                var isHigh = isActive && (i >= Math.floor(total * 0.75));
+                seg.className = 'vol-segment'
+                    + (isActive ? ' active' : '')
+                    + (isHigh ? ' high' : '');
+            }
+            val.textContent = level + ' %';
+        }
+
+        function updateCapTag(level, justBlocked) {
+            var tag = document.getElementById('volCapTag');
+            if (!tag) return;
+            if (justBlocked) {
+                tag.textContent = 'Limit reached';
+                tag.className = 'vol-cap-tag show warn';
+            } else if (level >= MAX_VOL) {
+                tag.textContent = 'Max';
+                tag.className = 'vol-cap-tag show';
+            } else {
+                tag.className = 'vol-cap-tag';
+            }
+        }
+
         // CLOCK
-        // ============================================================
         function updateClock() {
             var now = new Date();
             var h = now.getHours();
@@ -717,37 +503,29 @@
             var ampm = h >= 12 ? 'PM' : 'AM';
             h = h % 12 || 12;
             var mStr = m < 10 ? '0' + m : '' + m;
-
-            var timeEl = document.getElementById('clockTime');
-            var dateEl = document.getElementById('clockDate');
-
-            if (timeEl) timeEl.textContent = h + ':' + mStr + ' ' + ampm;
-
+            var t = document.getElementById('clockTime');
+            var d = document.getElementById('clockDate');
+            if (t) t.textContent = h + ':' + mStr + ' ' + ampm;
             var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
             var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            if (dateEl) {
-                dateEl.textContent = days[now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate();
-            }
+            if (d) d.textContent = days[now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate();
         }
 
-        // ============================================================
         // INIT
-        // ============================================================
         document.addEventListener('DOMContentLoaded', function () {
             updateClock();
-            setInterval(updateClock, 20000);
+            setInterval(updateClock, 30000);
             var v = getCurrentVol();
-            renderVolume(v, MAX_VOL, false);
-            updateCapTag(v, MAX_VOL, false);
+            renderVolume(v);
+            updateCapTag(v, false);
         });
 
-        // Refresh volume display if the user adjusts via hardware keys
-        // (Fully Kiosk doesn't fire a JS event, so re-poll on focus)
         window.addEventListener('focus', function () {
             var v = getCurrentVol();
-            renderVolume(v, MAX_VOL, false);
-            updateCapTag(v, MAX_VOL, false);
+            renderVolume(v);
+            updateCapTag(v, false);
         });
     </script>
+
 </body>
 </html>
