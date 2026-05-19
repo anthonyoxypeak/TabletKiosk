@@ -24,17 +24,22 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        html, body {
+        html {
             margin: 0;
             padding: 0;
-            min-height: 100vh;
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100%;
             background: var(--bg-base);
             color: var(--text-primary);
             font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             -webkit-font-smoothing: antialiased;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
         body {
@@ -44,7 +49,7 @@
                 radial-gradient(ellipse 60% 50% at 0% 90%, rgba(94, 184, 168, 0.07), transparent 65%),
                 var(--bg-base);
             min-height: 100vh;
-            padding: 28px 24px 24px;
+            padding: 20px 24px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -74,8 +79,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             padding: 0 6px;
+            width: 100%;
         }
 
         .session-tag {
@@ -131,13 +137,14 @@
         /* === SPLASH === */
         .splash {
             text-align: center;
-            padding: 44px 24px 40px;
-            margin-bottom: 28px;
+            padding: 28px 24px 26px;
+            margin-bottom: 20px;
             background: linear-gradient(180deg, rgba(94, 184, 168, 0.07) 0%, rgba(94, 184, 168, 0.01) 100%);
             border: 1px solid var(--border);
             border-radius: 24px;
             position: relative;
             overflow: hidden;
+            width: 100%;
         }
 
         .splash::before {
@@ -167,7 +174,7 @@
         .splash h1 {
             font-family: 'Fraunces', serif;
             font-weight: 400;
-            font-size: 64px;
+            font-size: 52px;
             line-height: 0.95;
             letter-spacing: -0.02em;
             margin: 0;
@@ -185,19 +192,19 @@
             font-family: 'Fraunces', serif;
             font-style: italic;
             font-weight: 300;
-            font-size: 24px;
+            font-size: 20px;
             color: var(--accent-aviv);
-            margin-top: 6px;
+            margin-top: 4px;
             letter-spacing: 0.01em;
             font-variation-settings: "opsz" 144;
             position: relative;
         }
 
         .splash p {
-            margin: 16px 0 0;
-            font-size: 15px;
+            margin: 12px 0 0;
+            font-size: 13px;
             color: var(--text-secondary);
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
             position: relative;
             text-transform: uppercase;
             font-weight: 400;
@@ -207,25 +214,28 @@
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-            margin-bottom: 24px;
+            gap: 16px;
+            margin-bottom: 18px;
+            width: 100%;
         }
 
         .app-card {
             background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 26px 26px 24px;
+            padding: 22px 22px 20px;
             text-decoration: none;
             color: var(--text-primary);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 162px;
+            min-height: 132px;
             position: relative;
             overflow: hidden;
             transition: transform 0.12s ease, border-color 0.25s ease, background 0.25s ease;
             cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* Color glow per card */
@@ -263,12 +273,12 @@
         }
 
         .app-icon {
-            width: 52px;
-            height: 52px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 14px;
+            border-radius: 12px;
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.05);
             color: var(--accent);
@@ -277,8 +287,8 @@
         }
 
         .app-icon svg {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
         }
 
         .app-text {
@@ -288,7 +298,7 @@
 
         .app-name {
             font-family: 'Fraunces', serif;
-            font-size: 30px;
+            font-size: 26px;
             font-weight: 400;
             letter-spacing: -0.01em;
             line-height: 1;
@@ -296,11 +306,11 @@
         }
 
         .app-tagline {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-tertiary);
-            letter-spacing: 0.18em;
+            letter-spacing: 0.2em;
             text-transform: uppercase;
-            margin-top: 6px;
+            margin-top: 5px;
             font-weight: 500;
         }
 
@@ -314,21 +324,22 @@
             background: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.01) 100%);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 16px 18px;
+            padding: 14px 16px;
             display: grid;
             grid-template-columns: auto 1fr auto;
-            gap: 18px;
+            gap: 16px;
             align-items: center;
+            width: 100%;
         }
 
         .vol-btn {
-            width: 76px;
-            height: 76px;
+            width: 68px;
+            height: 68px;
             border-radius: 16px;
             border: 1px solid var(--border-strong);
             background: rgba(255,255,255,0.04);
             color: var(--text-primary);
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 300;
             cursor: pointer;
             display: flex;
@@ -338,6 +349,8 @@
             font-family: 'Fraunces', serif;
             line-height: 1;
             padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .vol-btn:active {
@@ -393,6 +406,41 @@
             margin-top: 10px;
             font-variant-numeric: tabular-nums;
             letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .vol-cap-tag {
+            font-family: 'Geist', sans-serif;
+            font-style: normal;
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 3px 7px;
+            border-radius: 4px;
+            background: rgba(212, 165, 116, 0.15);
+            color: var(--accent-cognifit);
+            border: 1px solid rgba(212, 165, 116, 0.35);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .vol-cap-tag.show {
+            opacity: 1;
+        }
+
+        .vol-cap-tag.warn {
+            background: rgba(226, 106, 90, 0.15);
+            color: var(--accent-youtube);
+            border-color: rgba(226, 106, 90, 0.4);
+            animation: capFlash 0.4s ease;
+        }
+
+        @keyframes capFlash {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
         }
 
         /* Press feedback flash */
@@ -405,19 +453,23 @@
 
         /* === RESPONSIVE === */
         @media (max-width: 820px) {
-            .splash h1 { font-size: 52px; }
-            .app-name { font-size: 26px; }
-            .vol-btn { width: 68px; height: 68px; font-size: 32px; }
-            .app-card { min-height: 148px; padding: 22px; }
+            .splash h1 { font-size: 44px; }
+            .app-name { font-size: 22px; }
+            .vol-btn { width: 60px; height: 60px; font-size: 28px; }
         }
 
-        @media (max-height: 720px) {
-            body { padding-top: 16px; }
-            .splash { padding: 28px 24px 24px; margin-bottom: 18px; }
-            .splash h1 { font-size: 48px; }
-            .grid { gap: 14px; margin-bottom: 16px; }
-            .app-card { min-height: 130px; padding: 20px; }
-            .top-bar { margin-bottom: 14px; }
+        @media (max-height: 700px) {
+            body { padding: 14px 20px 14px; }
+            .splash { padding: 20px 20px 18px; margin-bottom: 14px; }
+            .splash h1 { font-size: 40px; }
+            .splash .subtitle { font-size: 17px; }
+            .splash p { margin-top: 8px; font-size: 12px; }
+            .grid { gap: 12px; margin-bottom: 12px; }
+            .app-card { min-height: 110px; padding: 18px; }
+            .app-name { font-size: 22px; }
+            .top-bar { margin-bottom: 10px; }
+            .vol-btn { width: 58px; height: 58px; }
+            .volume { padding: 10px 14px; }
         }
 
         /* Staggered entrance */
@@ -532,7 +584,10 @@
             <div class="vol-display">
                 <div class="vol-label">Device Volume</div>
                 <div class="vol-bar" id="volBar"></div>
-                <div class="vol-value" id="volValue">— / —</div>
+                <div class="vol-value">
+                    <span id="volValue">— / —</span>
+                    <span class="vol-cap-tag" id="volCapTag">Limit reached</span>
+                </div>
             </div>
             <button class="vol-btn" onclick="changeVolume(1)" aria-label="Increase volume">+</button>
         </div>
@@ -542,29 +597,20 @@
     <script>
         // ============================================================
         // VOLUME CONTROL — Fully Kiosk Browser
-        // Stream type 3 = STREAM_MUSIC (Android)
+        // The Fully Kiosk JS API takes/returns volume as a PERCENT
+        // (0–100), NOT the raw Android stream level (0–15).
+        // Stream type 3 = STREAM_MUSIC (media audio)
         // ============================================================
         var STREAM = 3;
-        var demoVol = 8;   // fallback used when not in Fully Kiosk
-        var demoMax = 15;
-
-        function getMaxVol() {
-            if (typeof fully !== 'undefined') {
-                try {
-                    if (typeof fully.getAudioStreamMaxVolume === 'function') {
-                        var m = parseInt(fully.getAudioStreamMaxVolume(STREAM), 10);
-                        if (!isNaN(m) && m > 0) return m;
-                    }
-                } catch (e) {}
-            }
-            return demoMax;
-        }
+        var MAX_VOL = 100;   // percent
+        var STEP = 10;       // 10 distinct volume levels
+        var demoVol = 50;    // fallback when not running in Fully Kiosk
 
         function getCurrentVol() {
             if (typeof fully !== 'undefined') {
                 try {
                     var v = parseInt(fully.getAudioVolume(STREAM), 10);
-                    if (!isNaN(v) && v >= 0) return v;
+                    if (!isNaN(v) && v >= 0 && v <= 100) return v;
                 } catch (e) {}
             }
             return demoVol;
@@ -584,19 +630,47 @@
             return true;
         }
 
-        function changeVolume(change) {
-            var maxVol = getMaxVol();
-            var currentVol = getCurrentVol();
-            var newVol = currentVol + change;
+        function changeVolume(direction) {
+            // Snap current to nearest step so we always land on clean values,
+            // even if hardware buttons left us at an odd %
+            var current = getCurrentVol();
+            var snapped = Math.round(current / STEP) * STEP;
+            var attempted = snapped + (direction * STEP);
 
-            if (newVol < 0) newVol = 0;
-            if (newVol > maxVol) newVol = maxVol;
+            if (attempted < 0) attempted = 0;
+            if (attempted > MAX_VOL) attempted = MAX_VOL;
 
-            setVol(newVol);
+            setVol(attempted);
 
-            // Re-read to confirm what actually got set (defensive)
-            var confirmed = getCurrentVol();
-            renderVolume(confirmed, maxVol, true);
+            // Re-read so the meter reflects what actually applied
+            var after = getCurrentVol();
+            renderVolume(after, MAX_VOL, true);
+
+            // If we tried to raise but nothing moved (and there was headroom),
+            // Fully Kiosk's "Limit the Volume Level" setting is capping us.
+            var blocked = (direction > 0) && (after === current) && (current < MAX_VOL);
+            updateCapTag(after, MAX_VOL, blocked);
+        }
+
+        function updateCapTag(level, max, justBlocked) {
+            var tag = document.getElementById('volCapTag');
+            if (!tag) return;
+
+            if (justBlocked) {
+                // Pressed + but volume didn't move = Fully Kiosk limit hit
+                tag.textContent = 'Limit reached';
+                tag.classList.add('show', 'warn');
+                clearTimeout(tag._t);
+                tag._t = setTimeout(function () {
+                    tag.classList.remove('warn');
+                }, 600);
+            } else if (level >= max) {
+                tag.textContent = 'Max';
+                tag.classList.add('show');
+                tag.classList.remove('warn');
+            } else {
+                tag.classList.remove('show', 'warn');
+            }
         }
 
         function renderVolume(level, max, flash) {
@@ -604,35 +678,35 @@
             var value = document.getElementById('volValue');
             if (!bar || !value) return;
 
-            // One segment per volume step, but cap visual count for layout
-            var visualSegments = Math.min(max, 15);
+            // One segment per 10% step → 10 segments total
+            var totalSegments = Math.round(max / STEP);
             bar.innerHTML = '';
 
-            for (var i = 0; i < visualSegments; i++) {
+            for (var i = 0; i < totalSegments; i++) {
                 var seg = document.createElement('div');
                 seg.className = 'vol-segment';
 
-                // Step threshold this segment represents
-                var threshold = Math.ceil((i + 1) * (max / visualSegments));
+                // This segment lights up when level reaches its threshold
+                var threshold = (i + 1) * STEP;
                 if (level >= threshold) {
                     seg.classList.add('active');
-                    if (i >= Math.floor(visualSegments * 0.75)) {
+                    if (i >= Math.floor(totalSegments * 0.75)) {
                         seg.classList.add('high');
                     }
                 }
 
-                // Each segment taller than the last (visualizes "louder")
-                seg.style.height = (45 + (i / (visualSegments - 1)) * 55) + '%';
+                // Each segment slightly taller than the last
+                seg.style.height = (45 + (i / (totalSegments - 1)) * 55) + '%';
 
                 if (flash) {
-                    seg.style.animationDelay = (i * 12) + 'ms';
+                    seg.style.animationDelay = (i * 18) + 'ms';
                     seg.classList.add('flash');
                 }
 
                 bar.appendChild(seg);
             }
 
-            value.textContent = level + ' / ' + max;
+            value.textContent = level + ' %';
         }
 
         // ============================================================
@@ -664,13 +738,17 @@
         document.addEventListener('DOMContentLoaded', function () {
             updateClock();
             setInterval(updateClock, 20000);
-            renderVolume(getCurrentVol(), getMaxVol(), false);
+            var v = getCurrentVol();
+            renderVolume(v, MAX_VOL, false);
+            updateCapTag(v, MAX_VOL, false);
         });
 
         // Refresh volume display if the user adjusts via hardware keys
-        // (Fully Kiosk doesn't fire a JS event, so re-poll on visibility/focus)
+        // (Fully Kiosk doesn't fire a JS event, so re-poll on focus)
         window.addEventListener('focus', function () {
-            renderVolume(getCurrentVol(), getMaxVol(), false);
+            var v = getCurrentVol();
+            renderVolume(v, MAX_VOL, false);
+            updateCapTag(v, MAX_VOL, false);
         });
     </script>
 </body>
