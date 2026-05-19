@@ -125,17 +125,22 @@
         <button class="vol-btn" onclick="changeVolume(1)">+</button>
     </div>
 
-    <script>
+       <script>
         function changeVolume(change) {
             // Check if page is actually running inside Fully Kiosk
             if (typeof fully !== 'undefined') {
-                // Stream 3 is the native Android Media/Music audio stream
-                var currentVol = fully.getAudioVolume(3);
+                // Get current volume and force it to be an integer
+                var currentVol = parseInt(fully.getAudioVolume(3), 10);
                 var newVol = currentVol + change;
                 
                 // Prevent volume from dropping below 0
                 if (newVol < 0) {
                     newVol = 0;
+                }
+                
+                // Prevent volume from exceeding Android's max media limit (usually 15)
+                if (newVol > 15) {
+                    newVol = 15;
                 }
                 
                 // Set the new volume level
