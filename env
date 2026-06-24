@@ -1,0 +1,6 @@
+# Dr. Chrono OAuth Tokens
+ACCESS_TOKEN=RxjwhGXLwjBYH4cOPhAPNkylLifEjt
+REFRESH_TOKEN=R6EFGEhDcYr5SP3ZCPhCxnxYC53CQh
+
+# Server Port (Azure will set this automatically)
+PORT=3000
