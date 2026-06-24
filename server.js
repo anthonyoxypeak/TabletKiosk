@@ -10,11 +10,11 @@ app.use(express.json());
 // Config
 const DR_CHRONO_API = 'https://app.drchrono.com/api';
 const TOKEN_ENDPOINT = 'https://app.drchrono.com/o/token/';
-const CLIENT_ID = process.env.DRCHRONO_CLIENT_ID || process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.DRCHRONO_CLIENT_SECRET || process.env.CLIENT_SECRET;
+const CLIENT_ID = process.env.DRCHRONO_CLIENT_ID || process.env.CLIENT_ID || process.env.APPSETTING_CLIENT_ID;
+const CLIENT_SECRET = process.env.DRCHRONO_CLIENT_SECRET || process.env.CLIENT_SECRET || process.env.APPSETTING_CLIENT_SECRET;
 
-let accessToken = process.env.DRCHRONO_ACCESS_TOKEN || process.env.ACCESS_TOKEN;
-let refreshToken = process.env.DRCHRONO_REFRESH_TOKEN || process.env.REFRESH_TOKEN;
+let accessToken = process.env.DRCHRONO_ACCESS_TOKEN || process.env.ACCESS_TOKEN || process.env.APPSETTING_ACCESS_TOKEN;
+let refreshToken = process.env.DRCHRONO_REFRESH_TOKEN || process.env.REFRESH_TOKEN || process.env.APPSETTING_REFRESH_TOKEN;
 let tokenExpiry = Date.now() + 172800000; // 2 days
 
 function hasTokenConfig() {
@@ -130,3 +130,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Proxy server running on port ${PORT}`);
 });
+
