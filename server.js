@@ -10,16 +10,25 @@ app.use(express.json());
 // Config
 const DR_CHRONO_API = 'https://app.drchrono.com/api';
 const TOKEN_ENDPOINT = 'https://app.drchrono.com/o/token/';
-const CLIENT_ID = 'FKTFgvWy0Pr41RRHI0Hm9jT9eATKdosujH8LaAMx';
-const CLIENT_SECRET = 'Hmvxiqzf905LkauminzkThl2tlJ7o5diasTnDUfXjWSomsUW69VPQEYR559mVFmLvTZDD7r8zZfZN2LigjA3IoTcSWCMO9wcGvVfXLlIEdisx00ErOgAA5Ek3TYcLtdp';
+const CLIENT_ID = process.env.DRCHRONO_CLIENT_ID || process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.DRCHRONO_CLIENT_SECRET || process.env.CLIENT_SECRET;
 
-let accessToken = process.env.ACCESS_TOKEN || 'RxjwhGXLwjBYH4cOPhAPNkylLifEjt';
-let refreshToken = process.env.REFRESH_TOKEN || 'R6EFGEhDcYr5SP3ZCPhCxnxYC53CQh';
+let accessToken = process.env.DRCHRONO_ACCESS_TOKEN || process.env.ACCESS_TOKEN;
+let refreshToken = process.env.DRCHRONO_REFRESH_TOKEN || process.env.REFRESH_TOKEN;
 let tokenExpiry = Date.now() + 172800000; // 2 days
+
+function hasTokenConfig() {
+    return Boolean(CLIENT_ID && CLIENT_SECRET && accessToken && refreshToken);
+}
 
 // Refresh token before it expires
 async function refreshAccessToken() {
     try {
+        if (!CLIENT_ID || !CLIENT_SECRET || !refreshToken) {
+            console.error('Missing Dr. Chrono OAuth configuration');
+            return false;
+        }
+
         const params = new URLSearchParams();
         params.append('grant_type', 'refresh_token');
         params.append('refresh_token', refreshToken);
@@ -64,6 +73,10 @@ app.get('/health', (req, res) => {
 // Proxy endpoint for appointments
 app.get('/appointments', async (req, res) => {
     try {
+        if (!hasTokenConfig()) {
+            return res.status(500).json({ error: 'Dr. Chrono OAuth environment variables are not configured' });
+        }
+
         // Refresh token if needed
         if (Date.now() > tokenExpiry - 3600000) {
             const refreshed = await refreshAccessToken();
@@ -74,9 +87,14 @@ app.get('/appointments', async (req, res) => {
 
         // Build query string
         const queryParams = new URLSearchParams(req.query);
-        const url = `${DR_CHRONO_API}/appointments/?${queryParams.toString()}`;
+        if (!queryParams.has('date') && !queryParams.has('date_range') && !queryParams.has('since')) {
+            return res.status(400).json({ error: 'Missing required date, date_range, or since query parameter' });
+        }
 
-        console.log(`Proxying: ${url}`);
+        const queryString = queryParams.toString();
+        const url = `${DR_CHRONO_API}/appointments${queryString ? `?${queryString}` : ''}`;
+
+        console.log(`Proxying Dr. Chrono appointments for query: ${queryString}`);
 
         // Fetch from Dr. Chrono
         const response = await fetch(url, {
@@ -87,8 +105,16 @@ app.get('/appointments', async (req, res) => {
         });
 
         if (!response.ok) {
-            console.error(`Dr. Chrono API error: ${response.status}`);
-            return res.status(response.status).json({ error: `Dr. Chrono API error: ${response.status}` });
+            const contentType = response.headers.get('content-type') || '';
+            const body = contentType.includes('application/json')
+                ? await response.json()
+                : await response.text();
+
+            console.error('Dr. Chrono API error:', response.status, body);
+            return res.status(response.status).json({
+                error: `Dr. Chrono API error: ${response.status}`,
+                detail: body
+            });
         }
 
         const data = await response.json();
