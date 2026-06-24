@@ -58,6 +58,15 @@ async function refreshAccessToken() {
     }
 }
 
+async function fetchDrChrono(url) {
+    return fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json'
+        }
+    });
+}
+
 // Check and refresh if needed
 setInterval(async () => {
     if (Date.now() > tokenExpiry - 3600000) { // Refresh 1 hour before expiry
@@ -96,13 +105,14 @@ app.get('/appointments', async (req, res) => {
 
         console.log(`Proxying Dr. Chrono appointments for query: ${queryString}`);
 
-        // Fetch from Dr. Chrono
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Accept': 'application/json'
+        // Fetch from Dr. Chrono. If permissions/tokens changed recently, refresh once and retry.
+        let response = await fetchDrChrono(url);
+        if (response.status === 401 || response.status === 403) {
+            const refreshed = await refreshAccessToken();
+            if (refreshed) {
+                response = await fetchDrChrono(url);
             }
-        });
+        }
 
         if (!response.ok) {
             const contentType = response.headers.get('content-type') || '';
@@ -130,4 +140,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Proxy server running on port ${PORT}`);
 });
-
