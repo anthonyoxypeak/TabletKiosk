@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OxyPeak Seat Display</title>
+    <!-- Google Fonts: Inter for geometric, razor-sharp modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        /* Modern light/dark variables */
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --seat-badge-bg: #e2e8f0;
+            --seat-badge-text: #475569;
+            --divider-color: #f1f5f9;
+            --icon-shadow: rgba(0, 0, 0, 0.02);
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.01), 0 2px 8px rgba(0, 0, 0, 0.008);
+            --card-shadow-hover: 0 8px 24px -6px rgba(0, 0, 0, 0.04), 0 4px 12px -4px rgba(0, 0, 0, 0.02);
+            --btn-active-bg: #f1f5f9;
+            --track-bg: #f1f5f9;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --seat-badge-bg: #1e293b;
+            --seat-badge-text: #94a3b8;
+            --divider-color: #334155;
+            --icon-shadow: rgba(0, 0, 0, 0.2);
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            --card-shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.25);
+            --btn-active-bg: #334155;
+            --track-bg: #334155;
+        }
+
+        /* Smooth iOS style transitions across all layout shifts */
+        body, div, span, a, button, svg {
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            padding: 20px 24px;
+            height: 100vh;
+            justify-content: center;
+            gap: 14px;
+            max-width: 850px; /* Precise iPad Landscape wrapper */
+            margin: 0 auto;
+        }
+
+        /* === TOP HEADER ROW === */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            padding: 0 4px;
+        }
+
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chamber-header-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-color);
+            letter-spacing: -0.015em;
+        }
+
+        .seat-badge {
+            background: var(--seat-badge-bg);
+            color: var(--seat-badge-text);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: -0.01em;
+        }
+
+        .seat-badge strong {
+            color: #10b981; /* Emerald active green */
+            font-weight: 800;
+        }
+
+        .header-right-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Sleek Sun/Moon Theme Toggle Button */
+        .theme-toggle-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-color);
+        }
+
+        .theme-toggle-btn:active {
+            transform: scale(0.92);
+        }
+
+        .theme-toggle-btn svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .session-status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-tertiary);
+            animation: pulse 2.4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.9); }
+        }
+
+        .session-label {
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .clock-display {
+            text-align: right;
+            border-left: 1px solid var(--card-border);
+            padding-left: 12px;
+        }
+
+        .clock-time {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-color);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+        }
+
+        .clock-date {
+            font-size: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 1px;
+        }
+
+
+        /* === SEAT INFO WIDGET CARD (Modern SaaS Dashboard Style) === */
+        .seat-info-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 12px 20px;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+            align-items: center;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            flex-shrink: 0;
+            height: 80px;
+            position: relative;
+        }
+
+        /* Subtle left indicator accent line */
+        .seat-info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: transparent;
+            border-top-left-radius: 16px;
+            border-bottom-left-radius: 16px;
+            transition: background-color 0.2s ease;
+        }
+        .seat-info-card.state-active::before { background: #10b981; }
+        .seat-info-card.state-upcoming::before { background: #3b82f6; }
+        .seat-info-card.state-available::before { background: var(--text-secondary); }
+        .seat-info-card.state-error::before { background: #ef4444; }
+
+        .patient-section {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .info-label {
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 2px;
+        }
+
+        .info-value-large {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-color);
+            line-height: 1.2;
+            letter-spacing: -0.015em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .info-value-med {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .progress-section {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            justify-content: center;
+            gap: 4px;
+            height: 100%;
+            border-left: 1px solid var(--divider-color);
+            padding-left: 20px;
+        }
+
+        .time-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .time-header-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .countdown-display {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #10b981;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .countdown-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--track-bg);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .countdown-progress {
+            height: 100%;
+            background: #10b981;
+            width: 50%;
+            transition: width 0.5s linear;
+        }
+
+        .total-countdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8.5px;
+        }
+
+        .countdown-display-small {
+            font-weight: 700;
+            color: #3b82f6;
+            font-variant-numeric: tabular-nums;
+        }
+
+
+        /* === APPS GRID (Modern Rectangular Card Panels) === */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columns */
+            gap: 12px;
+            flex-shrink: 0;
+            width: 100%;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            aspect-ratio: 1.35 / 1;
+            min-width: 0;
+        }
+
+        /* Hover & Active States */
+        .app-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-secondary);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .app-card:active {
+            transform: scale(0.96);
+            background: var(--btn-active-bg);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .app-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px; /* Elegant squircle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: var(--icon-shadow);
+        }
+
+        .app-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Diagonal External Arrow Indicator */
+        .arrow-icon {
+            width: 13px;
+            height: 13px;
+            color: var(--text-tertiary);
+            opacity: 0;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .app-card:hover .arrow-icon {
+            opacity: 1;
+            transform: translate(1px, -1px);
+        }
+
+        .card-bottom {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .app-category {
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+        }
+
+        .app-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-color);
+            letter-spacing: -0.01em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        /* Premium Tonal Icon Accents */
+        .card-aviv .app-icon { background: #ccfbf1; color: #0f766e; }
+        .card-youtube .app-icon { background: #fee2e2; color: #b91c1c; }
+        .card-radio .app-icon { background: #ffedd5; color: #c2410c; }
+        .card-nytimes .app-icon { background: #f1f5f9; color: #0f172a; }
+        .card-dailysun .app-icon { background: #fef9c3; color: #a16207; }
+        .card-audiobooks .app-icon { background: #dbeafe; color: #1d4ed8; }
+        .card-podcasts .app-icon { background: #f5e0ff; color: #7e22ce; }
+        .card-calm .app-icon { background: #ecfeff; color: #0e7490; }
+        .card-cognifit .app-icon { background: #e0e7ff; color: #4338ca; }
+        .card-brainhq .app-icon { background: #f3e8ff; color: #6b21a8; }
+        .card-gmail .app-icon { background: #fef2f2; color: #b91c1c; }
+
+        /* Dark Theme adjustments for squircle backgrounds (improve tone contrast on dark cards) */
+        [data-theme="dark"] .card-aviv .app-icon { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; }
+        [data-theme="dark"] .card-youtube .app-icon { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+        [data-theme="dark"] .card-radio .app-icon { background: rgba(249, 115, 22, 0.15); color: #ffedd5; }
+        [data-theme="dark"] .card-nytimes .app-icon { background: rgba(255, 255, 255, 0.08); color: #f8fafc; }
+        [data-theme="dark"] .card-dailysun .app-icon { background: rgba(245, 158, 11, 0.15); color: #fde047; }
+        [data-theme="dark"] .card-audiobooks .app-icon { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
+        [data-theme="dark"] .card-podcasts .app-icon { background: rgba(139, 92, 246, 0.15); color: #d8b4fe; }
+        [data-theme="dark"] .card-calm .app-icon { background: rgba(6, 182, 212, 0.15); color: #67e8f9; }
+        [data-theme="dark"] .card-cognifit .app-icon { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+        [data-theme="dark"] .card-brainhq .app-icon { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        [data-theme="dark"] .card-gmail .app-icon { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+
+
+        /* === iOS CONTROL CENTER VOLUME SLIDER (Minimalist flat pill) === */
+        .volume-control-center {
+            flex-shrink: 0;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--card-border);
+            height: 44px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .vol-label-block {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            flex-shrink: 0;
+            width: 80px;
+        }
+
+        .vol-label-title {
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 1px;
+        }
+
+        .vol-label-val {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .vol-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .vol-btn:active {
+            background-color: var(--btn-active-bg);
+        }
+
+        .vol-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .vol-slider-track {
+            flex: 1;
+            height: 6px;
+            background: var(--track-bg);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vol-slider-fill {
+            height: 100%;
+            background: #3b82f6;
+            width: 50%;
+            border-radius: 3px;
+            transition: width 0.1s ease;
+        }
+
+        .vol-value-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-color);
+            min-width: 38px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+        }
+
+        /* Modern thin brand watermark */
+        .brand-watermark {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP HEADER ROW -->
+    <div class="header-row">
+        <div class="location-header">
+            <span id="chamberName" class="chamber-header-name">—</span>
+            <span class="seat-badge">Seat <strong id="seatNumber">—</strong></span>
+        </div>
+        
+        <div class="header-right-group">
+            <!-- Theme Toggle Button -->
+            <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
+                <!-- Sun Icon -->
+                <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <!-- Moon Icon -->
+                <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+
+            <div class="session-status-badge">
+                <div class="pulse-dot" id="statusPulse"></div>
+                <span class="session-label" id="sessionStatus">Checking</span>
+            </div>
+            <div class="clock-display">
+                <div class="clock-time" id="clockTime">—:—</div>
+                <div class="clock-date" id="clockDate">—</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEAT DISPLAY WIDGET -->
+    <div class="seat-info-card" id="seatDisplay">
+        <!-- Patient Block -->
+        <div class="patient-section">
+            <span class="info-label" id="patientLabel">Current Patient</span>
+            <span class="info-value-large" id="patientName">Checking...</span>
+        </div>
+
+        <!-- Session & Progress Block -->
+        <div class="progress-section">
+            <div class="time-header">
+                <div class="time-header-item">
+                    <span class="info-label" id="appointmentLabel">Dive Time</span>
+                    <span class="info-value-med" id="appointmentTime">—:—</span>
+                </div>
+                <div class="time-header-item text-right">
+                    <span class="info-label" id="progressLabel">Remaining</span>
+                    <span class="countdown-display" id="timeRemaining">—:—</span>
+                </div>
+            </div>
+            
+            <div class="countdown-bar">
+                <div class="countdown-progress" id="countdownProgress" style="width: 0%;"></div>
+            </div>
+            
+            <div class="total-countdown-row">
+                <span class="info-label">Total Countdown</span>
+                <span id="countdownDisplay" class="countdown-display-small">—:—</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPS GRID -->
+    <div class="grid">
+        <!-- OxyPeak Portal -->
+        <a href="https://oxypeak.com" target="_blank" class="app-card card-aviv">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z" fill="currentColor" fill-opacity="0.15"/><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Health</span>
+                <span class="app-name">OxyPeak Portal</span>
+            </div>
+        </a>
+
+        <!-- YouTube -->
+        <a href="https://www.youtube.com" target="_blank" class="app-card card-youtube">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5.5v13l11-6.5z"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Video</span>
+                <span class="app-name">YouTube</span>
+            </div>
+        </a>
+
+        <!-- iHeartRadio -->
+        <a href="https://www.iheart.com" target="_blank" class="app-card card-radio">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="1.8" fill="currentColor"/><path d="M8.5 8.5a5 5 0 0 0 0 7"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M5.5 5.5a9 9 0 0 0 0 13"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Music</span>
+                <span class="app-name">iHeartRadio</span>
+            </div>
+        </a>
+
+        <!-- NY Times -->
+        <a href="https://www.nytimes.com" target="_blank" class="app-card card-nytimes">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">News</span>
+                <span class="app-name">NY Times</span>
+            </div>
+        </a>
+
+        <!-- The Daily Sun (Villages Newspaper) -->
+        <a href="https://www.thevillagesdailysun.com" target="_blank" class="app-card card-dailysun">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Local</span>
+                <span class="app-name">Daily Sun</span>
+            </div>
+        </a>
+
+        <!-- Free Audiobooks (LibriVox) -->
+        <a href="https://librivox.org" target="_blank" class="app-card card-audiobooks">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                        <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Books</span>
+                <span class="app-name">Audiobooks</span>
+            </div>
+        </a>
+
+        <!-- Free Podcasts (PlayerFM) -->
+        <a href="https://player.fm" target="_blank" class="app-card card-podcasts">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Audio</span>
+                <span class="app-name">Podcasts</span>
+            </div>
+        </a>
+
+        <!-- Calm -->
+        <a href="https://www.calm.com" target="_blank" class="app-card card-calm">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42 0-.83.07-1.22.2A5 5 0 0 0 5 13c0 .58.11 1.13.31 1.64C3.16 15.27 2 17 2 19a3 3 0 0 0 3 3h12.5a3.5 3.5 0 0 0 0-7z"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Mind</span>
+                <span class="app-name">Calm</span>
+            </div>
+        </a>
+
+        <!-- CogniFit -->
+        <a href="https://www.cognifit.com" target="_blank" class="app-card card-cognifit">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.9 1M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.9 1"/>
+                        <path d="M12 4h5M12 8h6M12 12h5M12 16h6"/>
+                        <path d="M12 4H7M12 8H6M12 12H7M12 16H6"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Brain</span>
+                <span class="app-name">CogniFit</span>
+            </div>
+        </a>
+
+        <!-- BrainHQ -->
+        <a href="https://www.brainhq.com" target="_blank" class="app-card card-brainhq">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Brain</span>
+                <span class="app-name">BrainHQ</span>
+            </div>
+        </a>
+
+        <!-- Gmail -->
+        <a href="https://mail.google.com" target="_blank" class="app-card card-gmail">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Mail</span>
+                <span class="app-name">Gmail</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- iOS CONTROL CENTER VOLUME SLIDER -->
+    <div class="volume-control-center">
+        <div class="vol-label-block">
+            <span class="vol-label-title">Volume</span>
+            <span class="vol-label-val" id="volValue">50 %</span>
+        </div>
+        
+        <button class="vol-btn" onclick="changeVolume(-1)" aria-label="Decrease Volume">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            </svg>
+        </button>
+        
+        <div class="vol-slider-track" id="volBar">
+            <div class="vol-slider-fill" id="volFill" style="width: 50%;"></div>
+        </div>
+        
+        <button class="vol-btn" onclick="changeVolume(1)" aria-label="Increase Volume">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Modern bottom watermark -->
+    <div class="brand-watermark">OxyPeak Longevity Institute</div>
+
+    <script>
+        // ====== CONFIGURATION FROM URL ======
+        // Read from URL: seat.html?chamber=1&seat=3&api=https://your-api&key=optional&showNext=1
+        const urlParams = new URLSearchParams(window.location.search);
+        const CHAMBER_NUMBER = parseInt(urlParams.get('chamber')) || 1;
+        const SEAT_NUMBER = parseInt(urlParams.get('seat')) || 1;
+        const API_KEY = urlParams.get('key') || '';
+        const SHOW_NEXT = ['1', 'true', 'yes'].includes((urlParams.get('showNext') || '').toLowerCase());
+        
+        // ====== API & STATE ======
+        const DEFAULT_REMOTE_API_URL = 'https://oxypeak-to-tablets-grc7htdehuhea4b5.centralus-01.azurewebsites.net';
+        const API_BASE_URL = getApiBaseUrl();
+        const CHAMBER_NAMES = {
+            1: 'HBOT Suite 1',
+            3: 'HBOT Suite 3',
+            4: 'HBOT Suite 4',
+            6: 'HBOT Suite 6'
+        };
+        const DIVE_DURATION_MS = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+
+        // Volume configuration
+        const STREAM = 3;
+        const MAX_VOL = 100;
+        const STEP = 10;
+        let demoVol = 50;
+
+        let currentAppointment = null;
+        let diveStartTime = null;
+        let nextRefreshTimer = null;
+        let countdownTimer = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            // Setup theme first
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeUI(savedTheme);
+
+            setupDisplay();
+            updateClock();
+            setInterval(updateClock, 30000);
+            
+            var v = getCurrentVol();
+            renderVolume(v);
+
+            startUpdateCycle();
+        });
+
+        // Resolve local hostname/API fallback
+        function getApiBaseUrl() {
+            const explicit = urlParams.get('api');
+            if (explicit) return explicit.replace(/\/$/, '');
+
+            if (window.location.protocol === 'file:' || window.location.hostname.endsWith('github.io')) {
+                return DEFAULT_REMOTE_API_URL;
+            }
+
+            return window.location.origin;
+        }
+
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            localStorage.setItem('theme', targetTheme);
+            updateThemeUI(targetTheme);
+        }
+
+        function updateThemeUI(theme) {
+            const sun = document.getElementById('themeIconSun');
+            const moon = document.getElementById('themeIconMoon');
+            if (theme === 'dark') {
+                sun.style.display = 'block';
+                moon.style.display = 'none';
+            } else {
+                sun.style.display = 'none';
+                moon.style.display = 'block';
+            }
+        }
+
+        // Connection status color mapping logic
+        function setStatus(text) {
+            const status = document.getElementById('sessionStatus');
+            const pulse = document.getElementById('statusPulse');
+            if (status) {
+                const cleanText = text.replace(/Session\s*·\s*/i, '');
+                status.textContent = cleanText;
+                
+                if (pulse) {
+                    if (cleanText.toLowerCase() === 'active') {
+                        pulse.style.background = '#10b981'; //emerald
+                    } else if (cleanText.toLowerCase() === 'upcoming') {
+                        pulse.style.background = '#3b82f6'; //blue
+                    } else if (cleanText.toLowerCase() === 'error') {
+                        pulse.style.background = '#ef4444'; //red
+                    } else {
+                        pulse.style.background = '#94a3b8'; //gray
+                    }
+                }
+            }
+        }
+
+        // Handles setup and displays target suite & seat
+        function setupDisplay() {
+            document.getElementById('chamberName').textContent = CHAMBER_NAMES[CHAMBER_NUMBER] || 'Unknown';
+            document.getElementById('seatNumber').textContent = SEAT_NUMBER;
+        }
+
+        function startUpdateCycle() {
+            fetchAndDisplayAppointment();
+            if (!nextRefreshTimer) {
+                nextRefreshTimer = setInterval(fetchAndDisplayAppointment, 30000); // Refresh every 30 seconds
+            }
+            if (!countdownTimer) {
+                countdownTimer = setInterval(updateCountdown, 1000); // Update countdown every second
+            }
+        }
+
+        async function fetchAndDisplayAppointment() {
+            try {
+                setStatus('Checking');
+                const params = new URLSearchParams({
+                    chamber: String(CHAMBER_NUMBER),
+                    seat: String(SEAT_NUMBER)
+                });
+                if (API_KEY) params.set('key', API_KEY);
+
+                const response = await fetch(`${API_BASE_URL}/api/tablet/session?${params.toString()}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        ...(API_KEY ? { 'X-Kiosk-Key': API_KEY } : {})
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                const activeAppointment = data.activeAppointment || data.active_appointment;
+                const nextAppointment = data.nextAppointment || data.next_appointment;
+
+                if (activeAppointment) {
+                    displayAppointment(activeAppointment, true);
+                } else if (SHOW_NEXT && nextAppointment) {
+                    displayAppointment(nextAppointment, false);
+                } else {
+                    showEmpty(nextAppointment);
+                }
+            } catch (error) {
+                console.error('Error fetching appointment:', error);
+                showError(`Error: ${error.message}`);
+            }
+        }
+
+        // Helper to format patient name for privacy (e.g. "Anthony Rubino" -> "Anthony R.")
+        function formatPrivacyName(fullName) {
+            if (!fullName) return '';
+            const parts = fullName.trim().split(/\s+/);
+            if (parts.length < 2) return fullName;
+            const firstName = parts[0];
+            const lastName = parts[parts.length - 1];
+            const lastInitial = lastName.charAt(0).toUpperCase();
+            return `${firstName} ${lastInitial}.`;
+        }
+
+        function displayAppointment(appt, isActive) {
+            const display = document.getElementById('seatDisplay');
+            display.style.opacity = '1';
+            display.className = `seat-info-card ${isActive ? 'state-active' : 'state-upcoming'}`;
+
+            const rawName = appt.patientName || appt.patient_name || '';
+            const patientName = formatPrivacyName(rawName);
+            document.getElementById('patientName').style.opacity = '1';
+            document.getElementById('patientName').style.color = 'var(--text-color)';
+
+            const apptTime = formatTime(appt.startTime || appt.start_time);
+            const startTime = new Date(appt.startTime || appt.start_time);
+            const endTime = new Date(appt.endTime || appt.end_time || startTime.getTime() + DIVE_DURATION_MS);
+            const now = new Date();
+
+            if (isActive) {
+                setStatus('Active');
+                document.getElementById('patientName').textContent = patientName ? `Welcome, ${patientName}` : 'No Current Patient';
+                document.getElementById('patientLabel').textContent = 'Current Patient';
+                document.getElementById('appointmentLabel').textContent = 'Dive Time';
+                document.getElementById('progressLabel').textContent = 'Remaining';
+                document.getElementById('appointmentTime').textContent = apptTime;
+                const remaining = Math.max(0, endTime - now);
+                document.getElementById('timeRemaining').textContent = formatDuration(remaining);
+                diveStartTime = startTime;
+                currentAppointment = {
+                    ...appt,
+                    isActive: true,
+                    startTime: startTime,
+                    endTime: endTime
+                };
+            } else {
+                setStatus('Upcoming');
+                document.getElementById('patientName').textContent = patientName ? `Welcome, ${patientName}` : 'No Current Patient';
+                document.getElementById('patientLabel').textContent = 'Next Patient';
+                document.getElementById('appointmentLabel').textContent = 'Next Session';
+                document.getElementById('progressLabel').textContent = 'Starts In';
+                document.getElementById('appointmentTime').textContent = `Next at ${apptTime}`;
+                const timeUntilStart = Math.max(0, startTime - now);
+                document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
+                diveStartTime = null;
+                currentAppointment = {
+                    ...appt,
+                    isActive: false,
+                    startTime: startTime,
+                    endTime: endTime
+                };
+            }
+
+            updateCountdown();
+        }
+
+        function showEmpty(nextAppointment) {
+            currentAppointment = null;
+            diveStartTime = null;
+            setStatus('Available');
+            document.getElementById('seatDisplay').className = 'seat-info-card state-available';
+            const patientName = document.getElementById('patientName');
+            patientName.textContent = 'No Current Patient';
+            patientName.style.opacity = '0.4';
+            patientName.style.color = 'var(--text-secondary)';
+            
+            document.getElementById('patientLabel').textContent = nextAppointment ? 'No Active Dive' : 'Current Patient';
+            document.getElementById('appointmentLabel').textContent = 'Dive Time';
+            document.getElementById('appointmentTime').textContent = '—:—';
+            document.getElementById('timeRemaining').textContent = '—:—';
+            document.getElementById('progressLabel').textContent = 'Remaining';
+            document.getElementById('countdownDisplay').textContent = '—:—';
+            document.getElementById('countdownProgress').style.width = '0%';
+        }
+
+        // Keep the card layout showing clean "No Current Patient" when there is an API error, putting connection status on top-right badge
+        function showError(message) {
+            currentAppointment = null;
+            diveStartTime = null;
+            setStatus('Error'); // Set top-right connection badge to "Error" (red pulse)
+            
+            document.getElementById('seatDisplay').className = 'seat-info-card state-available';
+            const patientName = document.getElementById('patientName');
+            patientName.textContent = 'No Current Patient';
+            patientName.style.opacity = '0.4';
+            patientName.style.color = 'var(--text-secondary)';
+            
+            document.getElementById('patientLabel').textContent = 'Current Patient';
+            document.getElementById('appointmentLabel').textContent = 'Dive Time';
+            document.getElementById('appointmentTime').textContent = '—:—';
+            document.getElementById('timeRemaining').textContent = '—:—';
+            document.getElementById('progressLabel').textContent = 'Remaining';
+            document.getElementById('countdownDisplay').textContent = '—:—';
+            document.getElementById('countdownProgress').style.width = '0%';
+        }
+
+        function updateCountdown() {
+            if (!currentAppointment) {
+                document.getElementById('countdownDisplay').textContent = '—:—';
+                document.getElementById('countdownProgress').style.width = '0%';
+                return;
+            }
+
+            const now = new Date();
+
+            if (currentAppointment.isActive && diveStartTime && currentAppointment.endTime) {
+                const total = Math.max(1, currentAppointment.endTime - diveStartTime);
+                const remaining = Math.max(0, currentAppointment.endTime - now);
+                
+                document.getElementById('countdownDisplay').textContent = formatDuration(remaining);
+                const progressPercent = Math.min(100, Math.max(0, 100 - (remaining / total) * 100));
+                document.getElementById('countdownProgress').style.width = progressPercent + '%';
+                document.getElementById('timeRemaining').textContent = formatDuration(remaining);
+
+                if (remaining <= 0) {
+                    showEmpty();
+                    fetchAndDisplayAppointment();
+                }
+            } else if (!currentAppointment.isActive && currentAppointment.startTime) {
+                const timeUntilStart = Math.max(0, currentAppointment.startTime - now);
+                
+                document.getElementById('countdownDisplay').textContent = formatDuration(timeUntilStart);
+                
+                const maxWait = 24 * 60 * 60 * 1000;
+                const timeSinceDisplay = maxWait - timeUntilStart;
+                const progressPercent = Math.min(100, (timeSinceDisplay / maxWait) * 100);
+                document.getElementById('countdownProgress').style.width = progressPercent + '%';
+                
+                document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
+
+                if (timeUntilStart <= 0) {
+                    fetchAndDisplayAppointment();
+                }
+            } else {
+                document.getElementById('countdownDisplay').textContent = '—:—';
+                document.getElementById('countdownProgress').style.width = '0%';
+            }
+        }
+
+        // Time formatter
+        function formatTime(isoTime) {
+            if (!isoTime) return '—:—';
+            try {
+                const date = new Date(isoTime);
+                const h = date.getHours();
+                const m = String(date.getMinutes()).padStart(2, '0');
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const displayH = h % 12 || 12;
+                return `${displayH}:${m} ${ampm}`;
+            } catch {
+                return '—:—';
+            }
+        }
+
+        // Duration string parser
+        function formatDuration(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const h = String(hours).padStart(1, '0');
+            const m = String(minutes).padStart(2, '0');
+            const s = String(seconds).padStart(2, '0');
+
+            return `${h}:${m}:${s}`;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const displayH = h % 12 || 12;
+            const mStr = String(m).padStart(2, '0');
+            
+            const clockTime = document.getElementById('clockTime');
+            if (clockTime) clockTime.textContent = `${displayH}:${mStr} ${ampm}`;
+            
+            const clockDate = document.getElementById('clockDate');
+            if (clockDate) {
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                clockDate.textContent = `${days[now.getDay()]} · ${months[now.getMonth()]} ${now.getDate()}`;
+            }
+        }
+
+        // ====== VOLUME CONTROL ======
+        function getCurrentVol() {
+            if (typeof fully !== 'undefined') {
+                try {
+                    var v = parseInt(fully.getAudioVolume(STREAM), 10);
+                    if (!isNaN(v) && v >= 0 && v <= 100) return v;
+                } catch (e) {}
+            }
+            return demoVol;
+        }
+
+        function setVol(level) {
+            if (typeof fully !== 'undefined') {
+                try { fully.setAudioVolume(level, STREAM); return true; }
+                catch (e) { return false; }
+            }
+            demoVol = level;
+            return true;
+        }
+
+        function changeVolume(direction) {
+            var current = getCurrentVol();
+            var snapped = Math.round(current / STEP) * STEP;
+            var target = snapped + (direction * STEP);
+            if (target < 0) target = 0;
+            if (target > MAX_VOL) target = MAX_VOL;
+
+            setVol(target);
+            var after = getCurrentVol();
+            renderVolume(after);
+        }
+
+        function renderVolume(level) {
+            var fill = document.getElementById('volFill');
+            var val = document.getElementById('volValue');
+            if (fill) fill.style.width = level + '%';
+            if (val) val.textContent = level + ' %';
+        }
+    </script>
+</body>
+</html>
