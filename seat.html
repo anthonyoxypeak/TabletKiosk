@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>OxyPeak Seat Display</title>
-    <!-- Google Fonts: Inter for geometric, razor-sharp modern typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -54,8 +53,10 @@
         html, body {
             margin: 0;
             padding: 0;
+            width: 100vw;
             height: 100vh;
             overflow: hidden;
+            position: fixed;
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Inter', -apple-system, sans-serif;
@@ -65,12 +66,12 @@
         body {
             display: flex;
             flex-direction: column;
-            padding: 20px 24px;
+            padding: 16px 20px;
             height: 100vh;
-            justify-content: center;
-            gap: 14px;
-            max-width: 850px; /* Precise iPad Landscape wrapper */
-            margin: 0 auto;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+            margin: 0;
         }
 
         /* === TOP HEADER ROW === */
@@ -80,6 +81,7 @@
             align-items: center;
             flex-shrink: 0;
             padding: 0 4px;
+            height: 36px;
         }
 
         .location-header {
@@ -213,7 +215,7 @@
             border: 1px solid var(--card-border);
             box-shadow: var(--card-shadow);
             flex-shrink: 0;
-            height: 80px;
+            height: 76px;
             position: relative;
         }
 
@@ -335,15 +337,16 @@
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr); /* 4 columns */
-            gap: 12px;
-            flex-shrink: 0;
+            gap: 10px;
+            flex: 1;
             width: 100%;
+            align-content: stretch;
         }
 
         .app-card {
             background: var(--card-bg);
             border-radius: 16px;
-            padding: 14px 16px;
+            padding: 12px 14px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -353,8 +356,8 @@
             color: var(--text-color);
             border: 1px solid var(--card-border);
             box-shadow: var(--card-shadow);
-            aspect-ratio: 1.35 / 1;
             min-width: 0;
+            height: 100%;
         }
 
         /* Hover & Active States */
@@ -377,8 +380,8 @@
         }
 
         .app-icon {
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
             border-radius: 10px; /* Elegant squircle */
             display: flex;
             align-items: center;
@@ -388,8 +391,8 @@
         }
 
         .app-icon svg {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
         }
 
         /* Diagonal External Arrow Indicator */
@@ -565,7 +568,6 @@
 </head>
 <body>
 
-    <!-- TOP HEADER ROW -->
     <div class="header-row">
         <div class="location-header">
             <span id="chamberName" class="chamber-header-name">—</span>
@@ -573,9 +575,7 @@
         </div>
         
         <div class="header-right-group">
-            <!-- Theme Toggle Button -->
             <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
-                <!-- Sun Icon -->
                 <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
                     <circle cx="12" cy="12" r="5"></circle>
                     <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -587,7 +587,6 @@
                     <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
                     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                 </svg>
-                <!-- Moon Icon -->
                 <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
@@ -604,15 +603,12 @@
         </div>
     </div>
 
-    <!-- SEAT DISPLAY WIDGET -->
     <div class="seat-info-card" id="seatDisplay">
-        <!-- Patient Block -->
         <div class="patient-section">
             <span class="info-label" id="patientLabel">Current Patient</span>
             <span class="info-value-large" id="patientName">Checking...</span>
         </div>
 
-        <!-- Session & Progress Block -->
         <div class="progress-section">
             <div class="time-header">
                 <div class="time-header-item">
@@ -636,9 +632,7 @@
         </div>
     </div>
 
-    <!-- APPS GRID -->
     <div class="grid">
-        <!-- OxyPeak Portal -->
         <a href="https://oxypeak.com" target="_blank" class="app-card card-aviv">
             <div class="card-top">
                 <div class="app-icon">
@@ -654,7 +648,6 @@
             </div>
         </a>
 
-        <!-- YouTube -->
         <a href="https://www.youtube.com" target="_blank" class="app-card card-youtube">
             <div class="card-top">
                 <div class="app-icon">
@@ -670,7 +663,6 @@
             </div>
         </a>
 
-        <!-- iHeartRadio -->
         <a href="https://www.iheart.com" target="_blank" class="app-card card-radio">
             <div class="card-top">
                 <div class="app-icon">
@@ -686,7 +678,6 @@
             </div>
         </a>
 
-        <!-- NY Times -->
         <a href="https://www.nytimes.com" target="_blank" class="app-card card-nytimes">
             <div class="card-top">
                 <div class="app-icon">
@@ -703,7 +694,6 @@
             </div>
         </a>
 
-        <!-- The Daily Sun (Villages Newspaper) -->
         <a href="https://www.thevillagesdailysun.com" target="_blank" class="app-card card-dailysun">
             <div class="card-top">
                 <div class="app-icon">
@@ -727,7 +717,6 @@
             </div>
         </a>
 
-        <!-- Free Audiobooks (LibriVox) -->
         <a href="https://librivox.org" target="_blank" class="app-card card-audiobooks">
             <div class="card-top">
                 <div class="app-icon">
@@ -744,7 +733,6 @@
             </div>
         </a>
 
-        <!-- Free Podcasts (PlayerFM) -->
         <a href="https://player.fm" target="_blank" class="app-card card-podcasts">
             <div class="card-top">
                 <div class="app-icon">
@@ -761,7 +749,6 @@
             </div>
         </a>
 
-        <!-- Calm -->
         <a href="https://www.calm.com" target="_blank" class="app-card card-calm">
             <div class="card-top">
                 <div class="app-icon">
@@ -777,7 +764,6 @@
             </div>
         </a>
 
-        <!-- CogniFit -->
         <a href="https://www.cognifit.com" target="_blank" class="app-card card-cognifit">
             <div class="card-top">
                 <div class="app-icon">
@@ -795,7 +781,6 @@
             </div>
         </a>
 
-        <!-- BrainHQ -->
         <a href="https://www.brainhq.com" target="_blank" class="app-card card-brainhq">
             <div class="card-top">
                 <div class="app-icon">
@@ -811,7 +796,6 @@
             </div>
         </a>
 
-        <!-- Gmail -->
         <a href="https://mail.google.com" target="_blank" class="app-card card-gmail">
             <div class="card-top">
                 <div class="app-icon">
@@ -829,7 +813,6 @@
         </a>
     </div>
 
-    <!-- iOS CONTROL CENTER VOLUME SLIDER -->
     <div class="volume-control-center">
         <div class="vol-label-block">
             <span class="vol-label-title">Volume</span>
@@ -854,12 +837,10 @@
         </button>
     </div>
 
-    <!-- Modern bottom watermark -->
     <div class="brand-watermark">OxyPeak Longevity Institute</div>
 
     <script>
         // ====== CONFIGURATION FROM URL ======
-        // Read from URL: seat.html?chamber=1&seat=3&api=https://your-api&key=optional&showNext=1
         const urlParams = new URLSearchParams(window.location.search);
         const CHAMBER_NUMBER = parseInt(urlParams.get('chamber')) || 1;
         const SEAT_NUMBER = parseInt(urlParams.get('seat')) || 1;
@@ -875,9 +856,8 @@
             4: 'HBOT Suite 4',
             6: 'HBOT Suite 6'
         };
-        const DIVE_DURATION_MS = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+        const DIVE_DURATION_MS = 2 * 60 * 60 * 1000;
 
-        // Volume configuration
         const STREAM = 3;
         const MAX_VOL = 100;
         const STEP = 10;
@@ -888,9 +868,7 @@
         let nextRefreshTimer = null;
         let countdownTimer = null;
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', function () {
-            // Setup theme first
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             updateThemeUI(savedTheme);
@@ -905,19 +883,15 @@
             startUpdateCycle();
         });
 
-        // Resolve local hostname/API fallback
         function getApiBaseUrl() {
             const explicit = urlParams.get('api');
             if (explicit) return explicit.replace(/\/$/, '');
-
             if (window.location.protocol === 'file:' || window.location.hostname.endsWith('github.io')) {
                 return DEFAULT_REMOTE_API_URL;
             }
-
             return window.location.origin;
         }
 
-        // Theme Toggle Logic
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -938,7 +912,6 @@
             }
         }
 
-        // Connection status color mapping logic
         function setStatus(text) {
             const status = document.getElementById('sessionStatus');
             const pulse = document.getElementById('statusPulse');
@@ -948,19 +921,18 @@
                 
                 if (pulse) {
                     if (cleanText.toLowerCase() === 'active') {
-                        pulse.style.background = '#10b981'; //emerald
+                        pulse.style.background = '#10b981';
                     } else if (cleanText.toLowerCase() === 'upcoming') {
-                        pulse.style.background = '#3b82f6'; //blue
+                        pulse.style.background = '#3b82f6';
                     } else if (cleanText.toLowerCase() === 'error') {
-                        pulse.style.background = '#ef4444'; //red
+                        pulse.style.background = '#ef4444';
                     } else {
-                        pulse.style.background = '#94a3b8'; //gray
+                        pulse.style.background = '#94a3b8';
                     }
                 }
             }
         }
 
-        // Handles setup and displays target suite & seat
         function setupDisplay() {
             document.getElementById('chamberName').textContent = CHAMBER_NAMES[CHAMBER_NUMBER] || 'Unknown';
             document.getElementById('seatNumber').textContent = SEAT_NUMBER;
@@ -969,10 +941,10 @@
         function startUpdateCycle() {
             fetchAndDisplayAppointment();
             if (!nextRefreshTimer) {
-                nextRefreshTimer = setInterval(fetchAndDisplayAppointment, 30000); // Refresh every 30 seconds
+                nextRefreshTimer = setInterval(fetchAndDisplayAppointment, 30000);
             }
             if (!countdownTimer) {
-                countdownTimer = setInterval(updateCountdown, 1000); // Update countdown every second
+                countdownTimer = setInterval(updateCountdown, 1000);
             }
         }
 
@@ -992,12 +964,9 @@
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`API error: ${response.status}`);
 
                 const data = await response.json();
-
                 const activeAppointment = data.activeAppointment || data.active_appointment;
                 const nextAppointment = data.nextAppointment || data.next_appointment;
 
@@ -1014,15 +983,13 @@
             }
         }
 
-        // Helper to format patient name for privacy (e.g. "Anthony Rubino" -> "Anthony R.")
         function formatPrivacyName(fullName) {
             if (!fullName) return '';
             const parts = fullName.trim().split(/\s+/);
             if (parts.length < 2) return fullName;
             const firstName = parts[0];
             const lastName = parts[parts.length - 1];
-            const lastInitial = lastName.charAt(0).toUpperCase();
-            return `${firstName} ${lastInitial}.`;
+            return `${firstName} ${lastName.charAt(0).toUpperCase()}.`;
         }
 
         function displayAppointment(appt, isActive) {
@@ -1050,12 +1017,7 @@
                 const remaining = Math.max(0, endTime - now);
                 document.getElementById('timeRemaining').textContent = formatDuration(remaining);
                 diveStartTime = startTime;
-                currentAppointment = {
-                    ...appt,
-                    isActive: true,
-                    startTime: startTime,
-                    endTime: endTime
-                };
+                currentAppointment = { ...appt, isActive: true, startTime, endTime };
             } else {
                 setStatus('Upcoming');
                 document.getElementById('patientName').textContent = patientName ? `Welcome, ${patientName}` : 'No Current Patient';
@@ -1066,12 +1028,7 @@
                 const timeUntilStart = Math.max(0, startTime - now);
                 document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
                 diveStartTime = null;
-                currentAppointment = {
-                    ...appt,
-                    isActive: false,
-                    startTime: startTime,
-                    endTime: endTime
-                };
+                currentAppointment = { ...appt, isActive: false, startTime, endTime };
             }
 
             updateCountdown();
@@ -1096,11 +1053,10 @@
             document.getElementById('countdownProgress').style.width = '0%';
         }
 
-        // Keep the card layout showing clean "No Current Patient" when there is an API error, putting connection status on top-right badge
         function showError(message) {
             currentAppointment = null;
             diveStartTime = null;
-            setStatus('Error'); // Set top-right connection badge to "Error" (red pulse)
+            setStatus('Error');
             
             document.getElementById('seatDisplay').className = 'seat-info-card state-available';
             const patientName = document.getElementById('patientName');
@@ -1141,26 +1097,18 @@
                 }
             } else if (!currentAppointment.isActive && currentAppointment.startTime) {
                 const timeUntilStart = Math.max(0, currentAppointment.startTime - now);
-                
                 document.getElementById('countdownDisplay').textContent = formatDuration(timeUntilStart);
                 
                 const maxWait = 24 * 60 * 60 * 1000;
                 const timeSinceDisplay = maxWait - timeUntilStart;
                 const progressPercent = Math.min(100, (timeSinceDisplay / maxWait) * 100);
                 document.getElementById('countdownProgress').style.width = progressPercent + '%';
-                
                 document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
 
-                if (timeUntilStart <= 0) {
-                    fetchAndDisplayAppointment();
-                }
-            } else {
-                document.getElementById('countdownDisplay').textContent = '—:—';
-                document.getElementById('countdownProgress').style.width = '0%';
+                if (timeUntilStart <= 0) fetchAndDisplayAppointment();
             }
         }
 
-        // Time formatter
         function formatTime(isoTime) {
             if (!isoTime) return '—:—';
             try {
@@ -1175,18 +1123,12 @@
             }
         }
 
-        // Duration string parser
         function formatDuration(ms) {
             const totalSeconds = Math.floor(ms / 1000);
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = totalSeconds % 60;
-
-            const h = String(hours).padStart(1, '0');
-            const m = String(minutes).padStart(2, '0');
-            const s = String(seconds).padStart(2, '0');
-
-            return `${h}:${m}:${s}`;
+            return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
         function updateClock() {
@@ -1195,10 +1137,9 @@
             const m = now.getMinutes();
             const ampm = h >= 12 ? 'PM' : 'AM';
             const displayH = h % 12 || 12;
-            const mStr = String(m).padStart(2, '0');
             
             const clockTime = document.getElementById('clockTime');
-            if (clockTime) clockTime.textContent = `${displayH}:${mStr} ${ampm}`;
+            if (clockTime) clockTime.textContent = `${displayH}:${String(m).padStart(2, '0')} ${ampm}`;
             
             const clockDate = document.getElementById('clockDate');
             if (clockDate) {
@@ -1208,7 +1149,6 @@
             }
         }
 
-        // ====== VOLUME CONTROL ======
         function getCurrentVol() {
             if (typeof fully !== 'undefined') {
                 try {
@@ -1236,8 +1176,7 @@
             if (target > MAX_VOL) target = MAX_VOL;
 
             setVol(target);
-            var after = getCurrentVol();
-            renderVolume(after);
+            renderVolume(getCurrentVol());
         }
 
         function renderVolume(level) {
