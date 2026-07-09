@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxyPeak Screensaver</title>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        video {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+    <video id="screensaverVideo" src="./idle.mp4" autoplay muted loop playsinline preload="auto"></video>
+    <script>
+        const video = document.getElementById('screensaverVideo');
+        video.addEventListener('ended', () => {
+            video.currentTime = 0;
+            video.play().catch(() => {});
+        });
+        video.play().catch(() => {});
+    </script>
+</body>
+</html>
