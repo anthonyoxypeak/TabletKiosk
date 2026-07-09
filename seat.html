@@ -448,6 +448,7 @@
         .card-cognifit .app-icon { background: #e0e7ff; color: #4338ca; }
         .card-brainhq .app-icon { background: #f3e8ff; color: #6b21a8; }
         .card-gmail .app-icon { background: #fef2f2; color: #b91c1c; }
+        .card-myoxypeak .app-icon { background: #dcfce7; color: #15803d; }
 
         /* Dark Theme adjustments for squircle backgrounds (improve tone contrast on dark cards) */
         [data-theme="dark"] .card-aviv .app-icon { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; }
@@ -461,6 +462,7 @@
         [data-theme="dark"] .card-cognifit .app-icon { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
         [data-theme="dark"] .card-brainhq .app-icon { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
         [data-theme="dark"] .card-gmail .app-icon { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+        [data-theme="dark"] .card-myoxypeak .app-icon { background: rgba(34, 197, 94, 0.15); color: #86efac; }
 
 
         /* === iOS CONTROL CENTER VOLUME SLIDER (Minimalist flat pill) === */
@@ -564,9 +566,132 @@
             color: var(--text-tertiary);
             pointer-events: none;
         }
+
+        .patient-start-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(94, 184, 168, 0.24), transparent 34%),
+                linear-gradient(135deg, rgba(248, 250, 252, 0.98), rgba(236, 253, 245, 0.98));
+            color: #0f172a;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.01);
+            transition: opacity 0.28s ease, transform 0.28s ease;
+        }
+
+        [data-theme="dark"] .patient-start-overlay {
+            background:
+                radial-gradient(circle at 20% 20%, rgba(45, 212, 191, 0.22), transparent 34%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(19, 78, 74, 0.96));
+            color: #f8fafc;
+        }
+
+        .patient-start-overlay.is-visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .patient-start-watermark {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(96px, 18vw, 260px);
+            font-weight: 800;
+            letter-spacing: -0.08em;
+            color: rgba(15, 23, 42, 0.055);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        [data-theme="dark"] .patient-start-watermark {
+            color: rgba(248, 250, 252, 0.07);
+        }
+
+        .patient-start-content {
+            position: relative;
+            z-index: 1;
+            width: min(920px, 92vw);
+            text-align: center;
+            padding: 54px 24px;
+        }
+
+        .patient-start-eyebrow {
+            display: block;
+            font-size: clamp(16px, 2.2vw, 26px);
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #0f766e;
+            margin-bottom: 18px;
+        }
+
+        [data-theme="dark"] .patient-start-eyebrow {
+            color: #5eead4;
+        }
+
+        .patient-start-name {
+            display: block;
+            font-size: clamp(64px, 12vw, 168px);
+            font-weight: 800;
+            letter-spacing: -0.07em;
+            line-height: 0.92;
+            color: inherit;
+            text-wrap: balance;
+        }
+
+        .patient-start-subtitle {
+            display: block;
+            margin-top: 24px;
+            font-size: clamp(18px, 2.4vw, 32px);
+            font-weight: 700;
+            color: rgba(15, 23, 42, 0.72);
+        }
+
+        [data-theme="dark"] .patient-start-subtitle {
+            color: rgba(248, 250, 252, 0.74);
+        }
+
+        .patient-start-button {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            z-index: 2;
+            border: 0;
+            border-radius: 999px;
+            background: #0f766e;
+            color: #ffffff;
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            box-shadow: 0 14px 32px rgba(15, 118, 110, 0.22);
+            cursor: pointer;
+        }
+
+        .patient-start-button:active {
+            transform: scale(0.96);
+        }
     </style>
 </head>
 <body>
+
+    <div id="patientStartOverlay" class="patient-start-overlay" aria-hidden="true">
+        <button class="patient-start-button" type="button" onclick="startPatientSession(event)">Tap here to start</button>
+        <div class="patient-start-watermark">OxyPeak</div>
+        <div class="patient-start-content">
+            <span class="patient-start-eyebrow">Welcome</span>
+            <span class="patient-start-name" id="patientStartName">Patient</span>
+            <span class="patient-start-subtitle" id="patientStartSubtitle">Your chamber is getting ready</span>
+        </div>
+    </div>
 
     <div class="header-row">
         <div class="location-header">
@@ -811,6 +936,23 @@
                 <span class="app-name">Gmail</span>
             </div>
         </a>
+
+        <a href="https://my.oxypeak.com" target="_blank" class="app-card card-myoxypeak">
+            <div class="card-top">
+                <div class="app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5V8.8L12 3l8 5.8v10.7"/>
+                        <path d="M9 21v-7h6v7"/>
+                        <path d="M8.5 10.5h7"/>
+                    </svg>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </div>
+            <div class="card-bottom">
+                <span class="app-category">Portal</span>
+                <span class="app-name">My OxyPeak</span>
+            </div>
+        </a>
     </div>
 
     <div class="volume-control-center">
@@ -869,6 +1011,8 @@
         let preDiveDisplayMs = DEFAULT_PRE_DIVE_DISPLAY_MS;
         let nextRefreshTimer = null;
         let countdownTimer = null;
+        const WELCOME_ACK_STORAGE_KEY = `oxypeak-started-session:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
+        let acknowledgedWelcomeSessionKey = sessionStorage.getItem(WELCOME_ACK_STORAGE_KEY) || '';
 
         document.addEventListener('DOMContentLoaded', function () {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -999,6 +1143,60 @@
             return `${firstName} ${lastName.charAt(0).toUpperCase()}.`;
         }
 
+        function getAppointmentSessionKey(appt = currentAppointment) {
+            if (!appt) return '';
+            const id = appt.id || appt.session_id || '';
+            const start = appt.startTime instanceof Date
+                ? appt.startTime.toISOString()
+                : String(appt.startTime || appt.start_time || '');
+            return `${id || start}:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
+        }
+
+        function startPatientSession(event) {
+            if (event) event.stopPropagation();
+            const key = getAppointmentSessionKey();
+            if (key) {
+                acknowledgedWelcomeSessionKey = key;
+                sessionStorage.setItem(WELCOME_ACK_STORAGE_KEY, key);
+            }
+            hidePatientStartOverlay();
+        }
+
+        function hidePatientStartOverlay() {
+            const overlay = document.getElementById('patientStartOverlay');
+            if (!overlay) return;
+            overlay.classList.remove('is-visible');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+
+        function updatePatientStartOverlay(now = new Date()) {
+            const overlay = document.getElementById('patientStartOverlay');
+            if (!overlay) return;
+
+            if (!currentAppointment || !currentAppointment.isActive || !currentAppointment.endTime || now >= currentAppointment.endTime) {
+                hidePatientStartOverlay();
+                return;
+            }
+
+            const key = getAppointmentSessionKey();
+            if (!key || acknowledgedWelcomeSessionKey === key) {
+                hidePatientStartOverlay();
+                return;
+            }
+
+            const rawName = currentAppointment.patientName || currentAppointment.patient_name || '';
+            const patientName = formatPrivacyName(rawName) || 'Patient';
+            const startsIn = Math.max(0, currentAppointment.startTime - now);
+            const subtitle = now < currentAppointment.startTime
+                ? `Starts in ${formatDuration(startsIn)}`
+                : 'Dive in progress';
+
+            document.getElementById('patientStartName').textContent = patientName;
+            document.getElementById('patientStartSubtitle').textContent = subtitle;
+            overlay.classList.add('is-visible');
+            overlay.setAttribute('aria-hidden', 'false');
+        }
+
         function displayAppointment(appt, isActive) {
             const display = document.getElementById('seatDisplay');
             display.style.opacity = '1';
@@ -1034,12 +1232,14 @@
                 currentAppointment = { ...appt, isActive: false, startTime, endTime };
             }
 
+            updatePatientStartOverlay(now);
             updateCountdown();
         }
 
         function showEmpty(nextAppointment) {
             currentAppointment = null;
             diveStartTime = null;
+            hidePatientStartOverlay();
             setStatus('Available');
             document.getElementById('seatDisplay').className = 'seat-info-card state-available';
             const patientName = document.getElementById('patientName');
@@ -1059,6 +1259,7 @@
         function showError(message) {
             currentAppointment = null;
             diveStartTime = null;
+            hidePatientStartOverlay();
             setStatus('Error');
             
             document.getElementById('seatDisplay').className = 'seat-info-card state-available';
@@ -1103,6 +1304,7 @@
                         : 100;
                     document.getElementById('countdownProgress').style.width = progressPercent + '%';
 
+                    updatePatientStartOverlay(now);
                     if (timeUntilStart <= 0) fetchAndDisplayAppointment();
                     return;
                 }
@@ -1119,6 +1321,7 @@
                 const progressPercent = Math.min(100, Math.max(0, 100 - (remaining / total) * 100));
                 document.getElementById('countdownProgress').style.width = progressPercent + '%';
                 document.getElementById('timeRemaining').textContent = formatDuration(remaining);
+                updatePatientStartOverlay(now);
 
                 if (remaining <= 0) {
                     showEmpty();
@@ -1133,6 +1336,7 @@
                 const progressPercent = Math.min(100, (timeSinceDisplay / maxWait) * 100);
                 document.getElementById('countdownProgress').style.width = progressPercent + '%';
                 document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
+                updatePatientStartOverlay(now);
 
                 if (timeUntilStart <= 0) fetchAndDisplayAppointment();
             }
