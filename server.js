@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const {
     DEFAULT_DIVE_DURATION_MINUTES,
+    DEFAULT_PRE_DIVE_DISPLAY_MINUTES,
     DEFAULT_TIME_ZONE,
     buildTabletSessionResponse,
     getLocationFromQuery
@@ -19,6 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const TIME_ZONE = process.env.KIOSK_TIME_ZONE || DEFAULT_TIME_ZONE;
 const DIVE_DURATION_MINUTES = Number(process.env.KIOSK_DIVE_DURATION_MINUTES || DEFAULT_DIVE_DURATION_MINUTES);
+const PRE_DIVE_DISPLAY_MINUTES = Number(process.env.KIOSK_PRE_DIVE_DISPLAY_MINUTES || DEFAULT_PRE_DIVE_DISPLAY_MINUTES);
 const API_KEY = process.env.KIOSK_API_KEY || '';
 const DEMO_MODE = process.env.KIOSK_DEMO_MODE === 'true';
 
@@ -109,6 +111,7 @@ app.get(['/api/tablet/session', '/api/seat-session'], requireKioskApiKey, async 
             chamberName: location.chamberName,
             seatNumber: location.seatNumber,
             diveDurationMinutes: DIVE_DURATION_MINUTES,
+            preDiveDisplayMinutes: PRE_DIVE_DISPLAY_MINUTES,
             timeZone: TIME_ZONE,
             now: now.toJSDate()
         });

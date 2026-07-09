@@ -27,4 +27,4 @@ Main endpoint:
 GET /api/tablet/session?chamber=1&seat=1
 ```
 
-The tablet only shows a patient while their dive is active. Add `showNext=1` to the tablet URL only if you explicitly want upcoming patients shown before the active window starts.
+The tablet shows a patient starting 15 minutes before the scheduled dive, keeps them visible through the 2-hour dive window, then returns to `Available` at the scheduled end. Add `showNext=1` to the tablet URL only if you explicitly want later upcoming patients shown before their privacy window starts.

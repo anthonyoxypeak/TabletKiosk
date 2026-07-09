@@ -47,7 +47,33 @@ test('returns an active appointment during the two-hour dive window', () => {
     assert.equal(payload.nextAppointment, null);
 });
 
-test('hides patient from active slot when the dive is not active', () => {
+test('returns an active appointment during the pre-dive display window', () => {
+    const payload = buildTabletSessionResponse([
+        {
+            session_id: 303,
+            first_name: 'Jane',
+            last_name: 'Smith',
+            status: 'scheduled',
+            chamber_name: 'HBOT 1',
+            seat_number: 3,
+            session_date: '2026-07-06',
+            start_time: '08:00:00',
+            duration_minutes: 120
+        }
+    ], {
+        chamberName: 'HBOT 1',
+        seatNumber: 3,
+        timeZone: 'America/New_York',
+        now: new Date('2026-07-06T07:45:00-04:00')
+    });
+
+    assert.equal(payload.state, 'active');
+    assert.equal(payload.activeAppointment.patientName, 'Jane S.');
+    assert.equal(payload.nextAppointment, null);
+    assert.equal(payload.preDiveDisplayMinutes, 15);
+});
+
+test('hides patient before the pre-dive display window starts', () => {
     const payload = buildTabletSessionResponse([
         {
             session_id: 202,
@@ -64,10 +90,35 @@ test('hides patient from active slot when the dive is not active', () => {
         chamberName: 'HBOT 4',
         seatNumber: 9,
         timeZone: 'America/New_York',
-        now: new Date('2026-07-06T13:00:00-04:00')
+        now: new Date('2026-07-06T15:14:59-04:00')
     });
 
     assert.equal(payload.state, 'available');
     assert.equal(payload.activeAppointment, null);
     assert.equal(payload.nextAppointment.patientName, 'Future P.');
+});
+
+test('hides patient exactly when the scheduled dive window ends', () => {
+    const payload = buildTabletSessionResponse([
+        {
+            session_id: 404,
+            first_name: 'Done',
+            last_name: 'Patient',
+            status: 'scheduled',
+            chamber_name: 'HBOT 1',
+            seat_number: 3,
+            session_date: '2026-07-06',
+            start_time: '08:00:00',
+            duration_minutes: 120
+        }
+    ], {
+        chamberName: 'HBOT 1',
+        seatNumber: 3,
+        timeZone: 'America/New_York',
+        now: new Date('2026-07-06T10:00:00-04:00')
+    });
+
+    assert.equal(payload.state, 'available');
+    assert.equal(payload.activeAppointment, null);
+    assert.equal(payload.nextAppointment, null);
 });

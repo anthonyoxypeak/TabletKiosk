@@ -2,6 +2,7 @@ const { DateTime } = require('luxon');
 
 const DEFAULT_TIME_ZONE = 'America/New_York';
 const DEFAULT_DIVE_DURATION_MINUTES = 120;
+const DEFAULT_PRE_DIVE_DISPLAY_MINUTES = 15;
 const DEFAULT_CHAMBER_PREFIX = 'HBOT';
 
 const ACTIVE_STATUSES = new Set(['scheduled', 'active', 'in_progress']);
@@ -163,6 +164,9 @@ function serializeAppointment(session) {
 
 function buildTabletSessionResponse(rows, options = {}) {
     const timeZone = options.timeZone || DEFAULT_TIME_ZONE;
+    const preDiveDisplayMinutes = Number(
+        options.preDiveDisplayMinutes ?? DEFAULT_PRE_DIVE_DISPLAY_MINUTES
+    );
     const now = options.now
         ? DateTime.fromJSDate(options.now instanceof Date ? options.now : new Date(options.now)).setZone(timeZone)
         : DateTime.now().setZone(timeZone);
@@ -173,8 +177,11 @@ function buildTabletSessionResponse(rows, options = {}) {
         .filter(session => ACTIVE_STATUSES.has(session.status))
         .sort((a, b) => a.start.toMillis() - b.start.toMillis());
 
-    const active = sessions.find(session => now >= session.start && now < session.end) || null;
-    const next = sessions.find(session => session.start > now) || null;
+    const active = sessions.find(session => {
+        const displayStart = session.start.minus({ minutes: preDiveDisplayMinutes });
+        return now >= displayStart && now < session.end;
+    }) || null;
+    const next = sessions.find(session => session !== active && session.start > now) || null;
     const state = active ? 'active' : 'available';
 
     const activeAppointment = serializeAppointment(active);
@@ -189,6 +196,8 @@ function buildTabletSessionResponse(rows, options = {}) {
         chamberNumber: chamberNumberFromName(options.chamberName),
         seat: options.seatNumber,
         seatNumber: options.seatNumber,
+        preDiveDisplayMinutes,
+        pre_dive_display_minutes: preDiveDisplayMinutes,
         activeAppointment,
         active_appointment: activeAppointment,
         nextAppointment,
@@ -198,6 +207,7 @@ function buildTabletSessionResponse(rows, options = {}) {
 
 module.exports = {
     DEFAULT_DIVE_DURATION_MINUTES,
+    DEFAULT_PRE_DIVE_DISPLAY_MINUTES,
     DEFAULT_TIME_ZONE,
     buildTabletSessionResponse,
     chamberNumberFromName,

@@ -7,6 +7,7 @@ Set these on the Azure Web App that serves the kiosk, currently `oxypeak-to-tabl
 ```text
 KIOSK_TIME_ZONE=America/New_York
 KIOSK_DIVE_DURATION_MINUTES=120
+KIOSK_PRE_DIVE_DISPLAY_MINUTES=15
 KIOSK_CHAMBER_PREFIX=HBOT
 KIOSK_API_KEY=<long random value>
 KIOSK_ALLOWED_ORIGINS=https://oxypeak-to-tablets-grc7htdehuhea4b5.centralus-01.azurewebsites.net,https://anthonyoxypeak.github.io
@@ -53,6 +54,7 @@ az webapp config appsettings set \
   --settings \
     KIOSK_TIME_ZONE=America/New_York \
     KIOSK_DIVE_DURATION_MINUTES=120 \
+    KIOSK_PRE_DIVE_DISPLAY_MINUTES=15 \
     KIOSK_CHAMBER_PREFIX=HBOT \
     KIOSK_API_KEY="<long random value>" \
     KIOSK_ALLOWED_ORIGINS="https://oxypeak-to-tablets-grc7htdehuhea4b5.centralus-01.azurewebsites.net,https://anthonyoxypeak.github.io" \

@@ -22,7 +22,7 @@ Optional "show next patient" mode:
 https://YOUR-KIOSK-APP/seat.html?chamber=1&seat=3&showNext=1
 ```
 
-Default behavior is privacy-first: the tablet shows the patient only while the dive is active. Outside the active two-hour window it shows `Available`.
+Default behavior is privacy-first: the tablet shows the patient starting 15 minutes before the scheduled dive, keeps them visible through the 2-hour dive window, then returns to `Available` at the scheduled end.
 
 ## API Endpoint
 
@@ -37,6 +37,7 @@ Response shape:
   "state": "active",
   "chamberName": "HBOT 1",
   "seatNumber": 3,
+  "preDiveDisplayMinutes": 15,
   "activeAppointment": {
     "patientName": "Jane S.",
     "startTime": "2026-07-06T08:00:00.000-04:00",
@@ -54,6 +55,7 @@ Set these in the kiosk App Service:
 ```text
 KIOSK_TIME_ZONE=America/New_York
 KIOSK_DIVE_DURATION_MINUTES=120
+KIOSK_PRE_DIVE_DISPLAY_MINUTES=15
 KIOSK_CHAMBER_PREFIX=HBOT
 KIOSK_API_KEY=long-random-value
 KIOSK_ALLOWED_ORIGINS=https://anthonyoxypeak.github.io,https://YOUR-KIOSK-APP.azurewebsites.net

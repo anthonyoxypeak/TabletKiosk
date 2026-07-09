@@ -857,6 +857,7 @@
             6: 'HBOT Suite 6'
         };
         const DIVE_DURATION_MS = 2 * 60 * 60 * 1000;
+        const DEFAULT_PRE_DIVE_DISPLAY_MS = 15 * 60 * 1000;
 
         const STREAM = 3;
         const MAX_VOL = 100;
@@ -865,6 +866,7 @@
 
         let currentAppointment = null;
         let diveStartTime = null;
+        let preDiveDisplayMs = DEFAULT_PRE_DIVE_DISPLAY_MS;
         let nextRefreshTimer = null;
         let countdownTimer = null;
 
@@ -922,7 +924,7 @@
                 if (pulse) {
                     if (cleanText.toLowerCase() === 'active') {
                         pulse.style.background = '#10b981';
-                    } else if (cleanText.toLowerCase() === 'upcoming') {
+                    } else if (cleanText.toLowerCase() === 'upcoming' || cleanText.toLowerCase() === 'starting soon') {
                         pulse.style.background = '#3b82f6';
                     } else if (cleanText.toLowerCase() === 'error') {
                         pulse.style.background = '#ef4444';
@@ -967,6 +969,11 @@
                 if (!response.ok) throw new Error(`API error: ${response.status}`);
 
                 const data = await response.json();
+                const preDiveMinutes = Number(data.preDiveDisplayMinutes || data.pre_dive_display_minutes);
+                if (Number.isFinite(preDiveMinutes) && preDiveMinutes >= 0) {
+                    preDiveDisplayMs = preDiveMinutes * 60 * 1000;
+                }
+
                 const activeAppointment = data.activeAppointment || data.active_appointment;
                 const nextAppointment = data.nextAppointment || data.next_appointment;
 
@@ -1008,14 +1015,10 @@
             const now = new Date();
 
             if (isActive) {
-                setStatus('Active');
                 document.getElementById('patientName').textContent = patientName ? `Welcome, ${patientName}` : 'No Current Patient';
                 document.getElementById('patientLabel').textContent = 'Current Patient';
                 document.getElementById('appointmentLabel').textContent = 'Dive Time';
-                document.getElementById('progressLabel').textContent = 'Remaining';
                 document.getElementById('appointmentTime').textContent = apptTime;
-                const remaining = Math.max(0, endTime - now);
-                document.getElementById('timeRemaining').textContent = formatDuration(remaining);
                 diveStartTime = startTime;
                 currentAppointment = { ...appt, isActive: true, startTime, endTime };
             } else {
@@ -1083,7 +1086,33 @@
             const now = new Date();
 
             if (currentAppointment.isActive && diveStartTime && currentAppointment.endTime) {
-                const total = Math.max(1, currentAppointment.endTime - diveStartTime);
+                const hasStarted = now >= currentAppointment.startTime;
+                if (!hasStarted) {
+                    setStatus('Starting Soon');
+                    document.getElementById('patientLabel').textContent = 'Current Patient';
+                    document.getElementById('appointmentLabel').textContent = 'Dive Time';
+                    document.getElementById('progressLabel').textContent = 'Starts In';
+
+                    const timeUntilStart = Math.max(0, currentAppointment.startTime - now);
+                    document.getElementById('countdownDisplay').textContent = formatDuration(timeUntilStart);
+                    document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
+
+                    const elapsedPreDive = Math.max(0, preDiveDisplayMs - timeUntilStart);
+                    const progressPercent = preDiveDisplayMs > 0
+                        ? Math.min(100, Math.max(0, (elapsedPreDive / preDiveDisplayMs) * 100))
+                        : 100;
+                    document.getElementById('countdownProgress').style.width = progressPercent + '%';
+
+                    if (timeUntilStart <= 0) fetchAndDisplayAppointment();
+                    return;
+                }
+
+                setStatus('Active');
+                document.getElementById('patientLabel').textContent = 'Current Patient';
+                document.getElementById('appointmentLabel').textContent = 'Dive Time';
+                document.getElementById('progressLabel').textContent = 'Remaining';
+
+                const total = Math.max(1, currentAppointment.endTime - currentAppointment.startTime);
                 const remaining = Math.max(0, currentAppointment.endTime - now);
                 
                 document.getElementById('countdownDisplay').textContent = formatDuration(remaining);
