@@ -10,39 +10,43 @@
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* Modern light/dark variables */
+        /* OxyPeak-inspired clinical lounge palette */
         :root {
-            --bg-color: #f8fafc;
-            --text-color: #0f172a;
-            --card-bg: #ffffff;
-            --card-border: #e2e8f0;
-            --text-secondary: #64748b;
-            --text-tertiary: #94a3b8;
-            --seat-badge-bg: #e2e8f0;
-            --seat-badge-text: #475569;
-            --divider-color: #f1f5f9;
-            --icon-shadow: rgba(0, 0, 0, 0.02);
-            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.01), 0 2px 8px rgba(0, 0, 0, 0.008);
-            --card-shadow-hover: 0 8px 24px -6px rgba(0, 0, 0, 0.04), 0 4px 12px -4px rgba(0, 0, 0, 0.02);
-            --btn-active-bg: #f1f5f9;
-            --track-bg: #f1f5f9;
+            --bg-color: #f3f0e8;
+            --text-color: #132137;
+            --card-bg: rgba(255, 252, 246, 0.94);
+            --card-border: rgba(26, 44, 71, 0.12);
+            --text-secondary: #5f6f86;
+            --text-tertiary: #9aa6b6;
+            --seat-badge-bg: rgba(94, 184, 168, 0.16);
+            --seat-badge-text: #1f6f68;
+            --divider-color: rgba(26, 44, 71, 0.1);
+            --icon-shadow: 0 10px 24px rgba(19, 33, 55, 0.08);
+            --card-shadow: 0 14px 34px rgba(19, 33, 55, 0.08);
+            --card-shadow-hover: 0 20px 46px rgba(19, 33, 55, 0.14);
+            --btn-active-bg: rgba(94, 184, 168, 0.12);
+            --track-bg: rgba(19, 33, 55, 0.08);
+            --accent-teal: #5eb8a8;
+            --accent-teal-dark: #177f73;
+            --accent-gold: #d4a574;
+            --accent-navy: #132137;
         }
 
         [data-theme="dark"] {
-            --bg-color: #0f172a;
-            --text-color: #f8fafc;
-            --card-bg: #1e293b;
-            --card-border: #334155;
-            --text-secondary: #94a3b8;
-            --text-tertiary: #64748b;
-            --seat-badge-bg: #1e293b;
-            --seat-badge-text: #94a3b8;
-            --divider-color: #334155;
-            --icon-shadow: rgba(0, 0, 0, 0.2);
-            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            --card-shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.25);
-            --btn-active-bg: #334155;
-            --track-bg: #334155;
+            --bg-color: #07111f;
+            --text-color: #f8f2e8;
+            --card-bg: rgba(15, 28, 47, 0.92);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-secondary: #b5c0cf;
+            --text-tertiary: #7d8ba0;
+            --seat-badge-bg: rgba(94, 184, 168, 0.16);
+            --seat-badge-text: #8ee4d8;
+            --divider-color: rgba(255, 255, 255, 0.1);
+            --icon-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+            --card-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+            --card-shadow-hover: 0 24px 58px rgba(0, 0, 0, 0.36);
+            --btn-active-bg: rgba(255, 255, 255, 0.08);
+            --track-bg: rgba(255, 255, 255, 0.1);
         }
 
         /* Smooth iOS style transitions across all layout shifts */
@@ -57,10 +61,21 @@
             height: 100vh;
             overflow: hidden;
             position: fixed;
-            background-color: var(--bg-color);
+            background:
+                radial-gradient(circle at 8% 8%, rgba(94, 184, 168, 0.18), transparent 27%),
+                radial-gradient(circle at 94% 2%, rgba(212, 165, 116, 0.18), transparent 23%),
+                linear-gradient(135deg, var(--bg-color), #fbfaf6 62%, #eef6f4);
             color: var(--text-color);
             font-family: 'Inter', -apple-system, sans-serif;
             -webkit-font-smoothing: antialiased;
+        }
+
+        html[data-theme="dark"],
+        html[data-theme="dark"] body {
+            background:
+                radial-gradient(circle at 8% 8%, rgba(94, 184, 168, 0.22), transparent 27%),
+                radial-gradient(circle at 94% 2%, rgba(212, 165, 116, 0.13), transparent 23%),
+                linear-gradient(135deg, #07111f, #0b1930 62%, #092e32);
         }
 
         body {
@@ -74,20 +89,38 @@
             margin: 0;
         }
 
+        body::before {
+            content: 'OxyPeak';
+            position: fixed;
+            right: 36px;
+            top: 84px;
+            z-index: -1;
+            font-size: min(17vw, 210px);
+            font-weight: 800;
+            letter-spacing: -0.08em;
+            color: rgba(19, 33, 55, 0.035);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        [data-theme="dark"] body::before {
+            color: rgba(248, 242, 232, 0.045);
+        }
+
         /* === TOP HEADER ROW === */
         .header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
-            padding: 0 4px;
-            height: 36px;
+            padding: 0 6px;
+            height: 42px;
         }
 
         .location-header {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .chamber-header-name {
@@ -97,18 +130,50 @@
             letter-spacing: -0.015em;
         }
 
+        .brand-stack {
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+            margin-right: 4px;
+        }
+
+        .brand-kicker {
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+        }
+
+        .brand-word {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--accent-navy);
+        }
+
+        [data-theme="dark"] .brand-word {
+            color: #f8f2e8;
+        }
+
+        .location-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--card-border);
+        }
+
         .seat-badge {
             background: var(--seat-badge-bg);
             color: var(--seat-badge-text);
             font-size: 11px;
             font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 6px;
+            padding: 5px 10px;
+            border-radius: 999px;
             letter-spacing: -0.01em;
         }
 
         .seat-badge strong {
-            color: #10b981; /* Emerald active green */
+            color: var(--accent-teal-dark);
             font-weight: 800;
         }
 
@@ -120,9 +185,9 @@
 
         /* Sleek Sun/Moon Theme Toggle Button */
         .theme-toggle-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
             border: 1px solid var(--card-border);
             background: var(--card-bg);
             color: var(--text-secondary);
@@ -152,11 +217,18 @@
             align-items: center;
             gap: 6px;
             background: var(--card-bg);
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 9999px;
             border: 1px solid var(--card-border);
             box-shadow: var(--card-shadow);
         }
+
+        .session-status-badge[data-state="available"] .pulse-dot,
+        .session-status-badge[data-state="checking"] .pulse-dot { background: var(--accent-teal); }
+        .session-status-badge[data-state="active"] .pulse-dot { background: var(--accent-teal); }
+        .session-status-badge[data-state="upcoming"] .pulse-dot,
+        .session-status-badge[data-state="starting-soon"] .pulse-dot { background: var(--accent-gold); }
+        .session-status-badge[data-state="sync-issue"] .pulse-dot { background: var(--accent-gold); }
 
         .pulse-dot {
             width: 6px;
@@ -172,7 +244,7 @@
         }
 
         .session-label {
-            font-size: 8.5px;
+            font-size: 8.8px;
             font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
@@ -186,7 +258,7 @@
         }
 
         .clock-time {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--text-color);
             font-variant-numeric: tabular-nums;
@@ -206,17 +278,32 @@
         /* === SEAT INFO WIDGET CARD (Modern SaaS Dashboard Style) === */
         .seat-info-card {
             background: var(--card-bg);
-            border-radius: 16px;
-            padding: 12px 20px;
+            border-radius: 18px;
+            padding: 14px 24px;
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
+            grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
             gap: 20px;
             align-items: center;
             border: 1px solid var(--card-border);
             box-shadow: var(--card-shadow);
             flex-shrink: 0;
-            height: 76px;
+            height: 92px;
             position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(14px);
+        }
+
+        .seat-info-card::after {
+            content: 'Physician-Led Hyperbaric Care';
+            position: absolute;
+            right: 28px;
+            top: 14px;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(212, 165, 116, 0.56);
+            pointer-events: none;
         }
 
         /* Subtle left indicator accent line */
@@ -232,10 +319,10 @@
             border-bottom-left-radius: 16px;
             transition: background-color 0.2s ease;
         }
-        .seat-info-card.state-active::before { background: #10b981; }
-        .seat-info-card.state-upcoming::before { background: #3b82f6; }
-        .seat-info-card.state-available::before { background: var(--text-secondary); }
-        .seat-info-card.state-error::before { background: #ef4444; }
+        .seat-info-card.state-active::before { background: var(--accent-teal); }
+        .seat-info-card.state-upcoming::before { background: var(--accent-gold); }
+        .seat-info-card.state-available::before { background: var(--accent-navy); }
+        .seat-info-card.state-error::before { background: var(--accent-gold); }
 
         .patient-section {
             display: flex;
@@ -243,6 +330,7 @@
             text-align: left;
             justify-content: center;
             height: 100%;
+            min-width: 0;
         }
 
         .info-label {
@@ -255,11 +343,21 @@
         }
 
         .info-value-large {
-            font-size: 17px;
-            font-weight: 700;
+            font-size: clamp(22px, 3.2vw, 38px);
+            font-weight: 800;
             color: var(--text-color);
-            line-height: 1.2;
-            letter-spacing: -0.015em;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .patient-hint {
+            margin-top: 7px;
+            font-size: 11px;
+            font-weight: 650;
+            color: var(--text-secondary);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -300,7 +398,7 @@
         .countdown-display {
             font-size: 12.5px;
             font-weight: 700;
-            color: #10b981;
+            color: var(--accent-teal-dark);
             font-variant-numeric: tabular-nums;
         }
 
@@ -314,7 +412,7 @@
 
         .countdown-progress {
             height: 100%;
-            background: #10b981;
+            background: linear-gradient(90deg, var(--accent-teal), var(--accent-gold));
             width: 50%;
             transition: width 0.5s linear;
         }
@@ -328,7 +426,7 @@
 
         .countdown-display-small {
             font-weight: 700;
-            color: #3b82f6;
+            color: var(--accent-teal-dark);
             font-variant-numeric: tabular-nums;
         }
 
@@ -337,7 +435,7 @@
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr); /* 4 columns */
-            gap: 10px;
+            gap: 12px;
             flex: 1;
             width: 100%;
             align-content: stretch;
@@ -345,25 +443,48 @@
 
         .app-card {
             background: var(--card-bg);
-            border-radius: 16px;
-            padding: 12px 14px;
+            border-radius: 18px;
+            padding: 18px 18px 16px;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            justify-content: center;
+            gap: 14px;
             text-decoration: none;
             color: var(--text-color);
             border: 1px solid var(--card-border);
             box-shadow: var(--card-shadow);
             min-width: 0;
             height: 100%;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            backdrop-filter: blur(14px);
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            inset: 12px;
+            z-index: -1;
+            border-radius: 15px;
+            background:
+                radial-gradient(circle at 50% 8%, rgba(255, 255, 255, 0.82), transparent 22%),
+                linear-gradient(145deg, rgba(94, 184, 168, 0.1), rgba(212, 165, 116, 0.08));
+            opacity: 0.7;
+        }
+
+        [data-theme="dark"] .app-card::before {
+            background:
+                radial-gradient(circle at 50% 8%, rgba(255, 255, 255, 0.08), transparent 24%),
+                linear-gradient(145deg, rgba(94, 184, 168, 0.13), rgba(212, 165, 116, 0.08));
         }
 
         /* Hover & Active States */
         .app-card:hover {
             transform: translateY(-2px);
-            border-color: var(--text-secondary);
+            border-color: rgba(94, 184, 168, 0.42);
             box-shadow: var(--card-shadow-hover);
         }
 
@@ -374,15 +495,16 @@
 
         .card-top {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
             width: 100%;
+            min-height: 68px;
         }
 
         .app-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px; /* Elegant squircle */
+            width: 62px;
+            height: 62px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -391,16 +513,19 @@
         }
 
         .app-icon svg {
-            width: 16px;
-            height: 16px;
+            width: 29px;
+            height: 29px;
         }
 
         /* Diagonal External Arrow Indicator */
         .arrow-icon {
-            width: 13px;
-            height: 13px;
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 14px;
+            height: 14px;
             color: var(--text-tertiary);
-            opacity: 0;
+            opacity: 0.45;
             transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
@@ -412,43 +537,76 @@
         .card-bottom {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
             width: 100%;
         }
 
         .app-category {
-            font-size: 8px;
+            font-size: 9px;
             font-weight: 700;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             color: var(--text-secondary);
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .app-name {
-            font-size: 13px;
-            font-weight: 700;
+            font-size: clamp(16px, 1.65vw, 24px);
+            font-weight: 800;
             color: var(--text-color);
-            letter-spacing: -0.01em;
+            letter-spacing: -0.045em;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             width: 100%;
         }
 
+        .app-card:focus-visible {
+            outline: 4px solid rgba(94, 184, 168, 0.35);
+            outline-offset: 3px;
+            border-color: var(--accent-teal);
+        }
+
+        @media (max-width: 1100px) {
+            .seat-info-card {
+                grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
+                gap: 14px;
+                padding: 12px 18px;
+            }
+
+            .seat-info-card::after {
+                display: none;
+            }
+
+            .app-card {
+                padding: 14px;
+            }
+
+            .app-icon {
+                width: 56px;
+                height: 56px;
+                border-radius: 18px;
+            }
+
+            .app-icon svg {
+                width: 26px;
+                height: 26px;
+            }
+        }
+
         /* Premium Tonal Icon Accents */
-        .card-aviv .app-icon { background: #ccfbf1; color: #0f766e; }
-        .card-youtube .app-icon { background: #fee2e2; color: #b91c1c; }
-        .card-radio .app-icon { background: #ffedd5; color: #c2410c; }
-        .card-nytimes .app-icon { background: #f1f5f9; color: #0f172a; }
-        .card-dailysun .app-icon { background: #fef9c3; color: #a16207; }
-        .card-audiobooks .app-icon { background: #dbeafe; color: #1d4ed8; }
-        .card-podcasts .app-icon { background: #f5e0ff; color: #7e22ce; }
-        .card-calm .app-icon { background: #ecfeff; color: #0e7490; }
-        .card-cognifit .app-icon { background: #e0e7ff; color: #4338ca; }
-        .card-brainhq .app-icon { background: #f3e8ff; color: #6b21a8; }
-        .card-gmail .app-icon { background: #fef2f2; color: #b91c1c; }
-        .card-myoxypeak .app-icon { background: #dcfce7; color: #15803d; }
+        .card-aviv .app-icon { background: linear-gradient(145deg, #d8fff6, #a7eee1); color: #0f766e; }
+        .card-youtube .app-icon { background: linear-gradient(145deg, #ffe4e4, #ffc8c8); color: #b91c1c; }
+        .card-radio .app-icon { background: linear-gradient(145deg, #fff0cf, #ffd99e); color: #c2410c; }
+        .card-nytimes .app-icon { background: linear-gradient(145deg, #f8f2e8, #e8dfd1); color: #132137; }
+        .card-dailysun .app-icon { background: linear-gradient(145deg, #fff4c9, #f7d98a); color: #a16207; }
+        .card-audiobooks .app-icon { background: linear-gradient(145deg, #dfefff, #bed9ff); color: #1d4ed8; }
+        .card-podcasts .app-icon { background: linear-gradient(145deg, #f8e7ff, #e7c3ff); color: #7e22ce; }
+        .card-calm .app-icon { background: linear-gradient(145deg, #ddfbff, #b8f2f7); color: #0e7490; }
+        .card-cognifit .app-icon { background: linear-gradient(145deg, #e6eaff, #ccd4ff); color: #4338ca; }
+        .card-brainhq .app-icon { background: linear-gradient(145deg, #f1dcff, #ddb7ff); color: #6b21a8; }
+        .card-gmail .app-icon { background: linear-gradient(145deg, #ffe8e8, #ffcfcf); color: #b91c1c; }
+        .card-myoxypeak .app-icon { background: linear-gradient(145deg, #d7ffe1, #b7f2c8); color: #15803d; }
 
         /* Dark Theme adjustments for squircle backgrounds (improve tone contrast on dark cards) */
         [data-theme="dark"] .card-aviv .app-icon { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; }
@@ -477,6 +635,7 @@
             border: 1px solid var(--card-border);
             height: 44px;
             box-shadow: var(--card-shadow);
+            backdrop-filter: blur(14px);
         }
 
         .vol-label-block {
@@ -537,7 +696,7 @@
 
         .vol-slider-fill {
             height: 100%;
-            background: #3b82f6;
+            background: linear-gradient(90deg, var(--accent-teal), #6aa2ff);
             width: 50%;
             border-radius: 3px;
             transition: width 0.1s ease;
@@ -561,10 +720,14 @@
             transform: translateX(-50%);
             font-size: 8px;
             font-weight: 600;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.16em;
             text-transform: uppercase;
-            color: var(--text-tertiary);
+            color: rgba(19, 33, 55, 0.28);
             pointer-events: none;
+        }
+
+        [data-theme="dark"] .brand-watermark {
+            color: rgba(248, 242, 232, 0.24);
         }
 
         .patient-start-overlay {
@@ -695,6 +858,11 @@
 
     <div class="header-row">
         <div class="location-header">
+            <span class="brand-stack" aria-label="OxyPeak">
+                <span class="brand-kicker">OxyPeak</span>
+                <span class="brand-word">HBOT</span>
+            </span>
+            <span class="location-divider" aria-hidden="true"></span>
             <span id="chamberName" class="chamber-header-name">—</span>
             <span class="seat-badge">Seat <strong id="seatNumber">—</strong></span>
         </div>
@@ -717,7 +885,7 @@
                 </svg>
             </button>
 
-            <div class="session-status-badge">
+            <div class="session-status-badge" id="sessionStatusBadge" data-state="checking">
                 <div class="pulse-dot" id="statusPulse"></div>
                 <span class="session-label" id="sessionStatus">Checking</span>
             </div>
@@ -732,6 +900,7 @@
         <div class="patient-section">
             <span class="info-label" id="patientLabel">Current Patient</span>
             <span class="info-value-large" id="patientName">Checking...</span>
+            <span class="patient-hint" id="patientHint">Checking chamber schedule...</span>
         </div>
 
         <div class="progress-section">
@@ -1061,22 +1230,31 @@
         function setStatus(text) {
             const status = document.getElementById('sessionStatus');
             const pulse = document.getElementById('statusPulse');
+            const badge = document.getElementById('sessionStatusBadge');
             if (status) {
                 const cleanText = text.replace(/Session\s*·\s*/i, '');
-                status.textContent = cleanText;
+                const normalized = cleanText.toLowerCase().replace(/\s+/g, '-');
+                const statusMeta = {
+                    active: { label: 'Active', state: 'active', color: 'var(--accent-teal)' },
+                    upcoming: { label: 'Upcoming', state: 'upcoming', color: 'var(--accent-gold)' },
+                    'starting-soon': { label: 'Starting Soon', state: 'starting-soon', color: 'var(--accent-gold)' },
+                    checking: { label: 'Syncing', state: 'checking', color: 'var(--accent-teal)' },
+                    available: { label: 'Connected', state: 'available', color: 'var(--accent-teal)' },
+                    error: { label: 'Sync Issue', state: 'sync-issue', color: 'var(--accent-gold)' }
+                };
+                const meta = statusMeta[normalized] || { label: cleanText, state: normalized || 'checking', color: 'var(--text-tertiary)' };
+                status.textContent = meta.label;
+                if (badge) badge.dataset.state = meta.state;
                 
                 if (pulse) {
-                    if (cleanText.toLowerCase() === 'active') {
-                        pulse.style.background = '#10b981';
-                    } else if (cleanText.toLowerCase() === 'upcoming' || cleanText.toLowerCase() === 'starting soon') {
-                        pulse.style.background = '#3b82f6';
-                    } else if (cleanText.toLowerCase() === 'error') {
-                        pulse.style.background = '#ef4444';
-                    } else {
-                        pulse.style.background = '#94a3b8';
-                    }
+                    pulse.style.background = meta.color;
                 }
             }
+        }
+
+        function setPatientHint(text) {
+            const hint = document.getElementById('patientHint');
+            if (hint) hint.textContent = text || '';
         }
 
         function setupDisplay() {
@@ -1219,6 +1397,10 @@
                 document.getElementById('appointmentTime').textContent = apptTime;
                 diveStartTime = startTime;
                 currentAppointment = { ...appt, isActive: true, startTime, endTime };
+                const timeUntilStart = Math.max(0, startTime - now);
+                setPatientHint(now < startTime
+                    ? `Starts in ${formatDuration(timeUntilStart)} · tap welcome screen to begin`
+                    : 'Dive in progress');
             } else {
                 setStatus('Upcoming');
                 document.getElementById('patientName').textContent = patientName ? `Welcome, ${patientName}` : 'No Current Patient';
@@ -1230,6 +1412,7 @@
                 document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
                 diveStartTime = null;
                 currentAppointment = { ...appt, isActive: false, startTime, endTime };
+                setPatientHint(`Scheduled for ${apptTime}`);
             }
 
             updatePatientStartOverlay(now);
@@ -1243,11 +1426,15 @@
             setStatus('Available');
             document.getElementById('seatDisplay').className = 'seat-info-card state-available';
             const patientName = document.getElementById('patientName');
-            patientName.textContent = 'No Current Patient';
-            patientName.style.opacity = '0.4';
-            patientName.style.color = 'var(--text-secondary)';
+            patientName.textContent = 'Seat Available';
+            patientName.style.opacity = '1';
+            patientName.style.color = 'var(--text-color)';
             
             document.getElementById('patientLabel').textContent = nextAppointment ? 'No Active Dive' : 'Current Patient';
+            const nextStart = nextAppointment && (nextAppointment.startTime || nextAppointment.start_time);
+            setPatientHint(nextStart
+                ? `Next scheduled ${formatTime(nextStart)} · patient name appears 15 minutes before dive`
+                : 'Patient name appears 15 minutes before dive');
             document.getElementById('appointmentLabel').textContent = 'Dive Time';
             document.getElementById('appointmentTime').textContent = '—:—';
             document.getElementById('timeRemaining').textContent = '—:—';
@@ -1262,13 +1449,14 @@
             hidePatientStartOverlay();
             setStatus('Error');
             
-            document.getElementById('seatDisplay').className = 'seat-info-card state-available';
+            document.getElementById('seatDisplay').className = 'seat-info-card state-error';
             const patientName = document.getElementById('patientName');
-            patientName.textContent = 'No Current Patient';
-            patientName.style.opacity = '0.4';
-            patientName.style.color = 'var(--text-secondary)';
+            patientName.textContent = 'Seat Available';
+            patientName.style.opacity = '1';
+            patientName.style.color = 'var(--text-color)';
             
             document.getElementById('patientLabel').textContent = 'Current Patient';
+            setPatientHint('Schedule sync is retrying automatically');
             document.getElementById('appointmentLabel').textContent = 'Dive Time';
             document.getElementById('appointmentTime').textContent = '—:—';
             document.getElementById('timeRemaining').textContent = '—:—';
@@ -1297,6 +1485,7 @@
                     const timeUntilStart = Math.max(0, currentAppointment.startTime - now);
                     document.getElementById('countdownDisplay').textContent = formatDuration(timeUntilStart);
                     document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
+                    setPatientHint(`Starts in ${formatDuration(timeUntilStart)} · tap welcome screen to begin`);
 
                     const elapsedPreDive = Math.max(0, preDiveDisplayMs - timeUntilStart);
                     const progressPercent = preDiveDisplayMs > 0
@@ -1321,6 +1510,7 @@
                 const progressPercent = Math.min(100, Math.max(0, 100 - (remaining / total) * 100));
                 document.getElementById('countdownProgress').style.width = progressPercent + '%';
                 document.getElementById('timeRemaining').textContent = formatDuration(remaining);
+                setPatientHint(`Dive in progress · ${formatDuration(remaining)} remaining`);
                 updatePatientStartOverlay(now);
 
                 if (remaining <= 0) {
@@ -1336,6 +1526,7 @@
                 const progressPercent = Math.min(100, (timeSinceDisplay / maxWait) * 100);
                 document.getElementById('countdownProgress').style.width = progressPercent + '%';
                 document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
+                setPatientHint(`Scheduled for ${formatTime(currentAppointment.startTime)} · starts in ${formatDuration(timeUntilStart)}`);
                 updatePatientStartOverlay(now);
 
                 if (timeUntilStart <= 0) fetchAndDisplayAppointment();
