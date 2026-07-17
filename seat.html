@@ -431,26 +431,127 @@
         }
 
 
-        /* === APPS GRID (Modern Rectangular Card Panels) === */
-        .grid {
+        /* === GROUPED APP EXPERIENCE BOARD === */
+        .experience-board {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 columns */
+            grid-template-columns: 0.95fr 1.28fr 1.12fr 1.05fr;
             gap: 12px;
             flex: 1;
             width: 100%;
+            min-height: 0;
             align-content: stretch;
+        }
+
+        .app-section {
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 13px;
+            border-radius: 22px;
+            border: 1px solid var(--card-border);
+            background:
+                linear-gradient(150deg, rgba(255, 252, 246, 0.9), rgba(255, 252, 246, 0.72)),
+                radial-gradient(circle at 12% 0%, rgba(94, 184, 168, 0.18), transparent 34%);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(14px);
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .app-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.36), transparent 35%),
+                radial-gradient(circle at 88% 10%, rgba(212, 165, 116, 0.18), transparent 28%);
+            pointer-events: none;
+        }
+
+        [data-theme="dark"] .app-section {
+            background:
+                linear-gradient(150deg, rgba(15, 28, 47, 0.9), rgba(15, 28, 47, 0.68)),
+                radial-gradient(circle at 12% 0%, rgba(94, 184, 168, 0.18), transparent 34%);
+        }
+
+        .section-heading {
+            flex-shrink: 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            min-height: 42px;
+            padding: 2px 2px 0;
+        }
+
+        .section-kicker {
+            display: block;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            line-height: 1;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-bottom: 5px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: clamp(16px, 1.35vw, 23px);
+            font-weight: 800;
+            line-height: 0.96;
+            letter-spacing: -0.055em;
+            color: var(--text-color);
+        }
+
+        .section-count {
+            flex-shrink: 0;
+            min-width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(94, 184, 168, 0.14);
+            color: var(--accent-teal-dark);
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .section-apps {
+            display: grid;
+            gap: 9px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .section-care .section-apps {
+            grid-template-rows: 1.08fr 1fr;
+        }
+
+        .section-entertainment .section-apps {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-rows: repeat(2, minmax(0, 1fr));
+        }
+
+        .section-quiet .section-apps,
+        .section-brain .section-apps {
+            grid-template-rows: repeat(3, minmax(0, 1fr));
         }
 
         .app-card {
             background: var(--card-bg);
-            border-radius: 18px;
-            padding: 18px 18px 16px;
-            display: flex;
-            flex-direction: column;
+            border-radius: 17px;
+            padding: 13px 14px;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
             align-items: center;
-            text-align: center;
-            justify-content: center;
-            gap: 14px;
+            text-align: left;
+            gap: 12px;
             text-decoration: none;
             color: var(--text-color);
             border: 1px solid var(--card-border);
@@ -470,7 +571,7 @@
             z-index: -1;
             border-radius: 15px;
             background:
-                radial-gradient(circle at 50% 8%, rgba(255, 255, 255, 0.82), transparent 22%),
+                radial-gradient(circle at 20% 4%, rgba(255, 255, 255, 0.82), transparent 22%),
                 linear-gradient(145deg, rgba(94, 184, 168, 0.1), rgba(212, 165, 116, 0.08));
             opacity: 0.7;
         }
@@ -495,16 +596,16 @@
 
         .card-top {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            width: 100%;
-            min-height: 68px;
+            width: auto;
+            min-height: 0;
         }
 
         .app-icon {
-            width: 62px;
-            height: 62px;
-            border-radius: 20px;
+            width: clamp(46px, 4.1vw, 66px);
+            height: clamp(46px, 4.1vw, 66px);
+            border-radius: 19px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -513,8 +614,8 @@
         }
 
         .app-icon svg {
-            width: 29px;
-            height: 29px;
+            width: 44%;
+            height: 44%;
         }
 
         /* Diagonal External Arrow Indicator */
@@ -537,8 +638,10 @@
         .card-bottom {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
+            justify-content: center;
             width: 100%;
+            min-width: 0;
         }
 
         .app-category {
@@ -551,7 +654,7 @@
         }
 
         .app-name {
-            font-size: clamp(16px, 1.65vw, 24px);
+            font-size: clamp(15px, 1.25vw, 22px);
             font-weight: 800;
             color: var(--text-color);
             letter-spacing: -0.045em;
@@ -561,6 +664,51 @@
             width: 100%;
         }
 
+        .app-description {
+            margin-top: 4px;
+            font-size: clamp(10px, 0.75vw, 12px);
+            font-weight: 650;
+            line-height: 1.22;
+            color: var(--text-secondary);
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .section-care .app-card:first-child {
+            grid-template-columns: 1fr;
+            align-items: end;
+            padding: 18px;
+            background:
+                linear-gradient(145deg, rgba(19, 33, 55, 0.96), rgba(28, 65, 77, 0.92)),
+                radial-gradient(circle at 88% 10%, rgba(94, 184, 168, 0.4), transparent 38%);
+            color: #f8f2e8;
+        }
+
+        .section-care .app-card:first-child .card-top {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+        }
+
+        .section-care .app-card:first-child .card-bottom {
+            max-width: 88%;
+        }
+
+        .section-care .app-card:first-child .app-name,
+        .section-care .app-card:first-child .app-description {
+            color: #f8f2e8;
+        }
+
+        .section-care .app-card:first-child .app-category {
+            color: rgba(248, 242, 232, 0.68);
+        }
+
+        .section-care .app-card:first-child .arrow-icon {
+            color: rgba(248, 242, 232, 0.72);
+        }
+
         .app-card:focus-visible {
             outline: 4px solid rgba(94, 184, 168, 0.35);
             outline-offset: 3px;
@@ -568,6 +716,11 @@
         }
 
         @media (max-width: 1100px) {
+            .experience-board {
+                grid-template-columns: 0.9fr 1.08fr 1.05fr 1.05fr;
+                gap: 10px;
+            }
+
             .seat-info-card {
                 grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
                 gap: 14px;
@@ -578,19 +731,84 @@
                 display: none;
             }
 
+            .app-section {
+                gap: 8px;
+                padding: 11px;
+                border-radius: 20px;
+            }
+
+            .section-heading {
+                min-height: 38px;
+            }
+
+            .section-kicker {
+                font-size: 7.2px;
+                margin-bottom: 4px;
+            }
+
+            .section-title {
+                font-size: 15px;
+                letter-spacing: -0.04em;
+            }
+
+            .section-count {
+                min-width: 22px;
+                height: 22px;
+                font-size: 9px;
+            }
+
+            .section-apps {
+                gap: 8px;
+            }
+
+            .section-entertainment .section-apps {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, minmax(0, 1fr));
+            }
+
             .app-card {
-                padding: 14px;
+                gap: 9px;
+                padding: 11px;
             }
 
             .app-icon {
-                width: 56px;
-                height: 56px;
-                border-radius: 18px;
+                width: 44px;
+                height: 44px;
+                border-radius: 15px;
             }
 
             .app-icon svg {
-                width: 26px;
-                height: 26px;
+                width: 44%;
+                height: 44%;
+            }
+
+            .app-category {
+                font-size: 7.5px;
+                margin-bottom: 2px;
+            }
+
+            .app-name {
+                font-size: 14px;
+                line-height: 1.03;
+                letter-spacing: -0.035em;
+                white-space: normal;
+            }
+
+            .app-description {
+                display: none;
+            }
+
+            .section-care .app-card:first-child {
+                padding: 14px;
+            }
+
+            .section-care .app-card:first-child .card-top {
+                top: 14px;
+                left: 14px;
+            }
+
+            .section-care .app-card:first-child .card-bottom {
+                max-width: 96%;
             }
         }
 
@@ -926,202 +1144,258 @@
         </div>
     </div>
 
-    <div class="grid">
-        <a href="https://oxypeak.com" target="_blank" class="app-card card-aviv">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z" fill="currentColor" fill-opacity="0.15"/><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/>
-                    </svg>
+    <div class="experience-board">
+        <section class="app-section section-care" aria-label="OxyPeak care apps">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Start Here</span>
+                    <h2 class="section-title">OxyPeak Care</h2>
                 </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <span class="section-count">2</span>
             </div>
-            <div class="card-bottom">
-                <span class="app-category">Health</span>
-                <span class="app-name">OxyPeak Portal</span>
-            </div>
-        </a>
+            <div class="section-apps">
+                <a href="https://oxypeak.com" target="_blank" class="app-card card-aviv">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z" fill="currentColor" fill-opacity="0.15"/><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Health</span>
+                        <span class="app-name">OxyPeak Portal</span>
+                        <span class="app-description">Clinic information and care resources.</span>
+                    </div>
+                </a>
 
-        <a href="https://www.youtube.com" target="_blank" class="app-card card-youtube">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5.5v13l11-6.5z"/>
-                    </svg>
-                </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <a href="https://my.oxypeak.com" target="_blank" class="app-card card-myoxypeak">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 19.5V8.8L12 3l8 5.8v10.7"/>
+                                <path d="M9 21v-7h6v7"/>
+                                <path d="M8.5 10.5h7"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Portal</span>
+                        <span class="app-name">My OxyPeak</span>
+                        <span class="app-description">Patient portal and account access.</span>
+                    </div>
+                </a>
             </div>
-            <div class="card-bottom">
-                <span class="app-category">Video</span>
-                <span class="app-name">YouTube</span>
-            </div>
-        </a>
+        </section>
 
-        <a href="https://www.iheart.com" target="_blank" class="app-card card-radio">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="1.8" fill="currentColor"/><path d="M8.5 8.5a5 5 0 0 0 0 7"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M5.5 5.5a9 9 0 0 0 0 13"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>
-                    </svg>
+        <section class="app-section section-entertainment" aria-label="Entertainment apps">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Listen + Watch</span>
+                    <h2 class="section-title">Entertainment</h2>
                 </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <span class="section-count">4</span>
             </div>
-            <div class="card-bottom">
-                <span class="app-category">Music</span>
-                <span class="app-name">iHeartRadio</span>
-            </div>
-        </a>
+            <div class="section-apps">
+                <a href="https://www.youtube.com" target="_blank" class="app-card card-youtube">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5.5v13l11-6.5z"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Video</span>
+                        <span class="app-name">YouTube</span>
+                        <span class="app-description">Videos, music, and guided content.</span>
+                    </div>
+                </a>
 
-        <a href="https://www.nytimes.com" target="_blank" class="app-card card-nytimes">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                    </svg>
-                </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-            </div>
-            <div class="card-bottom">
-                <span class="app-category">News</span>
-                <span class="app-name">NY Times</span>
-            </div>
-        </a>
+                <a href="https://www.iheart.com" target="_blank" class="app-card card-radio">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1.8" fill="currentColor"/><path d="M8.5 8.5a5 5 0 0 0 0 7"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M5.5 5.5a9 9 0 0 0 0 13"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Music</span>
+                        <span class="app-name">iHeartRadio</span>
+                        <span class="app-description">Radio stations, playlists, and podcasts.</span>
+                    </div>
+                </a>
 
-        <a href="https://www.thevillagesdailysun.com" target="_blank" class="app-card card-dailysun">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"/>
-                        <line x1="12" y1="1" x2="12" y2="3"/>
-                        <line x1="12" y1="21" x2="12" y2="23"/>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                        <line x1="1" y1="12" x2="3" y2="12"/>
-                        <line x1="21" y1="12" x2="23" y2="12"/>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                    </svg>
-                </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-            </div>
-            <div class="card-bottom">
-                <span class="app-category">Local</span>
-                <span class="app-name">Daily Sun</span>
-            </div>
-        </a>
+                <a href="https://librivox.org" target="_blank" class="app-card card-audiobooks">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Books</span>
+                        <span class="app-name">Audiobooks</span>
+                        <span class="app-description">Public-domain stories to listen to.</span>
+                    </div>
+                </a>
 
-        <a href="https://librivox.org" target="_blank" class="app-card card-audiobooks">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
-                        <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
-                    </svg>
-                </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <a href="https://player.fm" target="_blank" class="app-card card-podcasts">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Audio</span>
+                        <span class="app-name">Podcasts</span>
+                        <span class="app-description">Talk, wellness, and long-form listening.</span>
+                    </div>
+                </a>
             </div>
-            <div class="card-bottom">
-                <span class="app-category">Books</span>
-                <span class="app-name">Audiobooks</span>
-            </div>
-        </a>
+        </section>
 
-        <a href="https://player.fm" target="_blank" class="app-card card-podcasts">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
-                    </svg>
+        <section class="app-section section-quiet" aria-label="Reading and relaxation apps">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Quiet Time</span>
+                    <h2 class="section-title">Read + Relax</h2>
                 </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <span class="section-count">3</span>
             </div>
-            <div class="card-bottom">
-                <span class="app-category">Audio</span>
-                <span class="app-name">Podcasts</span>
-            </div>
-        </a>
+            <div class="section-apps">
+                <a href="https://www.nytimes.com" target="_blank" class="app-card card-nytimes">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">News</span>
+                        <span class="app-name">NY Times</span>
+                        <span class="app-description">National news and feature stories.</span>
+                    </div>
+                </a>
 
-        <a href="https://www.calm.com" target="_blank" class="app-card card-calm">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42 0-.83.07-1.22.2A5 5 0 0 0 5 13c0 .58.11 1.13.31 1.64C3.16 15.27 2 17 2 19a3 3 0 0 0 3 3h12.5a3.5 3.5 0 0 0 0-7z"/>
-                    </svg>
-                </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-            </div>
-            <div class="card-bottom">
-                <span class="app-category">Mind</span>
-                <span class="app-name">Calm</span>
-            </div>
-        </a>
+                <a href="https://www.thevillagesdailysun.com" target="_blank" class="app-card card-dailysun">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5"/>
+                                <line x1="12" y1="1" x2="12" y2="3"/>
+                                <line x1="12" y1="21" x2="12" y2="23"/>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                                <line x1="1" y1="12" x2="3" y2="12"/>
+                                <line x1="21" y1="12" x2="23" y2="12"/>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Local</span>
+                        <span class="app-name">Daily Sun</span>
+                        <span class="app-description">Local news from The Villages.</span>
+                    </div>
+                </a>
 
-        <a href="https://www.cognifit.com" target="_blank" class="app-card card-cognifit">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.9 1M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.9 1"/>
-                        <path d="M12 4h5M12 8h6M12 12h5M12 16h6"/>
-                        <path d="M12 4H7M12 8H6M12 12H7M12 16H6"/>
-                    </svg>
-                </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <a href="https://www.calm.com" target="_blank" class="app-card card-calm">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.42 0-.83.07-1.22.2A5 5 0 0 0 5 13c0 .58.11 1.13.31 1.64C3.16 15.27 2 17 2 19a3 3 0 0 0 3 3h12.5a3.5 3.5 0 0 0 0-7z"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Mind</span>
+                        <span class="app-name">Calm</span>
+                        <span class="app-description">Breathing, meditation, and sleep audio.</span>
+                    </div>
+                </a>
             </div>
-            <div class="card-bottom">
-                <span class="app-category">Brain</span>
-                <span class="app-name">CogniFit</span>
-            </div>
-        </a>
+        </section>
 
-        <a href="https://www.brainhq.com" target="_blank" class="app-card card-brainhq">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
+        <section class="app-section section-brain" aria-label="Brain and connection apps">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Focus</span>
+                    <h2 class="section-title">Brain + Connect</h2>
                 </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <span class="section-count">3</span>
             </div>
-            <div class="card-bottom">
-                <span class="app-category">Brain</span>
-                <span class="app-name">BrainHQ</span>
-            </div>
-        </a>
+            <div class="section-apps">
+                <a href="https://www.cognifit.com" target="_blank" class="app-card card-cognifit">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.9 1M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.9 1"/>
+                                <path d="M12 4h5M12 8h6M12 12h5M12 16h6"/>
+                                <path d="M12 4H7M12 8H6M12 12H7M12 16H6"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Brain</span>
+                        <span class="app-name">CogniFit</span>
+                        <span class="app-description">Cognitive games and training tasks.</span>
+                    </div>
+                </a>
 
-        <a href="https://mail.google.com" target="_blank" class="app-card card-gmail">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                        <polyline points="22,6 12,13 2,6"/>
-                    </svg>
-                </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-            </div>
-            <div class="card-bottom">
-                <span class="app-category">Mail</span>
-                <span class="app-name">Gmail</span>
-            </div>
-        </a>
+                <a href="https://www.brainhq.com" target="_blank" class="app-card card-brainhq">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Brain</span>
+                        <span class="app-name">BrainHQ</span>
+                        <span class="app-description">Memory, speed, and attention exercises.</span>
+                    </div>
+                </a>
 
-        <a href="https://my.oxypeak.com" target="_blank" class="app-card card-myoxypeak">
-            <div class="card-top">
-                <div class="app-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 19.5V8.8L12 3l8 5.8v10.7"/>
-                        <path d="M9 21v-7h6v7"/>
-                        <path d="M8.5 10.5h7"/>
-                    </svg>
-                </div>
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                <a href="https://mail.google.com" target="_blank" class="app-card card-gmail">
+                    <div class="card-top">
+                        <div class="app-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                        </div>
+                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                    </div>
+                    <div class="card-bottom">
+                        <span class="app-category">Mail</span>
+                        <span class="app-name">Gmail</span>
+                        <span class="app-description">Check email during the session.</span>
+                    </div>
+                </a>
             </div>
-            <div class="card-bottom">
-                <span class="app-category">Portal</span>
-                <span class="app-name">My OxyPeak</span>
-            </div>
-        </a>
+        </section>
     </div>
 
     <div class="volume-control-center">
