@@ -55,8 +55,17 @@
             --ambient-line: rgba(94, 184, 168, 0.16);
         }
 
-        /* Smooth iOS style transitions across all layout shifts */
-        body, div, span, a, button, svg {
+        /* Keep transitions scoped so older tablets have less style work to do. */
+        body,
+        .seat-info-card,
+        .app-card,
+        .app-icon,
+        .theme-toggle-btn,
+        .session-status-badge,
+        .volume-control-center,
+        .patient-start-overlay,
+        .patient-start-button,
+        .vol-btn {
             transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -318,6 +327,7 @@
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(14px);
+            contain: layout paint style;
         }
 
         .seat-info-card::after {
@@ -500,6 +510,7 @@
             overflow: hidden;
             isolation: isolate;
             backdrop-filter: blur(14px);
+            contain: layout paint style;
         }
 
         .app-card::before {
@@ -900,6 +911,7 @@
             height: 44px;
             box-shadow: var(--card-shadow);
             backdrop-filter: blur(14px);
+            contain: layout paint style;
         }
 
         .vol-label-block {
@@ -1453,10 +1465,70 @@
         let countdownTimer = null;
         const WELCOME_ACK_STORAGE_KEY = `oxypeak-started-session:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
         let acknowledgedWelcomeSessionKey = sessionStorage.getItem(WELCOME_ACK_STORAGE_KEY) || '';
+        const els = {};
+        const ELEMENT_IDS = [
+            'appointmentLabel',
+            'appointmentTime',
+            'chamberName',
+            'clockDate',
+            'clockTime',
+            'countdownDisplay',
+            'countdownProgress',
+            'patientHint',
+            'patientLabel',
+            'patientName',
+            'patientStartName',
+            'patientStartOverlay',
+            'patientStartSubtitle',
+            'progressLabel',
+            'seatDisplay',
+            'seatNumber',
+            'sessionStatus',
+            'sessionStatusBadge',
+            'statusPulse',
+            'themeIconMoon',
+            'themeIconSun',
+            'timeRemaining',
+            'volFill',
+            'volValue'
+        ];
+        const STATUS_META = {
+            active: { label: 'Active', state: 'active', color: 'var(--accent-teal)' },
+            upcoming: { label: 'Upcoming', state: 'upcoming', color: 'var(--accent-gold)' },
+            'starting-soon': { label: 'Starting Soon', state: 'starting-soon', color: 'var(--accent-gold)' },
+            checking: { label: 'Syncing', state: 'checking', color: 'var(--accent-teal)' },
+            available: { label: 'Connected', state: 'available', color: 'var(--accent-teal)' },
+            error: { label: 'Sync Issue', state: 'sync-issue', color: 'var(--accent-gold)' }
+        };
+        const CLOCK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const CLOCK_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        function cacheElements() {
+            ELEMENT_IDS.forEach(id => {
+                els[id] = document.getElementById(id);
+            });
+        }
+
+        function setText(node, value) {
+            if (node && node.textContent !== value) node.textContent = value;
+        }
+
+        function setClassName(node, value) {
+            if (node && node.className !== value) node.className = value;
+        }
+
+        function setStyle(node, property, value) {
+            if (node && node.style[property] !== value) node.style[property] = value;
+        }
+
+        function setAttributeValue(node, name, value) {
+            if (node && node.getAttribute(name) !== value) node.setAttribute(name, value);
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
+            cacheElements();
             updateThemeUI(savedTheme);
 
             setupDisplay();
@@ -1487,50 +1559,35 @@
         }
 
         function updateThemeUI(theme) {
-            const sun = document.getElementById('themeIconSun');
-            const moon = document.getElementById('themeIconMoon');
             if (theme === 'dark') {
-                sun.style.display = 'block';
-                moon.style.display = 'none';
+                setStyle(els.themeIconSun, 'display', 'block');
+                setStyle(els.themeIconMoon, 'display', 'none');
             } else {
-                sun.style.display = 'none';
-                moon.style.display = 'block';
+                setStyle(els.themeIconSun, 'display', 'none');
+                setStyle(els.themeIconMoon, 'display', 'block');
             }
         }
 
         function setStatus(text) {
-            const status = document.getElementById('sessionStatus');
-            const pulse = document.getElementById('statusPulse');
-            const badge = document.getElementById('sessionStatusBadge');
-            if (status) {
-                const cleanText = text.replace(/Session\s*·\s*/i, '');
-                const normalized = cleanText.toLowerCase().replace(/\s+/g, '-');
-                const statusMeta = {
-                    active: { label: 'Active', state: 'active', color: 'var(--accent-teal)' },
-                    upcoming: { label: 'Upcoming', state: 'upcoming', color: 'var(--accent-gold)' },
-                    'starting-soon': { label: 'Starting Soon', state: 'starting-soon', color: 'var(--accent-gold)' },
-                    checking: { label: 'Syncing', state: 'checking', color: 'var(--accent-teal)' },
-                    available: { label: 'Connected', state: 'available', color: 'var(--accent-teal)' },
-                    error: { label: 'Sync Issue', state: 'sync-issue', color: 'var(--accent-gold)' }
-                };
-                const meta = statusMeta[normalized] || { label: cleanText, state: normalized || 'checking', color: 'var(--text-tertiary)' };
-                status.textContent = meta.label;
-                if (badge) badge.dataset.state = meta.state;
-                
-                if (pulse) {
-                    pulse.style.background = meta.color;
-                }
+            if (!els.sessionStatus) return;
+
+            const cleanText = text.replace(/Session\s*·\s*/i, '');
+            const normalized = cleanText.toLowerCase().replace(/\s+/g, '-');
+            const meta = STATUS_META[normalized] || { label: cleanText, state: normalized || 'checking', color: 'var(--text-tertiary)' };
+            setText(els.sessionStatus, meta.label);
+            if (els.sessionStatusBadge && els.sessionStatusBadge.dataset.state !== meta.state) {
+                els.sessionStatusBadge.dataset.state = meta.state;
             }
+            setStyle(els.statusPulse, 'background', meta.color);
         }
 
         function setPatientHint(text) {
-            const hint = document.getElementById('patientHint');
-            if (hint) hint.textContent = text || '';
+            setText(els.patientHint, text || '');
         }
 
         function setupDisplay() {
-            document.getElementById('chamberName').textContent = CHAMBER_NAMES[CHAMBER_NUMBER] || 'Unknown';
-            document.getElementById('seatNumber').textContent = SEAT_NUMBER;
+            setText(els.chamberName, CHAMBER_NAMES[CHAMBER_NUMBER] || 'Unknown');
+            setText(els.seatNumber, String(SEAT_NUMBER));
         }
 
         function startUpdateCycle() {
@@ -1612,14 +1669,14 @@
         }
 
         function hidePatientStartOverlay() {
-            const overlay = document.getElementById('patientStartOverlay');
+            const overlay = els.patientStartOverlay;
             if (!overlay) return;
-            overlay.classList.remove('is-visible');
-            overlay.setAttribute('aria-hidden', 'true');
+            if (overlay.classList.contains('is-visible')) overlay.classList.remove('is-visible');
+            setAttributeValue(overlay, 'aria-hidden', 'true');
         }
 
         function updatePatientStartOverlay(now = new Date()) {
-            const overlay = document.getElementById('patientStartOverlay');
+            const overlay = els.patientStartOverlay;
             if (!overlay) return;
 
             if (!currentAppointment || !currentAppointment.isActive || !currentAppointment.endTime || now >= currentAppointment.endTime) {
@@ -1640,21 +1697,21 @@
                 ? `Starts in ${formatDuration(startsIn)}`
                 : 'Dive in progress';
 
-            document.getElementById('patientStartName').textContent = patientName;
-            document.getElementById('patientStartSubtitle').textContent = subtitle;
-            overlay.classList.add('is-visible');
-            overlay.setAttribute('aria-hidden', 'false');
+            setText(els.patientStartName, patientName);
+            setText(els.patientStartSubtitle, subtitle);
+            if (!overlay.classList.contains('is-visible')) overlay.classList.add('is-visible');
+            setAttributeValue(overlay, 'aria-hidden', 'false');
         }
 
         function displayAppointment(appt, isActive) {
-            const display = document.getElementById('seatDisplay');
-            display.style.opacity = '1';
-            display.className = `seat-info-card ${isActive ? 'state-active' : 'state-upcoming'}`;
+            const display = els.seatDisplay;
+            setStyle(display, 'opacity', '1');
+            setClassName(display, `seat-info-card ${isActive ? 'state-active' : 'state-upcoming'}`);
 
             const rawName = appt.patientName || appt.patient_name || '';
             const patientName = formatPrivacyName(rawName);
-            document.getElementById('patientName').style.opacity = '1';
-            document.getElementById('patientName').style.color = 'var(--text-color)';
+            setStyle(els.patientName, 'opacity', '1');
+            setStyle(els.patientName, 'color', 'var(--text-color)');
 
             const apptTime = formatTime(appt.startTime || appt.start_time);
             const startTime = new Date(appt.startTime || appt.start_time);
@@ -1662,10 +1719,10 @@
             const now = new Date();
 
             if (isActive) {
-                document.getElementById('patientName').textContent = patientName ? `Welcome, ${patientName}` : 'No Current Patient';
-                document.getElementById('patientLabel').textContent = 'Current Patient';
-                document.getElementById('appointmentLabel').textContent = 'Dive Time';
-                document.getElementById('appointmentTime').textContent = apptTime;
+                setText(els.patientName, patientName ? `Welcome, ${patientName}` : 'No Current Patient');
+                setText(els.patientLabel, 'Current Patient');
+                setText(els.appointmentLabel, 'Dive Time');
+                setText(els.appointmentTime, apptTime);
                 diveStartTime = startTime;
                 currentAppointment = { ...appt, isActive: true, startTime, endTime };
                 const timeUntilStart = Math.max(0, startTime - now);
@@ -1674,13 +1731,13 @@
                     : 'Dive in progress');
             } else {
                 setStatus('Upcoming');
-                document.getElementById('patientName').textContent = patientName ? `Welcome, ${patientName}` : 'No Current Patient';
-                document.getElementById('patientLabel').textContent = 'Next Patient';
-                document.getElementById('appointmentLabel').textContent = 'Next Session';
-                document.getElementById('progressLabel').textContent = 'Starts In';
-                document.getElementById('appointmentTime').textContent = `Next at ${apptTime}`;
+                setText(els.patientName, patientName ? `Welcome, ${patientName}` : 'No Current Patient');
+                setText(els.patientLabel, 'Next Patient');
+                setText(els.appointmentLabel, 'Next Session');
+                setText(els.progressLabel, 'Starts In');
+                setText(els.appointmentTime, `Next at ${apptTime}`);
                 const timeUntilStart = Math.max(0, startTime - now);
-                document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
+                setText(els.timeRemaining, formatDuration(timeUntilStart));
                 diveStartTime = null;
                 currentAppointment = { ...appt, isActive: false, startTime, endTime };
                 setPatientHint(`Scheduled for ${apptTime}`);
@@ -1695,23 +1752,22 @@
             diveStartTime = null;
             hidePatientStartOverlay();
             setStatus('Available');
-            document.getElementById('seatDisplay').className = 'seat-info-card state-available';
-            const patientName = document.getElementById('patientName');
-            patientName.textContent = 'Seat Available';
-            patientName.style.opacity = '1';
-            patientName.style.color = 'var(--text-color)';
+            setClassName(els.seatDisplay, 'seat-info-card state-available');
+            setText(els.patientName, 'Seat Available');
+            setStyle(els.patientName, 'opacity', '1');
+            setStyle(els.patientName, 'color', 'var(--text-color)');
             
-            document.getElementById('patientLabel').textContent = nextAppointment ? 'No Active Dive' : 'Current Patient';
+            setText(els.patientLabel, nextAppointment ? 'No Active Dive' : 'Current Patient');
             const nextStart = nextAppointment && (nextAppointment.startTime || nextAppointment.start_time);
             setPatientHint(nextStart
                 ? `Next scheduled ${formatTime(nextStart)} · patient name appears 15 minutes before dive`
                 : 'Patient name appears 15 minutes before dive');
-            document.getElementById('appointmentLabel').textContent = 'Dive Time';
-            document.getElementById('appointmentTime').textContent = '—:—';
-            document.getElementById('timeRemaining').textContent = '—:—';
-            document.getElementById('progressLabel').textContent = 'Remaining';
-            document.getElementById('countdownDisplay').textContent = '—:—';
-            document.getElementById('countdownProgress').style.width = '0%';
+            setText(els.appointmentLabel, 'Dive Time');
+            setText(els.appointmentTime, '—:—');
+            setText(els.timeRemaining, '—:—');
+            setText(els.progressLabel, 'Remaining');
+            setText(els.countdownDisplay, '—:—');
+            setStyle(els.countdownProgress, 'width', '0%');
         }
 
         function showError(message) {
@@ -1720,26 +1776,25 @@
             hidePatientStartOverlay();
             setStatus('Error');
             
-            document.getElementById('seatDisplay').className = 'seat-info-card state-error';
-            const patientName = document.getElementById('patientName');
-            patientName.textContent = 'Seat Available';
-            patientName.style.opacity = '1';
-            patientName.style.color = 'var(--text-color)';
+            setClassName(els.seatDisplay, 'seat-info-card state-error');
+            setText(els.patientName, 'Seat Available');
+            setStyle(els.patientName, 'opacity', '1');
+            setStyle(els.patientName, 'color', 'var(--text-color)');
             
-            document.getElementById('patientLabel').textContent = 'Current Patient';
+            setText(els.patientLabel, 'Current Patient');
             setPatientHint('Schedule sync is retrying automatically');
-            document.getElementById('appointmentLabel').textContent = 'Dive Time';
-            document.getElementById('appointmentTime').textContent = '—:—';
-            document.getElementById('timeRemaining').textContent = '—:—';
-            document.getElementById('progressLabel').textContent = 'Remaining';
-            document.getElementById('countdownDisplay').textContent = '—:—';
-            document.getElementById('countdownProgress').style.width = '0%';
+            setText(els.appointmentLabel, 'Dive Time');
+            setText(els.appointmentTime, '—:—');
+            setText(els.timeRemaining, '—:—');
+            setText(els.progressLabel, 'Remaining');
+            setText(els.countdownDisplay, '—:—');
+            setStyle(els.countdownProgress, 'width', '0%');
         }
 
         function updateCountdown() {
             if (!currentAppointment) {
-                document.getElementById('countdownDisplay').textContent = '—:—';
-                document.getElementById('countdownProgress').style.width = '0%';
+                setText(els.countdownDisplay, '—:—');
+                setStyle(els.countdownProgress, 'width', '0%');
                 return;
             }
 
@@ -1749,20 +1804,21 @@
                 const hasStarted = now >= currentAppointment.startTime;
                 if (!hasStarted) {
                     setStatus('Starting Soon');
-                    document.getElementById('patientLabel').textContent = 'Current Patient';
-                    document.getElementById('appointmentLabel').textContent = 'Dive Time';
-                    document.getElementById('progressLabel').textContent = 'Starts In';
+                    setText(els.patientLabel, 'Current Patient');
+                    setText(els.appointmentLabel, 'Dive Time');
+                    setText(els.progressLabel, 'Starts In');
 
                     const timeUntilStart = Math.max(0, currentAppointment.startTime - now);
-                    document.getElementById('countdownDisplay').textContent = formatDuration(timeUntilStart);
-                    document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
-                    setPatientHint(`Starts in ${formatDuration(timeUntilStart)} · tap welcome screen to begin`);
+                    const duration = formatDuration(timeUntilStart);
+                    setText(els.countdownDisplay, duration);
+                    setText(els.timeRemaining, duration);
+                    setPatientHint(`Starts in ${duration} · tap welcome screen to begin`);
 
                     const elapsedPreDive = Math.max(0, preDiveDisplayMs - timeUntilStart);
                     const progressPercent = preDiveDisplayMs > 0
                         ? Math.min(100, Math.max(0, (elapsedPreDive / preDiveDisplayMs) * 100))
                         : 100;
-                    document.getElementById('countdownProgress').style.width = progressPercent + '%';
+                    setStyle(els.countdownProgress, 'width', progressPercent + '%');
 
                     updatePatientStartOverlay(now);
                     if (timeUntilStart <= 0) fetchAndDisplayAppointment();
@@ -1770,18 +1826,19 @@
                 }
 
                 setStatus('Active');
-                document.getElementById('patientLabel').textContent = 'Current Patient';
-                document.getElementById('appointmentLabel').textContent = 'Dive Time';
-                document.getElementById('progressLabel').textContent = 'Remaining';
+                setText(els.patientLabel, 'Current Patient');
+                setText(els.appointmentLabel, 'Dive Time');
+                setText(els.progressLabel, 'Remaining');
 
                 const total = Math.max(1, currentAppointment.endTime - currentAppointment.startTime);
                 const remaining = Math.max(0, currentAppointment.endTime - now);
+                const duration = formatDuration(remaining);
                 
-                document.getElementById('countdownDisplay').textContent = formatDuration(remaining);
+                setText(els.countdownDisplay, duration);
                 const progressPercent = Math.min(100, Math.max(0, 100 - (remaining / total) * 100));
-                document.getElementById('countdownProgress').style.width = progressPercent + '%';
-                document.getElementById('timeRemaining').textContent = formatDuration(remaining);
-                setPatientHint(`Dive in progress · ${formatDuration(remaining)} remaining`);
+                setStyle(els.countdownProgress, 'width', progressPercent + '%');
+                setText(els.timeRemaining, duration);
+                setPatientHint(`Dive in progress · ${duration} remaining`);
                 updatePatientStartOverlay(now);
 
                 if (remaining <= 0) {
@@ -1790,14 +1847,15 @@
                 }
             } else if (!currentAppointment.isActive && currentAppointment.startTime) {
                 const timeUntilStart = Math.max(0, currentAppointment.startTime - now);
-                document.getElementById('countdownDisplay').textContent = formatDuration(timeUntilStart);
+                const duration = formatDuration(timeUntilStart);
+                setText(els.countdownDisplay, duration);
                 
                 const maxWait = 24 * 60 * 60 * 1000;
                 const timeSinceDisplay = maxWait - timeUntilStart;
                 const progressPercent = Math.min(100, (timeSinceDisplay / maxWait) * 100);
-                document.getElementById('countdownProgress').style.width = progressPercent + '%';
-                document.getElementById('timeRemaining').textContent = formatDuration(timeUntilStart);
-                setPatientHint(`Scheduled for ${formatTime(currentAppointment.startTime)} · starts in ${formatDuration(timeUntilStart)}`);
+                setStyle(els.countdownProgress, 'width', progressPercent + '%');
+                setText(els.timeRemaining, duration);
+                setPatientHint(`Scheduled for ${formatTime(currentAppointment.startTime)} · starts in ${duration}`);
                 updatePatientStartOverlay(now);
 
                 if (timeUntilStart <= 0) fetchAndDisplayAppointment();
@@ -1833,15 +1891,9 @@
             const ampm = h >= 12 ? 'PM' : 'AM';
             const displayH = h % 12 || 12;
             
-            const clockTime = document.getElementById('clockTime');
-            if (clockTime) clockTime.textContent = `${displayH}:${String(m).padStart(2, '0')} ${ampm}`;
+            setText(els.clockTime, `${displayH}:${String(m).padStart(2, '0')} ${ampm}`);
             
-            const clockDate = document.getElementById('clockDate');
-            if (clockDate) {
-                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                clockDate.textContent = `${days[now.getDay()]} · ${months[now.getMonth()]} ${now.getDate()}`;
-            }
+            setText(els.clockDate, `${CLOCK_DAYS[now.getDay()]} · ${CLOCK_MONTHS[now.getMonth()]} ${now.getDate()}`);
         }
 
         function getCurrentVol() {
@@ -1875,10 +1927,8 @@
         }
 
         function renderVolume(level) {
-            var fill = document.getElementById('volFill');
-            var val = document.getElementById('volValue');
-            if (fill) fill.style.width = level + '%';
-            if (val) val.textContent = level + ' %';
+            setStyle(els.volFill, 'width', level + '%');
+            setText(els.volValue, level + ' %');
         }
     </script>
 </body>
