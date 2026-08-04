@@ -12,41 +12,47 @@
 
         /* OxyPeak-inspired clinical lounge palette */
         :root {
-            --bg-color: #f3f0e8;
+            --bg-color: #f4f1e9;
             --text-color: #132137;
-            --card-bg: rgba(255, 252, 246, 0.94);
-            --card-border: rgba(26, 44, 71, 0.12);
+            --card-bg: rgba(255, 253, 248, 0.9);
+            --card-inner: rgba(255, 255, 255, 0.56);
+            --card-border: rgba(26, 44, 71, 0.105);
+            --card-highlight: rgba(255, 255, 255, 0.78);
             --text-secondary: #5f6f86;
             --text-tertiary: #9aa6b6;
             --seat-badge-bg: rgba(94, 184, 168, 0.16);
             --seat-badge-text: #1f6f68;
             --divider-color: rgba(26, 44, 71, 0.1);
-            --icon-shadow: 0 10px 24px rgba(19, 33, 55, 0.08);
-            --card-shadow: 0 14px 34px rgba(19, 33, 55, 0.08);
-            --card-shadow-hover: 0 20px 46px rgba(19, 33, 55, 0.14);
+            --icon-shadow: 0 10px 22px rgba(19, 33, 55, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.52);
+            --card-shadow: 0 16px 38px rgba(19, 33, 55, 0.08), inset 0 1px 0 var(--card-highlight);
+            --card-shadow-hover: 0 20px 48px rgba(19, 33, 55, 0.14), inset 0 1px 0 var(--card-highlight);
             --btn-active-bg: rgba(94, 184, 168, 0.12);
             --track-bg: rgba(19, 33, 55, 0.08);
             --accent-teal: #5eb8a8;
             --accent-teal-dark: #177f73;
             --accent-gold: #d4a574;
             --accent-navy: #132137;
+            --ambient-line: rgba(94, 184, 168, 0.12);
         }
 
         [data-theme="dark"] {
             --bg-color: #07111f;
             --text-color: #f8f2e8;
-            --card-bg: rgba(15, 28, 47, 0.92);
+            --card-bg: rgba(15, 28, 47, 0.9);
+            --card-inner: rgba(255, 255, 255, 0.045);
             --card-border: rgba(255, 255, 255, 0.1);
+            --card-highlight: rgba(255, 255, 255, 0.12);
             --text-secondary: #b5c0cf;
             --text-tertiary: #7d8ba0;
             --seat-badge-bg: rgba(94, 184, 168, 0.16);
             --seat-badge-text: #8ee4d8;
             --divider-color: rgba(255, 255, 255, 0.1);
-            --icon-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
-            --card-shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
-            --card-shadow-hover: 0 24px 58px rgba(0, 0, 0, 0.36);
+            --icon-shadow: 0 16px 34px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 18px 46px rgba(0, 0, 0, 0.28), inset 0 1px 0 var(--card-highlight);
+            --card-shadow-hover: 0 24px 58px rgba(0, 0, 0, 0.36), inset 0 1px 0 var(--card-highlight);
             --btn-active-bg: rgba(255, 255, 255, 0.08);
             --track-bg: rgba(255, 255, 255, 0.1);
+            --ambient-line: rgba(94, 184, 168, 0.16);
         }
 
         /* Smooth iOS style transitions across all layout shifts */
@@ -64,8 +70,10 @@
             overflow: hidden;
             position: fixed;
             background:
-                radial-gradient(circle at 8% 8%, rgba(94, 184, 168, 0.18), transparent 27%),
-                radial-gradient(circle at 94% 2%, rgba(212, 165, 116, 0.18), transparent 23%),
+                linear-gradient(115deg, transparent 0 42%, var(--ambient-line) 42% 42.6%, transparent 42.6% 100%),
+                linear-gradient(145deg, rgba(255, 255, 255, 0.52), transparent 34%),
+                radial-gradient(circle at 10% 8%, rgba(94, 184, 168, 0.16), transparent 26%),
+                radial-gradient(circle at 94% 2%, rgba(212, 165, 116, 0.15), transparent 22%),
                 linear-gradient(135deg, var(--bg-color), #fbfaf6 62%, #eef6f4);
             color: var(--text-color);
             font-family: 'Inter', -apple-system, sans-serif;
@@ -75,6 +83,8 @@
         html[data-theme="dark"],
         html[data-theme="dark"] body {
             background:
+                linear-gradient(115deg, transparent 0 42%, rgba(94, 184, 168, 0.14) 42% 42.6%, transparent 42.6% 100%),
+                linear-gradient(145deg, rgba(255, 255, 255, 0.035), transparent 34%),
                 radial-gradient(circle at 8% 8%, rgba(94, 184, 168, 0.22), transparent 27%),
                 radial-gradient(circle at 94% 2%, rgba(212, 165, 116, 0.13), transparent 23%),
                 linear-gradient(135deg, #07111f, #0b1930 62%, #092e32);
@@ -93,15 +103,15 @@
         }
 
         body::before {
-            content: 'OxyPeak';
+            content: 'OxyPeak HBOT';
             position: fixed;
             right: 36px;
             top: 84px;
             z-index: -1;
             font-size: min(17vw, 210px);
             font-weight: 800;
-            letter-spacing: -0.08em;
-            color: rgba(19, 33, 55, 0.035);
+            letter-spacing: -0.065em;
+            color: rgba(19, 33, 55, 0.032);
             pointer-events: none;
             white-space: nowrap;
         }
@@ -192,7 +202,9 @@
             height: 34px;
             border-radius: 12px;
             border: 1px solid var(--card-border);
-            background: var(--card-bg);
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.78), var(--card-inner)),
+                var(--card-bg);
             color: var(--text-secondary);
             cursor: pointer;
             display: flex;
@@ -219,7 +231,9 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: var(--card-bg);
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.78), var(--card-inner)),
+                var(--card-bg);
             padding: 6px 12px;
             border-radius: 9999px;
             border: 1px solid var(--card-border);
@@ -232,6 +246,13 @@
         .session-status-badge[data-state="upcoming"] .pulse-dot,
         .session-status-badge[data-state="starting-soon"] .pulse-dot { background: var(--accent-gold); }
         .session-status-badge[data-state="sync-issue"] .pulse-dot { background: var(--accent-gold); }
+
+        [data-theme="dark"] .theme-toggle-btn,
+        [data-theme="dark"] .session-status-badge {
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02)),
+                var(--card-bg);
+        }
 
         .pulse-dot {
             width: 6px;
@@ -280,7 +301,10 @@
 
         /* === SEAT INFO WIDGET CARD (Modern SaaS Dashboard Style) === */
         .seat-info-card {
-            background: var(--card-bg);
+            background:
+                linear-gradient(120deg, rgba(255, 255, 255, 0.7), transparent 42%),
+                linear-gradient(145deg, var(--card-bg), rgba(255, 251, 243, 0.82)),
+                var(--card-bg);
             border-radius: 18px;
             padding: 14px 24px;
             display: grid;
@@ -309,6 +333,13 @@
             pointer-events: none;
         }
 
+        [data-theme="dark"] .seat-info-card {
+            background:
+                linear-gradient(120deg, rgba(255, 255, 255, 0.07), transparent 42%),
+                linear-gradient(145deg, var(--card-bg), rgba(9, 22, 38, 0.82)),
+                var(--card-bg);
+        }
+
         /* Subtle left indicator accent line */
         .seat-info-card::before {
             content: '';
@@ -322,10 +353,10 @@
             border-bottom-left-radius: 16px;
             transition: background-color 0.2s ease;
         }
-        .seat-info-card.state-active::before { background: var(--accent-teal); }
-        .seat-info-card.state-upcoming::before { background: var(--accent-gold); }
-        .seat-info-card.state-available::before { background: var(--accent-navy); }
-        .seat-info-card.state-error::before { background: var(--accent-gold); }
+        .seat-info-card.state-active::before { background: linear-gradient(180deg, var(--accent-teal), var(--accent-teal-dark)); }
+        .seat-info-card.state-upcoming::before { background: linear-gradient(180deg, var(--accent-gold), var(--accent-teal)); }
+        .seat-info-card.state-available::before { background: linear-gradient(180deg, var(--accent-navy), var(--accent-teal-dark)); }
+        .seat-info-card.state-error::before { background: linear-gradient(180deg, var(--accent-gold), #c7773a); }
 
         .patient-section {
             display: flex;
@@ -415,7 +446,7 @@
 
         .countdown-progress {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-teal), var(--accent-gold));
+            background: linear-gradient(90deg, var(--accent-teal-dark), var(--accent-teal), var(--accent-gold));
             width: 50%;
             transition: width 0.5s linear;
         }
@@ -447,7 +478,9 @@
         }
 
         .app-card {
-            background: var(--card-bg);
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 251, 244, 0.34)),
+                var(--card-bg);
             border-radius: 18px;
             padding: 18px 18px 16px;
             display: flex;
@@ -476,15 +509,40 @@
             z-index: -1;
             border-radius: 15px;
             background:
-                radial-gradient(circle at 50% 8%, rgba(255, 255, 255, 0.82), transparent 22%),
-                linear-gradient(145deg, rgba(94, 184, 168, 0.1), rgba(212, 165, 116, 0.08));
+                linear-gradient(135deg, rgba(255, 255, 255, 0.62), transparent 34%),
+                linear-gradient(145deg, rgba(94, 184, 168, 0.09), rgba(212, 165, 116, 0.08));
             opacity: 0.7;
+        }
+
+        .app-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.48), transparent 38%),
+                linear-gradient(135deg, rgba(94, 184, 168, 0.18), transparent 30%, transparent 70%, rgba(212, 165, 116, 0.14));
+            opacity: 0.64;
         }
 
         [data-theme="dark"] .app-card::before {
             background:
-                radial-gradient(circle at 50% 8%, rgba(255, 255, 255, 0.08), transparent 24%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 32%),
                 linear-gradient(145deg, rgba(94, 184, 168, 0.13), rgba(212, 165, 116, 0.08));
+        }
+
+        [data-theme="dark"] .app-card {
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.018)),
+                var(--card-bg);
+        }
+
+        [data-theme="dark"] .app-card::after {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 38%),
+                linear-gradient(135deg, rgba(94, 184, 168, 0.14), transparent 32%, transparent 70%, rgba(212, 165, 116, 0.09));
+            opacity: 0.7;
         }
 
         /* Hover & Active States */
@@ -505,6 +563,8 @@
             align-items: center;
             width: 100%;
             min-height: 0;
+            position: relative;
+            z-index: 1;
         }
 
         .app-icon {
@@ -516,6 +576,7 @@
             justify-content: center;
             flex-shrink: 0;
             box-shadow: var(--icon-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.48);
         }
 
         .app-icon svg {
@@ -532,6 +593,7 @@
             height: 14px;
             color: var(--text-tertiary);
             opacity: 0.45;
+            z-index: 2;
             transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
@@ -545,6 +607,8 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .app-category {
@@ -824,7 +888,9 @@
         /* === iOS CONTROL CENTER VOLUME SLIDER (Minimalist flat pill) === */
         .volume-control-center {
             flex-shrink: 0;
-            background: var(--card-bg);
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.74), rgba(255, 251, 244, 0.38)),
+                var(--card-bg);
             border-radius: 16px;
             padding: 8px 18px;
             display: flex;
@@ -890,11 +956,12 @@
             border-radius: 3px;
             position: relative;
             overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
         }
 
         .vol-slider-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-teal), #6aa2ff);
+            background: linear-gradient(90deg, var(--accent-teal-dark), var(--accent-teal), #6aa2ff);
             width: 50%;
             border-radius: 3px;
             transition: width 0.1s ease;
@@ -908,6 +975,12 @@
             text-align: right;
             font-variant-numeric: tabular-nums;
             flex-shrink: 0;
+        }
+
+        [data-theme="dark"] .volume-control-center {
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.018)),
+                var(--card-bg);
         }
 
         /* Modern thin brand watermark */
