@@ -59,6 +59,8 @@
             padding: 0;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
+            max-height: 100dvh;
             overflow: hidden;
             position: fixed;
             background:
@@ -83,6 +85,7 @@
             flex-direction: column;
             padding: 16px 20px;
             height: 100vh;
+            height: 100dvh;
             justify-content: space-between;
             gap: 10px;
             width: 100%;
@@ -435,10 +438,12 @@
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr); /* 4 columns */
+            grid-template-rows: repeat(3, minmax(0, 1fr));
             gap: 12px;
             flex: 1;
             width: 100%;
             align-content: stretch;
+            min-height: 0;
         }
 
         .app-card {
@@ -456,6 +461,7 @@
             border: 1px solid var(--card-border);
             box-shadow: var(--card-shadow);
             min-width: 0;
+            min-height: 0;
             height: 100%;
             position: relative;
             overflow: hidden;
@@ -498,7 +504,7 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            min-height: 68px;
+            min-height: 0;
         }
 
         .app-icon {
@@ -594,11 +600,203 @@
             }
         }
 
+        @media (max-height: 820px) {
+            body {
+                padding: 10px 14px;
+                gap: 7px;
+            }
+
+            .header-row {
+                height: 42px;
+                padding: 0 4px;
+            }
+
+            .location-header {
+                gap: 10px;
+            }
+
+            .brand-kicker {
+                font-size: 7px;
+            }
+
+            .brand-word {
+                font-size: 16px;
+            }
+
+            .chamber-header-name {
+                font-size: 19px;
+            }
+
+            .seat-badge {
+                font-size: 13px;
+                padding: 6px 11px;
+            }
+
+            .theme-toggle-btn {
+                width: 30px;
+                height: 30px;
+                border-radius: 10px;
+            }
+
+            .session-status-badge {
+                padding: 5px 10px;
+            }
+
+            .clock-time {
+                font-size: 15px;
+            }
+
+            .seat-info-card {
+                height: 82px;
+                padding: 10px 20px;
+                border-radius: 16px;
+            }
+
+            .seat-info-card::after {
+                display: none;
+            }
+
+            .info-value-large {
+                font-size: clamp(24px, 4vh, 34px);
+            }
+
+            .patient-hint {
+                margin-top: 5px;
+                font-size: 10px;
+            }
+
+            .grid {
+                gap: 8px;
+            }
+
+            .app-card {
+                border-radius: 16px;
+                padding: 10px 12px;
+                gap: 7px;
+            }
+
+            .app-card::before {
+                inset: 8px;
+                border-radius: 13px;
+            }
+
+            .app-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 16px;
+            }
+
+            .app-icon svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .arrow-icon {
+                top: 10px;
+                right: 10px;
+                width: 12px;
+                height: 12px;
+            }
+
+            .app-category {
+                font-size: 8px;
+                margin-bottom: 3px;
+                letter-spacing: 0.1em;
+            }
+
+            .app-name {
+                font-size: clamp(15px, 2.8vh, 20px);
+            }
+
+            .volume-control-center {
+                height: 36px;
+                padding: 6px 14px;
+                border-radius: 14px;
+            }
+
+            .vol-label-title {
+                font-size: 7.5px;
+            }
+
+            .vol-label-val {
+                font-size: 10px;
+            }
+
+            .vol-btn {
+                width: 24px;
+                height: 24px;
+            }
+
+            .brand-watermark {
+                display: none;
+            }
+        }
+
+        @media (max-height: 680px) {
+            body {
+                padding: 8px 12px;
+                gap: 6px;
+            }
+
+            .header-row {
+                height: 38px;
+            }
+
+            .seat-info-card {
+                height: 74px;
+                padding: 8px 16px;
+            }
+
+            .info-value-large {
+                font-size: clamp(22px, 4.5vh, 30px);
+            }
+
+            .progress-section {
+                gap: 3px;
+                padding-left: 14px;
+            }
+
+            .grid {
+                gap: 7px;
+            }
+
+            .app-card {
+                padding: 8px 10px;
+                gap: 5px;
+                border-radius: 14px;
+            }
+
+            .app-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 14px;
+            }
+
+            .app-icon svg {
+                width: 21px;
+                height: 21px;
+            }
+
+            .app-category {
+                font-size: 7px;
+                margin-bottom: 2px;
+            }
+
+            .app-name {
+                font-size: clamp(14px, 3vh, 18px);
+            }
+
+            .volume-control-center {
+                height: 32px;
+                padding: 4px 12px;
+            }
+        }
+
         /* Premium Tonal Icon Accents */
         .card-aviv .app-icon { background: linear-gradient(145deg, #d8fff6, #a7eee1); color: #0f766e; }
         .card-youtube .app-icon { background: linear-gradient(145deg, #ffe4e4, #ffc8c8); color: #b91c1c; }
         .card-radio .app-icon { background: linear-gradient(145deg, #fff0cf, #ffd99e); color: #c2410c; }
-        .card-nytimes .app-icon { background: linear-gradient(145deg, #f8f2e8, #e8dfd1); color: #132137; }
+        .card-guardian .app-icon { background: linear-gradient(145deg, #f8f2e8, #e8dfd1); color: #132137; }
         .card-dailysun .app-icon { background: linear-gradient(145deg, #fff4c9, #f7d98a); color: #a16207; }
         .card-audiobooks .app-icon { background: linear-gradient(145deg, #dfefff, #bed9ff); color: #1d4ed8; }
         .card-podcasts .app-icon { background: linear-gradient(145deg, #f8e7ff, #e7c3ff); color: #7e22ce; }
@@ -612,7 +810,7 @@
         [data-theme="dark"] .card-aviv .app-icon { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; }
         [data-theme="dark"] .card-youtube .app-icon { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
         [data-theme="dark"] .card-radio .app-icon { background: rgba(249, 115, 22, 0.15); color: #ffedd5; }
-        [data-theme="dark"] .card-nytimes .app-icon { background: rgba(255, 255, 255, 0.08); color: #f8fafc; }
+        [data-theme="dark"] .card-guardian .app-icon { background: rgba(255, 255, 255, 0.08); color: #f8fafc; }
         [data-theme="dark"] .card-dailysun .app-icon { background: rgba(245, 158, 11, 0.15); color: #fde047; }
         [data-theme="dark"] .card-audiobooks .app-icon { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
         [data-theme="dark"] .card-podcasts .app-icon { background: rgba(139, 92, 246, 0.15); color: #d8b4fe; }
@@ -972,7 +1170,7 @@
             </div>
         </a>
 
-        <a href="https://www.nytimes.com" target="_blank" class="app-card card-nytimes">
+        <a href="https://www.theguardian.com/us-news" target="_blank" class="app-card card-guardian">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -984,7 +1182,7 @@
             </div>
             <div class="card-bottom">
                 <span class="app-category">News</span>
-                <span class="app-name">NY Times</span>
+                <span class="app-name">The Guardian</span>
             </div>
         </a>
 
