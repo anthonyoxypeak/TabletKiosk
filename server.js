@@ -102,14 +102,25 @@ app.get(['/api/tablet/session', '/api/seat-session'], requireKioskApiKey, async 
 
     try {
         const now = DateTime.now().setZone(TIME_ZONE);
-        const rows = await provider.fetchSeatSessions({
+        const sessionWindow = getSessionWindow(now);
+        const seatSessionRequest = {
             ...location,
-            ...getSessionWindow(now)
-        });
+            ...sessionWindow
+        };
+        const [rows, chamberRows] = await Promise.all([
+            provider.fetchSeatSessions(seatSessionRequest),
+            provider.fetchChamberSessions
+                ? provider.fetchChamberSessions({
+                    chamberName: location.chamberName,
+                    ...sessionWindow
+                })
+                : provider.fetchSeatSessions(seatSessionRequest)
+        ]);
 
         const payload = buildTabletSessionResponse(rows, {
             chamberName: location.chamberName,
             seatNumber: location.seatNumber,
+            chamberRows,
             diveDurationMinutes: DIVE_DURATION_MINUTES,
             preDiveDisplayMinutes: PRE_DIVE_DISPLAY_MINUTES,
             timeZone: TIME_ZONE,

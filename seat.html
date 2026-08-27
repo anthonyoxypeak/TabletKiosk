@@ -1013,6 +1013,55 @@
             color: rgba(248, 242, 232, 0.24);
         }
 
+        .empty-dive-dimmer {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 50% 44%, rgba(94, 184, 168, 0.08), transparent 34%),
+                linear-gradient(135deg, #02050a, #050b13 58%, #02050a);
+            color: rgba(248, 250, 252, 0.12);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .empty-dive-dimmer.is-visible {
+            opacity: 1;
+        }
+
+        .empty-dive-logo {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transform: translateY(-2vh);
+            opacity: 0.72;
+        }
+
+        .empty-dive-mark {
+            width: min(16vw, 140px);
+            height: min(16vw, 140px);
+            border: 9px solid rgba(94, 184, 168, 0.1);
+            border-right-color: rgba(62, 139, 187, 0.14);
+            border-radius: 50%;
+        }
+
+        .empty-dive-word {
+            font-size: clamp(46px, 10vw, 128px);
+            font-weight: 800;
+            letter-spacing: -0.07em;
+            line-height: 0.9;
+        }
+
+        .empty-dive-word span {
+            color: rgba(94, 184, 168, 0.16);
+        }
+
         .patient-start-overlay {
             position: fixed;
             inset: 0;
@@ -1128,6 +1177,13 @@
     </style>
 </head>
 <body>
+
+    <div id="emptyDiveDimmer" class="empty-dive-dimmer" aria-hidden="true">
+        <div class="empty-dive-logo" aria-label="OxyPeak">
+            <div class="empty-dive-mark"></div>
+            <div class="empty-dive-word">Oxy<span>Peak</span></div>
+        </div>
+    </div>
 
     <div id="patientStartOverlay" class="patient-start-overlay" aria-hidden="true">
         <button class="patient-start-button" type="button" onclick="startPatientSession(event)">Tap here to start</button>
@@ -1485,6 +1541,7 @@
             'clockTime',
             'countdownDisplay',
             'countdownProgress',
+            'emptyDiveDimmer',
             'patientHint',
             'patientLabel',
             'patientName',
@@ -1596,6 +1653,18 @@
             setText(els.patientHint, text || '');
         }
 
+        function setEmptyDiveDimmer(isVisible) {
+            const dimmer = els.emptyDiveDimmer;
+            if (!dimmer) return;
+            if (isVisible) {
+                if (!dimmer.classList.contains('is-visible')) dimmer.classList.add('is-visible');
+                setAttributeValue(dimmer, 'aria-hidden', 'false');
+            } else {
+                if (dimmer.classList.contains('is-visible')) dimmer.classList.remove('is-visible');
+                setAttributeValue(dimmer, 'aria-hidden', 'true');
+            }
+        }
+
         function setupDisplay() {
             setText(els.chamberName, CHAMBER_NAMES[CHAMBER_NUMBER] || 'Unknown');
             setText(els.seatNumber, String(SEAT_NUMBER));
@@ -1637,13 +1706,20 @@
 
                 const activeAppointment = data.activeAppointment || data.active_appointment;
                 const nextAppointment = data.nextAppointment || data.next_appointment;
+                const chamberDiveActive = Boolean(data.chamberDiveActive || data.chamber_dive_active);
 
                 if (activeAppointment) {
+                    setEmptyDiveDimmer(false);
                     displayAppointment(activeAppointment, true);
                 } else if (SHOW_NEXT && nextAppointment) {
-                    displayAppointment(nextAppointment, false);
+                    setEmptyDiveDimmer(chamberDiveActive);
+                    if (chamberDiveActive) {
+                        showEmpty(nextAppointment, chamberDiveActive);
+                    } else {
+                        displayAppointment(nextAppointment, false);
+                    }
                 } else {
-                    showEmpty(nextAppointment);
+                    showEmpty(nextAppointment, chamberDiveActive);
                 }
             } catch (error) {
                 console.error('Error fetching appointment:', error);
@@ -1715,6 +1791,7 @@
         }
 
         function displayAppointment(appt, isActive) {
+            setEmptyDiveDimmer(false);
             const display = els.seatDisplay;
             setStyle(display, 'opacity', '1');
             setClassName(display, `seat-info-card ${isActive ? 'state-active' : 'state-upcoming'}`);
@@ -1758,10 +1835,11 @@
             updateCountdown();
         }
 
-        function showEmpty(nextAppointment) {
+        function showEmpty(nextAppointment, chamberDiveActive = false) {
             currentAppointment = null;
             diveStartTime = null;
             hidePatientStartOverlay();
+            setEmptyDiveDimmer(chamberDiveActive);
             setStatus('Available');
             setClassName(els.seatDisplay, 'seat-info-card state-available');
             setText(els.patientName, 'Seat Available');
@@ -1785,6 +1863,7 @@
             currentAppointment = null;
             diveStartTime = null;
             hidePatientStartOverlay();
+            setEmptyDiveDimmer(false);
             setStatus('Error');
             
             setClassName(els.seatDisplay, 'seat-info-card state-error');

@@ -162,6 +162,15 @@ function serializeAppointment(session) {
     };
 }
 
+function isSessionVisible(session, now, preDiveDisplayMinutes) {
+    const displayStart = session.start.minus({ minutes: preDiveDisplayMinutes });
+    return now >= displayStart && now < session.end;
+}
+
+function isSessionInDiveWindow(session, now) {
+    return now >= session.start && now < session.end;
+}
+
 function buildTabletSessionResponse(rows, options = {}) {
     const timeZone = options.timeZone || DEFAULT_TIME_ZONE;
     const preDiveDisplayMinutes = Number(
@@ -177,12 +186,16 @@ function buildTabletSessionResponse(rows, options = {}) {
         .filter(session => ACTIVE_STATUSES.has(session.status))
         .sort((a, b) => a.start.toMillis() - b.start.toMillis());
 
-    const active = sessions.find(session => {
-        const displayStart = session.start.minus({ minutes: preDiveDisplayMinutes });
-        return now >= displayStart && now < session.end;
-    }) || null;
+    const chamberRows = Array.isArray(options.chamberRows) ? options.chamberRows : rows;
+    const chamberSessions = chamberRows
+        .map(row => normalizeSessionRow(row, options))
+        .filter(Boolean)
+        .filter(session => ACTIVE_STATUSES.has(session.status));
+
+    const active = sessions.find(session => isSessionVisible(session, now, preDiveDisplayMinutes)) || null;
     const next = sessions.find(session => session !== active && session.start > now) || null;
     const state = active ? 'active' : 'available';
+    const chamberDiveActive = chamberSessions.some(session => isSessionInDiveWindow(session, now));
 
     const activeAppointment = serializeAppointment(active);
     const nextAppointment = serializeAppointment(next);
@@ -198,6 +211,8 @@ function buildTabletSessionResponse(rows, options = {}) {
         seatNumber: options.seatNumber,
         preDiveDisplayMinutes,
         pre_dive_display_minutes: preDiveDisplayMinutes,
+        chamberDiveActive,
+        chamber_dive_active: chamberDiveActive,
         activeAppointment,
         active_appointment: activeAppointment,
         nextAppointment,

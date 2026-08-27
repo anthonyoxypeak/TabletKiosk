@@ -28,6 +28,31 @@ const DEFAULT_TABLET_SESSION_QUERY = `
     ORDER BY ts.date ASC, ts.start_time ASC
 `;
 
+const DEFAULT_CHAMBER_SESSION_QUERY = `
+    SELECT
+        su.id AS session_id,
+        p.first_name,
+        p.last_name,
+        p.id AS patient_id,
+        su.status,
+        su.sequence_number,
+        c.name AS chamber_name,
+        s.seat_number,
+        ts.date::text AS session_date,
+        ts.start_time::text AS start_time,
+        $5::int AS duration_minutes
+    FROM scheduling_sessionunit su
+    JOIN scheduling_package pkg ON su.package_id = pkg.id
+    JOIN scheduling_patient p ON pkg.patient_id = p.id
+    JOIN scheduling_timeslot ts ON su.timeslot_id = ts.id
+    JOIN scheduling_chamber c ON ts.chamber_id = c.id
+    JOIN scheduling_seat s ON su.seat_id = s.id
+    WHERE c.name = $1
+      AND ts.date BETWEEN $2::date AND $3::date
+      AND su.status = ANY($4::text[])
+    ORDER BY ts.date ASC, ts.start_time ASC, s.seat_number ASC
+`;
+
 function hasPostgresConfig(env = process.env) {
     return Boolean(
         env.DATABASE_URL ||
@@ -60,6 +85,7 @@ function createPostgresProvider(options = {}) {
     const env = options.env || process.env;
     const pool = options.pool || new Pool(buildPoolConfig(env));
     const query = options.query || env.KIOSK_TABLET_SESSION_QUERY || DEFAULT_TABLET_SESSION_QUERY;
+    const chamberQuery = options.chamberQuery || env.KIOSK_CHAMBER_SESSION_QUERY || DEFAULT_CHAMBER_SESSION_QUERY;
     const statusFilter = (env.KIOSK_STATUS_FILTER || DEFAULT_STATUS_FILTER.join(','))
         .split(',')
         .map(status => status.trim().toLowerCase())
@@ -78,6 +104,17 @@ function createPostgresProvider(options = {}) {
         return result.rows;
     }
 
+    async function fetchChamberSessions({ chamberName, startDate, endDate }) {
+        const result = await pool.query(chamberQuery, [
+            chamberName,
+            startDate,
+            endDate,
+            statusFilter,
+            diveDurationMinutes
+        ]);
+        return result.rows;
+    }
+
     async function close() {
         await pool.end();
     }
@@ -85,11 +122,13 @@ function createPostgresProvider(options = {}) {
     return {
         name: 'postgres',
         fetchSeatSessions,
+        fetchChamberSessions,
         close
     };
 }
 
 module.exports = {
+    DEFAULT_CHAMBER_SESSION_QUERY,
     DEFAULT_TABLET_SESSION_QUERY,
     buildPoolConfig,
     createPostgresProvider,

@@ -122,3 +122,56 @@ test('hides patient exactly when the scheduled dive window ends', () => {
     assert.equal(payload.activeAppointment, null);
     assert.equal(payload.nextAppointment, null);
 });
+
+test('marks empty seat dimmable when another seat in the chamber is diving', () => {
+    const payload = buildTabletSessionResponse([], {
+        chamberName: 'HBOT 1',
+        seatNumber: 3,
+        timeZone: 'America/New_York',
+        now: new Date('2026-07-06T09:15:00-04:00'),
+        chamberRows: [
+            {
+                session_id: 505,
+                first_name: 'Other',
+                last_name: 'Patient',
+                status: 'scheduled',
+                chamber_name: 'HBOT 1',
+                seat_number: 4,
+                session_date: '2026-07-06',
+                start_time: '08:00:00',
+                duration_minutes: 120
+            }
+        ]
+    });
+
+    assert.equal(payload.state, 'available');
+    assert.equal(payload.activeAppointment, null);
+    assert.equal(payload.chamberDiveActive, true);
+    assert.equal(payload.chamber_dive_active, true);
+});
+
+test('does not dim empty seat during another seat pre-dive window', () => {
+    const payload = buildTabletSessionResponse([], {
+        chamberName: 'HBOT 1',
+        seatNumber: 3,
+        timeZone: 'America/New_York',
+        now: new Date('2026-07-06T07:50:00-04:00'),
+        chamberRows: [
+            {
+                session_id: 606,
+                first_name: 'Soon',
+                last_name: 'Patient',
+                status: 'scheduled',
+                chamber_name: 'HBOT 1',
+                seat_number: 4,
+                session_date: '2026-07-06',
+                start_time: '08:00:00',
+                duration_minutes: 120
+            }
+        ]
+    });
+
+    assert.equal(payload.state, 'available');
+    assert.equal(payload.activeAppointment, null);
+    assert.equal(payload.chamberDiveActive, false);
+});
