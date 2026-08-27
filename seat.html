@@ -24,8 +24,8 @@
             --seat-badge-text: #1f6f68;
             --divider-color: rgba(26, 44, 71, 0.1);
             --icon-shadow: 0 10px 22px rgba(19, 33, 55, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.52);
-            --card-shadow: 0 16px 38px rgba(19, 33, 55, 0.08), inset 0 1px 0 var(--card-highlight);
-            --card-shadow-hover: 0 20px 48px rgba(19, 33, 55, 0.14), inset 0 1px 0 var(--card-highlight);
+            --card-shadow: 0 4px 12px rgba(19, 33, 55, 0.08), inset 0 1px 0 var(--card-highlight);
+            --card-shadow-hover: 0 6px 14px rgba(19, 33, 55, 0.1), inset 0 1px 0 var(--card-highlight);
             --btn-active-bg: rgba(94, 184, 168, 0.12);
             --track-bg: rgba(19, 33, 55, 0.08);
             --accent-teal: #5eb8a8;
@@ -48,8 +48,8 @@
             --seat-badge-text: #8ee4d8;
             --divider-color: rgba(255, 255, 255, 0.1);
             --icon-shadow: 0 16px 34px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            --card-shadow: 0 18px 46px rgba(0, 0, 0, 0.28), inset 0 1px 0 var(--card-highlight);
-            --card-shadow-hover: 0 24px 58px rgba(0, 0, 0, 0.36), inset 0 1px 0 var(--card-highlight);
+            --card-shadow: 0 4px 14px rgba(0, 0, 0, 0.28), inset 0 1px 0 var(--card-highlight);
+            --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.32), inset 0 1px 0 var(--card-highlight);
             --btn-active-bg: rgba(255, 255, 255, 0.08);
             --track-bg: rgba(255, 255, 255, 0.1);
             --ambient-line: rgba(94, 184, 168, 0.16);
@@ -66,7 +66,7 @@
         .patient-start-overlay,
         .patient-start-button,
         .vol-btn {
-            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 0.12s ease;
         }
 
         html, body {
@@ -78,12 +78,7 @@
             max-height: 100dvh;
             overflow: hidden;
             position: fixed;
-            background:
-                linear-gradient(115deg, transparent 0 42%, var(--ambient-line) 42% 42.6%, transparent 42.6% 100%),
-                linear-gradient(145deg, rgba(255, 255, 255, 0.52), transparent 34%),
-                radial-gradient(circle at 10% 8%, rgba(94, 184, 168, 0.16), transparent 26%),
-                radial-gradient(circle at 94% 2%, rgba(212, 165, 116, 0.15), transparent 22%),
-                linear-gradient(135deg, var(--bg-color), #fbfaf6 62%, #eef6f4);
+            background: linear-gradient(135deg, var(--bg-color), #fbfaf6 62%, #eef6f4);
             color: var(--text-color);
             font-family: 'Inter', -apple-system, sans-serif;
             -webkit-font-smoothing: antialiased;
@@ -91,12 +86,7 @@
 
         html[data-theme="dark"],
         html[data-theme="dark"] body {
-            background:
-                linear-gradient(115deg, transparent 0 42%, rgba(94, 184, 168, 0.14) 42% 42.6%, transparent 42.6% 100%),
-                linear-gradient(145deg, rgba(255, 255, 255, 0.035), transparent 34%),
-                radial-gradient(circle at 8% 8%, rgba(94, 184, 168, 0.22), transparent 27%),
-                radial-gradient(circle at 94% 2%, rgba(212, 165, 116, 0.13), transparent 23%),
-                linear-gradient(135deg, #07111f, #0b1930 62%, #092e32);
+            background: linear-gradient(135deg, #07111f, #0b1930 62%, #092e32);
         }
 
         body {
@@ -109,24 +99,6 @@
             gap: 10px;
             width: 100%;
             margin: 0;
-        }
-
-        body::before {
-            content: 'OxyPeak HBOT';
-            position: fixed;
-            right: 36px;
-            top: 84px;
-            z-index: -1;
-            font-size: min(17vw, 210px);
-            font-weight: 800;
-            letter-spacing: -0.065em;
-            color: rgba(19, 33, 55, 0.032);
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
-        [data-theme="dark"] body::before {
-            color: rgba(248, 242, 232, 0.045);
         }
 
         /* === TOP HEADER ROW === */
@@ -268,12 +240,6 @@
             height: 6px;
             border-radius: 50%;
             background: var(--text-tertiary);
-            animation: pulse 2.4s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.9); }
         }
 
         .session-label {
@@ -317,7 +283,7 @@
             border-radius: 18px;
             padding: 14px 24px;
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(170px, 0.24fr) minmax(320px, 0.7fr);
+            grid-template-columns: minmax(0, 1fr) minmax(230px, 0.32fr) minmax(300px, 0.64fr);
             gap: 16px;
             align-items: center;
             border: 1px solid var(--card-border);
@@ -326,7 +292,6 @@
             height: 92px;
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(14px);
             contain: layout paint style;
         }
 
@@ -361,7 +326,7 @@
             background: transparent;
             border-top-left-radius: 16px;
             border-bottom-left-radius: 16px;
-            transition: background-color 0.2s ease;
+            transition: background-color 0.16s ease;
         }
         .seat-info-card.state-active::before { background: linear-gradient(180deg, var(--accent-teal), var(--accent-teal-dark)); }
         .seat-info-card.state-upcoming::before { background: linear-gradient(180deg, var(--accent-gold), var(--accent-teal)); }
@@ -428,8 +393,9 @@
             height: 58px;
             padding: 8px 12px;
             border-radius: 16px;
-            gap: 10px;
+            gap: 16px;
             min-width: 0;
+            justify-content: center;
         }
 
         .seat-volume-control .vol-label-block {
@@ -437,10 +403,15 @@
         }
 
         .seat-volume-control .vol-btn {
-            width: 34px;
-            height: 34px;
+            width: 44px;
+            height: 44px;
             background: rgba(255, 255, 255, 0.34);
             border: 1px solid var(--card-border);
+        }
+
+        .seat-volume-control .vol-btn svg {
+            width: 21px;
+            height: 21px;
         }
 
         .seat-volume-control .vol-btn:active {
@@ -481,7 +452,6 @@
             height: 100%;
             background: linear-gradient(90deg, var(--accent-teal-dark), var(--accent-teal), var(--accent-gold));
             width: 50%;
-            transition: width 0.5s linear;
         }
 
         .total-countdown-row {
@@ -532,7 +502,6 @@
             position: relative;
             overflow: hidden;
             isolation: isolate;
-            backdrop-filter: blur(14px);
             contain: layout paint style;
         }
 
@@ -581,9 +550,7 @@
 
         /* Hover & Active States */
         .app-card:hover {
-            transform: translateY(-2px);
             border-color: rgba(94, 184, 168, 0.42);
-            box-shadow: var(--card-shadow-hover);
         }
 
         .app-card:active {
@@ -628,12 +595,10 @@
             color: var(--text-tertiary);
             opacity: 0.45;
             z-index: 2;
-            transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
         .app-card:hover .arrow-icon {
             opacity: 1;
-            transform: translate(1px, -1px);
         }
 
         .card-bottom {
@@ -842,7 +807,7 @@
 
             .seat-info-card {
                 height: 74px;
-                grid-template-columns: minmax(0, 1fr) minmax(150px, 0.24fr) minmax(280px, 0.68fr);
+                grid-template-columns: minmax(0, 1fr) minmax(210px, 0.32fr) minmax(260px, 0.62fr);
                 padding: 8px 16px;
                 gap: 10px;
             }
@@ -888,8 +853,8 @@
 
             .seat-volume-control {
                 height: 46px;
-                padding: 5px 9px;
-                gap: 8px;
+                padding: 4px 8px;
+                gap: 14px;
             }
 
             .seat-volume-control .vol-label-block {
@@ -897,8 +862,8 @@
             }
 
             .seat-volume-control .vol-btn {
-                width: 30px;
-                height: 30px;
+                width: 38px;
+                height: 38px;
             }
 
         }
@@ -946,7 +911,6 @@
             border: 1px solid var(--card-border);
             height: 44px;
             box-shadow: var(--card-shadow);
-            backdrop-filter: blur(14px);
             contain: layout paint style;
         }
 
