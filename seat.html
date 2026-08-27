@@ -1607,12 +1607,10 @@
 
         const PRIMARY_AUDIO_STREAM = 3;
         const PLAYBACK_AUDIO_STREAMS = [3, 6];
-        const MUTE_AUDIO_STREAMS = [0, 1, 2, 3, 4, 5, 6, 8, 10];
         const MAX_VOL = 100;
         const STEP = 10;
         let demoVol = 50;
         let desiredVol = 50;
-        let lastVolumeInteractionAt = 0;
 
         let currentAppointment = null;
         let diveStartTime = null;
@@ -1698,7 +1696,10 @@
             desiredVol = clampVolume(v);
             renderVolume(desiredVol);
             setupVolumeControl();
-            setInterval(syncVolumeFromDevice, 3000);
+            window.addEventListener('focus', syncVolumeFromDevice);
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) syncVolumeFromDevice();
+            });
 
             startUpdateCycle();
         });
@@ -2123,7 +2124,7 @@
         }
 
         function muteVolume() {
-            applyVolume(0, true, MUTE_AUDIO_STREAMS);
+            applyVolume(0, true);
         }
 
         function clampVolume(level) {
@@ -2135,7 +2136,6 @@
         }
 
         function applyVolume(level, forceExact, streams) {
-            lastVolumeInteractionAt = Date.now();
             desiredVol = clampVolume(level);
             setVol(desiredVol, streams);
             renderVolume(desiredVol);
@@ -2161,7 +2161,6 @@
         }
 
         function syncVolumeFromDevice() {
-            if (Date.now() - lastVolumeInteractionAt < 1200) return;
             const actual = getFirstAvailableVolume(PLAYBACK_AUDIO_STREAMS);
             if (Math.abs(actual - desiredVol) >= 1) {
                 desiredVol = actual;
