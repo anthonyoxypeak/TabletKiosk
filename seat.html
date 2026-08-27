@@ -1847,10 +1847,7 @@
             setStyle(els.patientName, 'color', 'var(--text-color)');
             
             setText(els.patientLabel, nextAppointment ? 'No Active Dive' : 'Current Patient');
-            const nextStart = nextAppointment && (nextAppointment.startTime || nextAppointment.start_time);
-            setPatientHint(nextStart
-                ? `Next scheduled ${formatTime(nextStart)} · patient name appears 15 minutes before dive`
-                : 'Patient name appears 15 minutes before dive');
+            setPatientHint('Seat Available until assigned');
             setText(els.appointmentLabel, 'Dive Time');
             setText(els.appointmentTime, '—:—');
             setText(els.timeRemaining, '—:—');
