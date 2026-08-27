@@ -317,8 +317,8 @@
             border-radius: 18px;
             padding: 14px 24px;
             display: grid;
-            grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
-            gap: 20px;
+            grid-template-columns: minmax(0, 1fr) minmax(250px, 0.42fr) minmax(320px, 0.74fr);
+            gap: 18px;
             align-items: center;
             border: 1px solid var(--card-border);
             box-shadow: var(--card-shadow);
@@ -422,6 +422,39 @@
             height: 100%;
             border-left: 1px solid var(--divider-color);
             padding-left: 20px;
+        }
+
+        .seat-volume-control {
+            height: 58px;
+            padding: 8px 12px;
+            border-radius: 16px;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .seat-volume-control .vol-label-block {
+            width: 62px;
+        }
+
+        .seat-volume-control .vol-btn {
+            width: 34px;
+            height: 34px;
+            background: rgba(255, 255, 255, 0.34);
+            border: 1px solid var(--card-border);
+        }
+
+        .seat-volume-control .vol-btn:active {
+            transform: scale(0.94);
+        }
+
+        .seat-volume-control .vol-slider-track {
+            height: 10px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+
+        .seat-volume-control .vol-slider-fill {
+            border-radius: 999px;
         }
 
         .time-header {
@@ -819,7 +852,9 @@
 
             .seat-info-card {
                 height: 74px;
+                grid-template-columns: minmax(0, 1fr) minmax(210px, 0.42fr) minmax(280px, 0.72fr);
                 padding: 8px 16px;
+                gap: 12px;
             }
 
             .info-value-large {
@@ -861,9 +896,19 @@
                 font-size: clamp(14px, 3vh, 18px);
             }
 
-            .volume-control-center {
-                height: 32px;
-                padding: 4px 12px;
+            .seat-volume-control {
+                height: 46px;
+                padding: 5px 9px;
+                gap: 8px;
+            }
+
+            .seat-volume-control .vol-label-block {
+                width: 52px;
+            }
+
+            .seat-volume-control .vol-btn {
+                width: 30px;
+                height: 30px;
             }
         }
 
@@ -1242,6 +1287,30 @@
             <span class="patient-hint" id="patientHint">Checking chamber schedule...</span>
         </div>
 
+        <div class="volume-control-center seat-volume-control" aria-label="Tablet volume control">
+            <div class="vol-label-block">
+                <span class="vol-label-title">Volume</span>
+                <span class="vol-label-val" id="volValue">50 %</span>
+            </div>
+
+            <button class="vol-btn" onclick="changeVolume(-1)" aria-label="Decrease Volume">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                </svg>
+            </button>
+
+            <div class="vol-slider-track" id="volBar" role="slider" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+                <div class="vol-slider-fill" id="volFill" style="width: 50%;"></div>
+            </div>
+
+            <button class="vol-btn" onclick="changeVolume(1)" aria-label="Increase Volume">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+            </button>
+        </div>
+
         <div class="progress-section">
             <div class="time-header">
                 <div class="time-header-item">
@@ -1474,30 +1543,6 @@
 
     </div>
 
-    <div class="volume-control-center">
-        <div class="vol-label-block">
-            <span class="vol-label-title">Volume</span>
-            <span class="vol-label-val" id="volValue">50 %</span>
-        </div>
-        
-        <button class="vol-btn" onclick="changeVolume(-1)" aria-label="Decrease Volume">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            </svg>
-        </button>
-        
-        <div class="vol-slider-track" id="volBar">
-            <div class="vol-slider-fill" id="volFill" style="width: 50%;"></div>
-        </div>
-        
-        <button class="vol-btn" onclick="changeVolume(1)" aria-label="Increase Volume">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            </svg>
-        </button>
-    </div>
-
     <div class="brand-watermark">OxyPeak Longevity Institute</div>
 
     <script>
@@ -1524,6 +1569,7 @@
         const MAX_VOL = 100;
         const STEP = 10;
         let demoVol = 50;
+        let desiredVol = 50;
 
         let currentAppointment = null;
         let diveStartTime = null;
@@ -1557,6 +1603,7 @@
             'themeIconMoon',
             'themeIconSun',
             'timeRemaining',
+            'volBar',
             'volFill',
             'volValue'
         ];
@@ -1604,7 +1651,9 @@
             setInterval(updateClock, 30000);
             
             var v = getCurrentVol();
-            renderVolume(v);
+            desiredVol = clampVolume(v);
+            renderVolume(desiredVol);
+            setupVolumeControl();
 
             startUpdateCycle();
         });
@@ -1987,35 +2036,92 @@
             if (typeof fully !== 'undefined') {
                 try {
                     var v = parseInt(fully.getAudioVolume(STREAM), 10);
-                    if (!isNaN(v) && v >= 0 && v <= 100) return v;
+                    if (!isNaN(v) && v >= 0 && v <= 100) return clampVolume(v);
                 } catch (e) {}
             }
             return demoVol;
         }
 
         function setVol(level) {
+            const target = clampVolume(level);
             if (typeof fully !== 'undefined') {
-                try { fully.setAudioVolume(level, STREAM); return true; }
+                try {
+                    fully.setAudioVolume(target, STREAM);
+                    return true;
+                }
                 catch (e) { return false; }
             }
-            demoVol = level;
+            demoVol = target;
             return true;
         }
 
         function changeVolume(direction) {
-            var current = getCurrentVol();
-            var snapped = Math.round(current / STEP) * STEP;
+            var snapped = Math.round(desiredVol / STEP) * STEP;
             var target = snapped + (direction * STEP);
-            if (target < 0) target = 0;
-            if (target > MAX_VOL) target = MAX_VOL;
+            applyVolume(target);
+        }
 
-            setVol(target);
-            renderVolume(getCurrentVol());
+        function clampVolume(level) {
+            var numeric = parseInt(level, 10);
+            if (isNaN(numeric)) numeric = 0;
+            if (numeric < 0) return 0;
+            if (numeric > MAX_VOL) return MAX_VOL;
+            return numeric;
+        }
+
+        function applyVolume(level) {
+            desiredVol = clampVolume(level);
+            setVol(desiredVol);
+            renderVolume(desiredVol);
+            window.setTimeout(function () {
+                const actual = getCurrentVol();
+                if (Math.abs(actual - desiredVol) <= STEP) {
+                    desiredVol = actual;
+                    renderVolume(actual);
+                }
+            }, 450);
         }
 
         function renderVolume(level) {
-            setStyle(els.volFill, 'width', level + '%');
-            setText(els.volValue, level + ' %');
+            const safeLevel = clampVolume(level);
+            setStyle(els.volFill, 'width', safeLevel + '%');
+            setText(els.volValue, safeLevel + ' %');
+            if (els.volBar) {
+                setAttributeValue(els.volBar, 'aria-valuenow', String(safeLevel));
+            }
+        }
+
+        function setupVolumeControl() {
+            if (!els.volBar) return;
+
+            const setFromPointer = function (event) {
+                const rect = els.volBar.getBoundingClientRect();
+                if (!rect.width) return;
+                const ratio = (event.clientX - rect.left) / rect.width;
+                const raw = Math.round((ratio * MAX_VOL) / STEP) * STEP;
+                applyVolume(raw);
+            };
+
+            els.volBar.addEventListener('pointerdown', function (event) {
+                event.preventDefault();
+                setFromPointer(event);
+                if (els.volBar.setPointerCapture) {
+                    els.volBar.setPointerCapture(event.pointerId);
+                }
+
+                const onMove = function (moveEvent) {
+                    setFromPointer(moveEvent);
+                };
+                const onUp = function () {
+                    els.volBar.removeEventListener('pointermove', onMove);
+                    els.volBar.removeEventListener('pointerup', onUp);
+                    els.volBar.removeEventListener('pointercancel', onUp);
+                };
+
+                els.volBar.addEventListener('pointermove', onMove);
+                els.volBar.addEventListener('pointerup', onUp);
+                els.volBar.addEventListener('pointercancel', onUp);
+            });
         }
     </script>
 </body>
