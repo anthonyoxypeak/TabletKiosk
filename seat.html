@@ -1016,6 +1016,14 @@
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
         }
 
+        .vol-range {
+            position: absolute;
+            inset: -16px 0;
+            width: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
         .vol-slider-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--accent-teal-dark), var(--accent-teal), #6aa2ff);
@@ -1301,6 +1309,7 @@
 
             <div class="vol-slider-track" id="volBar" role="slider" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
                 <div class="vol-slider-fill" id="volFill" style="width: 50%;"></div>
+                <input class="vol-range" id="volRange" type="range" min="0" max="100" step="10" value="50" aria-label="Volume">
             </div>
 
             <button class="vol-btn" onclick="changeVolume(1)" aria-label="Increase Volume">
@@ -1565,7 +1574,8 @@
         const DIVE_DURATION_MS = 2 * 60 * 60 * 1000;
         const DEFAULT_PRE_DIVE_DISPLAY_MS = 15 * 60 * 1000;
 
-        const STREAM = 3;
+        const PRIMARY_AUDIO_STREAM = 3;
+        const PLAYBACK_AUDIO_STREAMS = [3, 6];
         const MAX_VOL = 100;
         const STEP = 10;
         let demoVol = 50;
@@ -1605,6 +1615,7 @@
             'timeRemaining',
             'volBar',
             'volFill',
+            'volRange',
             'volValue'
         ];
         const STATUS_META = {
@@ -2035,7 +2046,7 @@
         function getCurrentVol() {
             if (typeof fully !== 'undefined') {
                 try {
-                    var v = parseInt(fully.getAudioVolume(STREAM), 10);
+                    var v = parseInt(fully.getAudioVolume(PRIMARY_AUDIO_STREAM), 10);
                     if (!isNaN(v) && v >= 0 && v <= 100) return clampVolume(v);
                 } catch (e) {}
             }
@@ -2046,7 +2057,9 @@
             const target = clampVolume(level);
             if (typeof fully !== 'undefined') {
                 try {
-                    fully.setAudioVolume(target, STREAM);
+                    PLAYBACK_AUDIO_STREAMS.forEach(function (stream) {
+                        try { fully.setAudioVolume(target, stream); } catch (e) {}
+                    });
                     return true;
                 }
                 catch (e) { return false; }
@@ -2089,10 +2102,22 @@
             if (els.volBar) {
                 setAttributeValue(els.volBar, 'aria-valuenow', String(safeLevel));
             }
+            if (els.volRange && String(els.volRange.value) !== String(safeLevel)) {
+                els.volRange.value = String(safeLevel);
+            }
         }
 
         function setupVolumeControl() {
             if (!els.volBar) return;
+
+            if (els.volRange) {
+                els.volRange.addEventListener('input', function () {
+                    applyVolume(els.volRange.value);
+                });
+                els.volRange.addEventListener('change', function () {
+                    applyVolume(els.volRange.value);
+                });
+            }
 
             const setFromPointer = function (event) {
                 const rect = els.volBar.getBoundingClientRect();
