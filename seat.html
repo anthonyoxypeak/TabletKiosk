@@ -317,7 +317,7 @@
             border-radius: 18px;
             padding: 14px 24px;
             display: grid;
-            grid-template-columns: minmax(0, 0.82fr) minmax(460px, 0.68fr) minmax(250px, 0.5fr);
+            grid-template-columns: minmax(0, 0.78fr) minmax(500px, 0.72fr) minmax(230px, 0.46fr);
             gap: 16px;
             align-items: center;
             border: 1px solid var(--card-border);
@@ -445,6 +445,23 @@
 
         .seat-volume-control .vol-btn:active {
             transform: scale(0.94);
+        }
+
+        .seat-volume-control .vol-btn-mute {
+            width: 56px;
+            border-radius: 999px;
+            gap: 3px;
+            color: #a33a3a;
+            background: rgba(255, 228, 228, 0.72);
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .seat-volume-control .vol-btn-mute svg {
+            width: 14px;
+            height: 14px;
         }
 
         .seat-volume-control .vol-slider-track {
@@ -852,7 +869,7 @@
 
             .seat-info-card {
                 height: 74px;
-                grid-template-columns: minmax(0, 0.8fr) minmax(350px, 0.72fr) minmax(225px, 0.5fr);
+                grid-template-columns: minmax(0, 0.74fr) minmax(390px, 0.74fr) minmax(205px, 0.44fr);
                 padding: 8px 16px;
                 gap: 9px;
             }
@@ -909,6 +926,11 @@
             .seat-volume-control .vol-btn {
                 width: 30px;
                 height: 30px;
+            }
+
+            .seat-volume-control .vol-btn-mute {
+                width: 50px;
+                font-size: 7px;
             }
         }
 
@@ -1301,17 +1323,18 @@
                 <span class="vol-label-val" id="volValue">50 %</span>
             </div>
 
-            <button class="vol-btn" onclick="changeVolume(-1)" aria-label="Decrease Volume">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                </svg>
-            </button>
-
-            <button class="vol-btn" onclick="muteVolume()" aria-label="Mute Volume">
+            <button class="vol-btn vol-btn-mute" onclick="muteVolume()" aria-label="Mute Volume">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                     <line x1="18" y1="9" x2="22" y2="13"></line>
                     <line x1="22" y1="9" x2="18" y2="13"></line>
+                </svg>
+                <span>Mute</span>
+            </button>
+
+            <button class="vol-btn" onclick="changeVolume(-1)" aria-label="Decrease Volume">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                 </svg>
             </button>
 
@@ -1383,7 +1406,7 @@
                 <span class="app-name">My OxyPeak</span>
             </div>
         </a>
-        <a href="https://www.youtube.com/tv" target="_blank" class="app-card card-youtube">
+        <a href="https://m.youtube.com/" target="_blank" class="app-card card-youtube">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -1584,10 +1607,12 @@
 
         const PRIMARY_AUDIO_STREAM = 3;
         const PLAYBACK_AUDIO_STREAMS = [3, 6];
+        const MUTE_AUDIO_STREAMS = [0, 1, 2, 3, 4, 5, 6, 8, 10];
         const MAX_VOL = 100;
         const STEP = 10;
         let demoVol = 50;
         let desiredVol = 50;
+        let lastVolumeInteractionAt = 0;
 
         let currentAppointment = null;
         let diveStartTime = null;
@@ -1669,10 +1694,11 @@
             updateClock();
             setInterval(updateClock, 30000);
             
-            var v = getCurrentVol();
+            var v = getFirstAvailableVolume(PLAYBACK_AUDIO_STREAMS);
             desiredVol = clampVolume(v);
             renderVolume(desiredVol);
             setupVolumeControl();
+            setInterval(syncVolumeFromDevice, 3000);
 
             startUpdateCycle();
         });
@@ -2061,11 +2087,23 @@
             return demoVol;
         }
 
-        function setVol(level) {
+        function getFirstAvailableVolume(streams) {
+            if (typeof fully !== 'undefined') {
+                for (var i = 0; i < streams.length; i += 1) {
+                    try {
+                        var v = parseInt(fully.getAudioVolume(streams[i]), 10);
+                        if (!isNaN(v) && v >= 0 && v <= 100) return clampVolume(v);
+                    } catch (e) {}
+                }
+            }
+            return demoVol;
+        }
+
+        function setVol(level, streams) {
             const target = clampVolume(level);
             if (typeof fully !== 'undefined') {
                 try {
-                    PLAYBACK_AUDIO_STREAMS.forEach(function (stream) {
+                    (streams || PLAYBACK_AUDIO_STREAMS).forEach(function (stream) {
                         try { fully.setAudioVolume(target, stream); } catch (e) {}
                     });
                     return true;
@@ -2077,13 +2115,15 @@
         }
 
         function changeVolume(direction) {
-            var snapped = Math.round(desiredVol / STEP) * STEP;
+            var actual = getFirstAvailableVolume(PLAYBACK_AUDIO_STREAMS);
+            var baseline = Math.abs(actual - desiredVol) > STEP ? actual : desiredVol;
+            var snapped = Math.round(baseline / STEP) * STEP;
             var target = snapped + (direction * STEP);
             applyVolume(target);
         }
 
         function muteVolume() {
-            applyVolume(0, true);
+            applyVolume(0, true, MUTE_AUDIO_STREAMS);
         }
 
         function clampVolume(level) {
@@ -2094,12 +2134,13 @@
             return numeric;
         }
 
-        function applyVolume(level, forceExact) {
+        function applyVolume(level, forceExact, streams) {
+            lastVolumeInteractionAt = Date.now();
             desiredVol = clampVolume(level);
-            setVol(desiredVol);
+            setVol(desiredVol, streams);
             renderVolume(desiredVol);
             window.setTimeout(function () {
-                const actual = getCurrentVol();
+                const actual = getFirstAvailableVolume(streams || PLAYBACK_AUDIO_STREAMS);
                 if (!forceExact && Math.abs(actual - desiredVol) <= STEP) {
                     desiredVol = actual;
                     renderVolume(actual);
@@ -2116,6 +2157,15 @@
             }
             if (els.volRange && String(els.volRange.value) !== String(safeLevel)) {
                 els.volRange.value = String(safeLevel);
+            }
+        }
+
+        function syncVolumeFromDevice() {
+            if (Date.now() - lastVolumeInteractionAt < 1200) return;
+            const actual = getFirstAvailableVolume(PLAYBACK_AUDIO_STREAMS);
+            if (Math.abs(actual - desiredVol) >= 1) {
+                desiredVol = actual;
+                renderVolume(actual);
             }
         }
 
