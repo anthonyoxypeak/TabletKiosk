@@ -317,7 +317,7 @@
             border-radius: 18px;
             padding: 14px 24px;
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(340px, 0.5fr) minmax(300px, 0.65fr);
+            grid-template-columns: minmax(0, 0.82fr) minmax(460px, 0.68fr) minmax(250px, 0.5fr);
             gap: 16px;
             align-items: center;
             border: 1px solid var(--card-border);
@@ -428,12 +428,12 @@
             height: 58px;
             padding: 8px 10px;
             border-radius: 16px;
-            gap: 8px;
+            gap: 7px;
             min-width: 0;
         }
 
         .seat-volume-control .vol-label-block {
-            width: 58px;
+            width: 48px;
         }
 
         .seat-volume-control .vol-btn {
@@ -852,9 +852,9 @@
 
             .seat-info-card {
                 height: 74px;
-                grid-template-columns: minmax(0, 1fr) minmax(270px, 0.5fr) minmax(260px, 0.62fr);
+                grid-template-columns: minmax(0, 0.8fr) minmax(350px, 0.72fr) minmax(225px, 0.5fr);
                 padding: 8px 16px;
-                gap: 10px;
+                gap: 9px;
             }
 
             .info-value-large {
@@ -903,7 +903,7 @@
             }
 
             .seat-volume-control .vol-label-block {
-                width: 48px;
+                width: 44px;
             }
 
             .seat-volume-control .vol-btn {
@@ -1304,6 +1304,14 @@
             <button class="vol-btn" onclick="changeVolume(-1)" aria-label="Decrease Volume">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                </svg>
+            </button>
+
+            <button class="vol-btn" onclick="muteVolume()" aria-label="Mute Volume">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <line x1="18" y1="9" x2="22" y2="13"></line>
+                    <line x1="22" y1="9" x2="18" y2="13"></line>
                 </svg>
             </button>
 
@@ -2074,6 +2082,10 @@
             applyVolume(target);
         }
 
+        function muteVolume() {
+            applyVolume(0, true);
+        }
+
         function clampVolume(level) {
             var numeric = parseInt(level, 10);
             if (isNaN(numeric)) numeric = 0;
@@ -2082,13 +2094,13 @@
             return numeric;
         }
 
-        function applyVolume(level) {
+        function applyVolume(level, forceExact) {
             desiredVol = clampVolume(level);
             setVol(desiredVol);
             renderVolume(desiredVol);
             window.setTimeout(function () {
                 const actual = getCurrentVol();
-                if (Math.abs(actual - desiredVol) <= STEP) {
+                if (!forceExact && Math.abs(actual - desiredVol) <= STEP) {
                     desiredVol = actual;
                     renderVolume(actual);
                 }
