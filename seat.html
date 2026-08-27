@@ -317,7 +317,7 @@
             border-radius: 18px;
             padding: 14px 24px;
             display: grid;
-            grid-template-columns: minmax(0, 0.78fr) minmax(500px, 0.72fr) minmax(230px, 0.46fr);
+            grid-template-columns: minmax(0, 1fr) minmax(170px, 0.24fr) minmax(320px, 0.7fr);
             gap: 16px;
             align-items: center;
             border: 1px solid var(--card-border);
@@ -426,14 +426,14 @@
 
         .seat-volume-control {
             height: 58px;
-            padding: 8px 10px;
+            padding: 8px 12px;
             border-radius: 16px;
-            gap: 7px;
+            gap: 10px;
             min-width: 0;
         }
 
         .seat-volume-control .vol-label-block {
-            width: 48px;
+            width: 64px;
         }
 
         .seat-volume-control .vol-btn {
@@ -445,33 +445,6 @@
 
         .seat-volume-control .vol-btn:active {
             transform: scale(0.94);
-        }
-
-        .seat-volume-control .vol-btn-mute {
-            width: 56px;
-            border-radius: 999px;
-            gap: 3px;
-            color: #a33a3a;
-            background: rgba(255, 228, 228, 0.72);
-            font-size: 8px;
-            font-weight: 800;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .seat-volume-control .vol-btn-mute svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .seat-volume-control .vol-slider-track {
-            height: 10px;
-            border-radius: 999px;
-            cursor: pointer;
-        }
-
-        .seat-volume-control .vol-slider-fill {
-            border-radius: 999px;
         }
 
         .time-header {
@@ -869,9 +842,9 @@
 
             .seat-info-card {
                 height: 74px;
-                grid-template-columns: minmax(0, 0.74fr) minmax(390px, 0.74fr) minmax(205px, 0.44fr);
+                grid-template-columns: minmax(0, 1fr) minmax(150px, 0.24fr) minmax(280px, 0.68fr);
                 padding: 8px 16px;
-                gap: 9px;
+                gap: 10px;
             }
 
             .info-value-large {
@@ -920,7 +893,7 @@
             }
 
             .seat-volume-control .vol-label-block {
-                width: 44px;
+                width: 54px;
             }
 
             .seat-volume-control .vol-btn {
@@ -928,10 +901,6 @@
                 height: 30px;
             }
 
-            .seat-volume-control .vol-btn-mute {
-                width: 50px;
-                font-size: 7px;
-            }
         }
 
         /* Premium Tonal Icon Accents */
@@ -1026,42 +995,6 @@
         .vol-btn svg {
             width: 16px;
             height: 16px;
-        }
-
-        .vol-slider-track {
-            flex: 1;
-            height: 6px;
-            background: var(--track-bg);
-            border-radius: 3px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
-        }
-
-        .vol-range {
-            position: absolute;
-            inset: -16px 0;
-            width: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .vol-slider-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-teal-dark), var(--accent-teal), #6aa2ff);
-            width: 50%;
-            border-radius: 3px;
-            transition: width 0.1s ease;
-        }
-
-        .vol-value-tag {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-color);
-            min-width: 38px;
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-            flex-shrink: 0;
         }
 
         [data-theme="dark"] .volume-control-center {
@@ -1323,25 +1256,11 @@
                 <span class="vol-label-val" id="volValue">50 %</span>
             </div>
 
-            <button class="vol-btn vol-btn-mute" onclick="muteVolume()" aria-label="Mute Volume">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                    <line x1="18" y1="9" x2="22" y2="13"></line>
-                    <line x1="22" y1="9" x2="18" y2="13"></line>
-                </svg>
-                <span>Mute</span>
-            </button>
-
             <button class="vol-btn" onclick="changeVolume(-1)" aria-label="Decrease Volume">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                 </svg>
             </button>
-
-            <div class="vol-slider-track" id="volBar" role="slider" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
-                <div class="vol-slider-fill" id="volFill" style="width: 50%;"></div>
-                <input class="vol-range" id="volRange" type="range" min="0" max="100" step="10" value="50" aria-label="Volume">
-            </div>
 
             <button class="vol-btn" onclick="changeVolume(1)" aria-label="Increase Volume">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1605,12 +1524,10 @@
         const DIVE_DURATION_MS = 2 * 60 * 60 * 1000;
         const DEFAULT_PRE_DIVE_DISPLAY_MS = 15 * 60 * 1000;
 
-        const PRIMARY_AUDIO_STREAM = 3;
-        const PLAYBACK_AUDIO_STREAMS = [3, 6];
+        const STREAM = 3;
         const MAX_VOL = 100;
         const STEP = 10;
         let demoVol = 50;
-        let desiredVol = 50;
 
         let currentAppointment = null;
         let diveStartTime = null;
@@ -1644,9 +1561,6 @@
             'themeIconMoon',
             'themeIconSun',
             'timeRemaining',
-            'volBar',
-            'volFill',
-            'volRange',
             'volValue'
         ];
         const STATUS_META = {
@@ -1692,14 +1606,8 @@
             updateClock();
             setInterval(updateClock, 30000);
             
-            var v = getFirstAvailableVolume(PLAYBACK_AUDIO_STREAMS);
-            desiredVol = clampVolume(v);
-            renderVolume(desiredVol);
-            setupVolumeControl();
-            window.addEventListener('focus', syncVolumeFromDevice);
-            document.addEventListener('visibilitychange', function () {
-                if (!document.hidden) syncVolumeFromDevice();
-            });
+            var v = getCurrentVol();
+            renderVolume(v);
 
             startUpdateCycle();
         });
@@ -2081,133 +1989,36 @@
         function getCurrentVol() {
             if (typeof fully !== 'undefined') {
                 try {
-                    var v = parseInt(fully.getAudioVolume(PRIMARY_AUDIO_STREAM), 10);
-                    if (!isNaN(v) && v >= 0 && v <= 100) return clampVolume(v);
-                } catch (e) {}
-            }
-            return demoVol;
-        }
-
-        function getFirstAvailableVolume(streams) {
-            if (typeof fully !== 'undefined') {
-                for (var i = 0; i < streams.length; i += 1) {
-                    try {
-                        var v = parseInt(fully.getAudioVolume(streams[i]), 10);
-                        if (!isNaN(v) && v >= 0 && v <= 100) return clampVolume(v);
-                    } catch (e) {}
+                    var v = parseInt(fully.getAudioVolume(STREAM), 10);
+                    if (!isNaN(v) && v >= 0 && v <= 100) return v;
+                } catch (e) {
                 }
             }
             return demoVol;
         }
 
-        function setVol(level, streams) {
-            const target = clampVolume(level);
+        function setVol(level) {
             if (typeof fully !== 'undefined') {
-                try {
-                    (streams || PLAYBACK_AUDIO_STREAMS).forEach(function (stream) {
-                        try { fully.setAudioVolume(target, stream); } catch (e) {}
-                    });
-                    return true;
-                }
+                try { fully.setAudioVolume(level, STREAM); return true; }
                 catch (e) { return false; }
             }
-            demoVol = target;
+            demoVol = level;
             return true;
         }
 
         function changeVolume(direction) {
-            var actual = getFirstAvailableVolume(PLAYBACK_AUDIO_STREAMS);
-            var baseline = Math.abs(actual - desiredVol) > STEP ? actual : desiredVol;
-            var snapped = Math.round(baseline / STEP) * STEP;
+            var current = getCurrentVol();
+            var snapped = Math.round(current / STEP) * STEP;
             var target = snapped + (direction * STEP);
-            applyVolume(target);
-        }
+            if (target < 0) target = 0;
+            if (target > MAX_VOL) target = MAX_VOL;
 
-        function muteVolume() {
-            applyVolume(0, true);
-        }
-
-        function clampVolume(level) {
-            var numeric = parseInt(level, 10);
-            if (isNaN(numeric)) numeric = 0;
-            if (numeric < 0) return 0;
-            if (numeric > MAX_VOL) return MAX_VOL;
-            return numeric;
-        }
-
-        function applyVolume(level, forceExact, streams) {
-            desiredVol = clampVolume(level);
-            setVol(desiredVol, streams);
-            renderVolume(desiredVol);
-            window.setTimeout(function () {
-                const actual = getFirstAvailableVolume(streams || PLAYBACK_AUDIO_STREAMS);
-                if (!forceExact && Math.abs(actual - desiredVol) <= STEP) {
-                    desiredVol = actual;
-                    renderVolume(actual);
-                }
-            }, 450);
+            setVol(target);
+            renderVolume(getCurrentVol());
         }
 
         function renderVolume(level) {
-            const safeLevel = clampVolume(level);
-            setStyle(els.volFill, 'width', safeLevel + '%');
-            setText(els.volValue, safeLevel + ' %');
-            if (els.volBar) {
-                setAttributeValue(els.volBar, 'aria-valuenow', String(safeLevel));
-            }
-            if (els.volRange && String(els.volRange.value) !== String(safeLevel)) {
-                els.volRange.value = String(safeLevel);
-            }
-        }
-
-        function syncVolumeFromDevice() {
-            const actual = getFirstAvailableVolume(PLAYBACK_AUDIO_STREAMS);
-            if (Math.abs(actual - desiredVol) >= 1) {
-                desiredVol = actual;
-                renderVolume(actual);
-            }
-        }
-
-        function setupVolumeControl() {
-            if (!els.volBar) return;
-
-            if (els.volRange) {
-                els.volRange.addEventListener('input', function () {
-                    applyVolume(els.volRange.value);
-                });
-                els.volRange.addEventListener('change', function () {
-                    applyVolume(els.volRange.value);
-                });
-            }
-
-            const setFromPointer = function (event) {
-                const rect = els.volBar.getBoundingClientRect();
-                if (!rect.width) return;
-                const ratio = (event.clientX - rect.left) / rect.width;
-                const raw = Math.round((ratio * MAX_VOL) / STEP) * STEP;
-                applyVolume(raw);
-            };
-
-            els.volBar.addEventListener('pointerdown', function (event) {
-                event.preventDefault();
-                setFromPointer(event);
-                if (els.volBar.setPointerCapture) {
-                    els.volBar.setPointerCapture(event.pointerId);
-                }
-
-                const onMove = function (moveEvent) {
-                    setFromPointer(moveEvent);
-                };
-                const onUp = function () {
-                    els.volBar.removeEventListener('pointermove', onMove);
-                    els.volBar.removeEventListener('pointerup', onUp);
-                    els.volBar.removeEventListener('pointercancel', onUp);
-                };
-
-                els.volBar.addEventListener('pointermove', onMove);
-                els.volBar.addEventListener('pointerup', onUp);
-                els.volBar.addEventListener('pointercancel', onUp);
-            });
+            setText(els.volValue, level + ' %');
         }
     </script>
 </body>
