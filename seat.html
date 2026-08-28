@@ -112,6 +112,10 @@
             font-size: clamp(18px, 1.9vw, 27px);
         }
 
+        html[data-text-size="large"] .seat-info-card {
+            height: 104px;
+        }
+
         html[data-text-size="large"] .patient-hint,
         html[data-text-size="large"] .info-value-med,
         html[data-text-size="large"] .weather-condition,
@@ -127,6 +131,11 @@
 
         html[data-text-size="xlarge"] .app-name {
             font-size: clamp(20px, 2.08vw, 30px);
+        }
+
+        html[data-text-size="xlarge"] .seat-info-card {
+            height: 116px;
+            grid-template-columns: minmax(0, 1fr) minmax(156px, 0.28fr) minmax(210px, 0.36fr) minmax(312px, 0.58fr);
         }
 
         html[data-text-size="xlarge"] .patient-hint,
@@ -241,15 +250,15 @@
         .header-right-group {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
         /* Sleek Sun/Moon Theme Toggle Button */
         .theme-toggle-btn,
         .comfort-toggle-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 12px;
+            width: 46px;
+            height: 46px;
+            border-radius: 15px;
             border: 1px solid var(--card-border);
             background:
                 linear-gradient(145deg, rgba(255, 255, 255, 0.78), var(--card-inner)),
@@ -275,8 +284,8 @@
 
         .theme-toggle-btn svg,
         .comfort-toggle-btn svg {
-            width: 15px;
-            height: 15px;
+            width: 22px;
+            height: 22px;
         }
 
         .session-status-badge {
@@ -286,7 +295,7 @@
             background:
                 linear-gradient(145deg, rgba(255, 255, 255, 0.78), var(--card-inner)),
                 var(--card-bg);
-            padding: 6px 12px;
+            padding: 9px 15px;
             border-radius: 9999px;
             border: 1px solid var(--card-border);
             box-shadow: var(--card-shadow);
@@ -488,7 +497,7 @@
         }
 
         .session-label {
-            font-size: 8.8px;
+            font-size: 10.5px;
             font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
@@ -498,11 +507,11 @@
         .clock-display {
             text-align: right;
             border-left: 1px solid var(--card-border);
-            padding-left: 12px;
+            padding-left: 15px;
         }
 
         .clock-time {
-            font-size: 16px;
+            font-size: 24px;
             font-weight: 700;
             color: var(--text-color);
             font-variant-numeric: tabular-nums;
@@ -510,7 +519,7 @@
         }
 
         .clock-date {
-            font-size: 8px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
@@ -987,17 +996,31 @@
 
             .theme-toggle-btn,
             .comfort-toggle-btn {
-                width: 30px;
-                height: 30px;
-                border-radius: 10px;
+                width: 40px;
+                height: 40px;
+                border-radius: 13px;
+            }
+
+            .theme-toggle-btn svg,
+            .comfort-toggle-btn svg {
+                width: 19px;
+                height: 19px;
             }
 
             .session-status-badge {
-                padding: 5px 10px;
+                padding: 7px 12px;
+            }
+
+            .session-label {
+                font-size: 9px;
             }
 
             .clock-time {
-                font-size: 15px;
+                font-size: 21px;
+            }
+
+            .clock-date {
+                font-size: 8.5px;
             }
 
             .seat-info-card {
@@ -1017,6 +1040,15 @@
             .patient-hint {
                 margin-top: 5px;
                 font-size: 10px;
+            }
+
+            html[data-text-size="large"] .seat-info-card {
+                height: 94px;
+            }
+
+            html[data-text-size="xlarge"] .seat-info-card {
+                height: 104px;
+                grid-template-columns: minmax(0, 1fr) minmax(136px, 0.26fr) minmax(188px, 0.34fr) minmax(276px, 0.62fr);
             }
 
             .grid {
@@ -1101,6 +1133,15 @@
                 grid-template-columns: minmax(0, 1fr) minmax(112px, 0.2fr) minmax(170px, 0.3fr) minmax(260px, 0.62fr);
                 padding: 8px 16px;
                 gap: 10px;
+            }
+
+            html[data-text-size="large"] .seat-info-card {
+                height: 86px;
+            }
+
+            html[data-text-size="xlarge"] .seat-info-card {
+                height: 96px;
+                grid-template-columns: minmax(0, 1fr) minmax(124px, 0.24fr) minmax(176px, 0.32fr) minmax(248px, 0.58fr);
             }
 
             .info-value-large {
