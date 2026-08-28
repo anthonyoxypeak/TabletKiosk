@@ -321,9 +321,9 @@
             top: 62px;
             right: 18px;
             z-index: 70;
-            width: min(360px, calc(100vw - 36px));
-            padding: 18px;
-            border-radius: 20px;
+            width: min(460px, calc(100vw - 36px));
+            padding: 24px;
+            border-radius: 24px;
             border: 1px solid var(--card-border);
             background:
                 linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 251, 244, 0.72)),
@@ -352,33 +352,33 @@
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 14px;
+            gap: 16px;
+            margin-bottom: 18px;
         }
 
         .comfort-panel-title {
             display: block;
-            font-size: 18px;
+            font-size: 25px;
             font-weight: 800;
             letter-spacing: -0.04em;
         }
 
         .comfort-panel-subtitle {
             display: block;
-            margin-top: 3px;
-            font-size: 11px;
+            margin-top: 5px;
+            font-size: 14px;
             font-weight: 650;
             color: var(--text-secondary);
         }
 
         .comfort-close-btn {
-            width: 34px;
-            height: 34px;
+            width: 44px;
+            height: 44px;
             border: 1px solid var(--card-border);
             border-radius: 50%;
             background: var(--card-inner);
             color: var(--text-secondary);
-            font-size: 22px;
+            font-size: 28px;
             line-height: 1;
             cursor: pointer;
         }
@@ -387,42 +387,42 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            padding: 12px 0;
+            gap: 18px;
+            padding: 17px 0;
             border-top: 1px solid var(--divider-color);
         }
 
         .comfort-option-label {
-            font-size: 12px;
+            font-size: 16px;
             font-weight: 800;
             color: var(--text-color);
         }
 
         .comfort-option-help {
             display: block;
-            margin-top: 2px;
-            font-size: 10px;
+            margin-top: 4px;
+            font-size: 12.5px;
             font-weight: 650;
             color: var(--text-secondary);
         }
 
         .comfort-segmented {
             display: flex;
-            gap: 4px;
-            padding: 4px;
+            gap: 5px;
+            padding: 5px;
             border-radius: 999px;
             background: var(--track-bg);
             flex-shrink: 0;
         }
 
         .comfort-chip {
-            min-width: 46px;
+            min-width: 58px;
             border: 0;
             border-radius: 999px;
-            padding: 8px 10px;
+            padding: 11px 13px;
             background: transparent;
             color: var(--text-secondary);
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 800;
             cursor: pointer;
         }
@@ -434,8 +434,8 @@
 
         .comfort-switch {
             position: relative;
-            width: 56px;
-            height: 32px;
+            width: 70px;
+            height: 40px;
             flex-shrink: 0;
             border: 0;
             border-radius: 999px;
@@ -446,10 +446,10 @@
         .comfort-switch::after {
             content: '';
             position: absolute;
-            top: 4px;
-            left: 4px;
-            width: 24px;
-            height: 24px;
+            top: 5px;
+            left: 5px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: #fff;
             box-shadow: 0 3px 8px rgba(19, 33, 55, 0.18);
@@ -461,24 +461,24 @@
         }
 
         .comfort-switch[aria-pressed="true"]::after {
-            transform: translateX(24px);
+            transform: translateX(30px);
         }
 
         .comfort-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 8px;
-            padding-top: 12px;
+            gap: 12px;
+            padding-top: 16px;
             border-top: 1px solid var(--divider-color);
         }
 
         .comfort-action-btn {
             border: 1px solid var(--card-border);
             border-radius: 999px;
-            padding: 10px 14px;
+            padding: 13px 18px;
             background: var(--card-inner);
             color: var(--text-color);
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 800;
             cursor: pointer;
         }
