@@ -1572,6 +1572,7 @@
 
         let currentAppointment = null;
         let diveStartTime = null;
+        let emptyDiveDimmerUntil = 0;
         let preDiveDisplayMs = DEFAULT_PRE_DIVE_DISPLAY_MS;
         let nextRefreshTimer = null;
         let countdownTimer = null;
@@ -1713,6 +1714,27 @@
             }
         }
 
+        function clearEmptyDiveDimmerLatch() {
+            emptyDiveDimmerUntil = 0;
+        }
+
+        function shouldDimEmptySeat(chamberDiveActive, chamberDiveEndTime) {
+            const now = Date.now();
+            if (emptyDiveDimmerUntil && now >= emptyDiveDimmerUntil) {
+                emptyDiveDimmerUntil = 0;
+            }
+
+            if (chamberDiveActive) {
+                const parsedEnd = Date.parse(chamberDiveEndTime || '');
+                emptyDiveDimmerUntil = Number.isFinite(parsedEnd) && parsedEnd > now
+                    ? parsedEnd
+                    : now + DIVE_DURATION_MS;
+                return true;
+            }
+
+            return Boolean(emptyDiveDimmerUntil && now < emptyDiveDimmerUntil);
+        }
+
         function setupDisplay() {
             setText(els.chamberName, CHAMBER_NAMES[CHAMBER_NUMBER] || 'Unknown');
             setText(els.seatNumber, String(SEAT_NUMBER));
@@ -1793,19 +1815,22 @@
                 const activeAppointment = data.activeAppointment || data.active_appointment;
                 const nextAppointment = data.nextAppointment || data.next_appointment;
                 const chamberDiveActive = Boolean(data.chamberDiveActive || data.chamber_dive_active);
+                const chamberDiveEndTime = data.chamberDiveEndTime || data.chamber_dive_end_time;
+                const dimEmptySeat = shouldDimEmptySeat(chamberDiveActive, chamberDiveEndTime);
 
                 if (activeAppointment) {
+                    clearEmptyDiveDimmerLatch();
                     setEmptyDiveDimmer(false);
                     displayAppointment(activeAppointment, true);
                 } else if (SHOW_NEXT && nextAppointment) {
-                    setEmptyDiveDimmer(chamberDiveActive);
-                    if (chamberDiveActive) {
-                        showEmpty(nextAppointment, chamberDiveActive);
+                    setEmptyDiveDimmer(dimEmptySeat);
+                    if (dimEmptySeat) {
+                        showEmpty(nextAppointment, dimEmptySeat);
                     } else {
                         displayAppointment(nextAppointment, false);
                     }
                 } else {
-                    showEmpty(nextAppointment, chamberDiveActive);
+                    showEmpty(nextAppointment, dimEmptySeat);
                 }
             } catch (error) {
                 console.error('Error fetching appointment:', error);

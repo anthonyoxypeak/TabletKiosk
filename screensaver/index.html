@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxyPeak Screensaver</title>
     <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         html,
         body {
             width: 100%;
@@ -12,27 +17,65 @@
             margin: 0;
             overflow: hidden;
             background: #000;
+            color: rgba(248, 250, 252, 0.12);
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
-        video {
-            position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            background: #000;
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mark {
+            display: flex;
+            align-items: center;
+            gap: min(3vw, 28px);
+            opacity: 0.66;
+            transform: translateY(-2vh);
+        }
+
+        .ring {
+            width: min(16vw, 140px);
+            height: min(16vw, 140px);
+            border: min(1.05vw, 9px) solid rgba(94, 184, 168, 0.1);
+            border-right-color: rgba(62, 139, 187, 0.16);
+            border-radius: 50%;
+        }
+
+        .word {
+            margin-top: -0.03em;
+            font-size: clamp(46px, 10vw, 132px);
+            font-weight: 800;
+            letter-spacing: -0.075em;
+            line-height: 0.9;
+        }
+
+        .word span {
+            color: rgba(94, 184, 168, 0.17);
+        }
+
+        @media (max-width: 700px) {
+            .mark {
+                gap: 16px;
+            }
+
+            .ring {
+                width: 92px;
+                height: 92px;
+                border-width: 7px;
+            }
+
+            .word {
+                font-size: 64px;
+            }
         }
     </style>
 </head>
 <body>
-    <video id="screensaverVideo" src="./idle.mp4" autoplay muted loop playsinline preload="auto"></video>
-    <script>
-        const video = document.getElementById('screensaverVideo');
-        video.addEventListener('ended', () => {
-            video.currentTime = 0;
-            video.play().catch(() => {});
-        });
-        video.play().catch(() => {});
-    </script>
+    <div class="mark" aria-label="OxyPeak">
+        <div class="ring"></div>
+        <div class="word">Oxy<span>Peak</span></div>
+    </div>
 </body>
 </html>

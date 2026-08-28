@@ -212,7 +212,11 @@ function buildTabletSessionResponse(rows, options = {}) {
     const active = sessions.find(session => isSessionVisible(session, now, preDiveDisplayMinutes)) || null;
     const next = sessions.find(session => session !== active && session.start > now) || null;
     const state = active ? 'active' : 'available';
-    const chamberDiveActive = chamberSessions.some(session => isSessionInDiveWindow(session, now));
+    const activeChamberSessions = chamberSessions.filter(session => isSessionInDiveWindow(session, now));
+    const chamberDiveActive = activeChamberSessions.length > 0;
+    const chamberDiveEnd = activeChamberSessions
+        .map(session => session.end)
+        .sort((a, b) => b.toMillis() - a.toMillis())[0] || null;
 
     const activeAppointment = serializeAppointment(active);
     const nextAppointment = serializeAppointment(next);
@@ -230,6 +234,8 @@ function buildTabletSessionResponse(rows, options = {}) {
         pre_dive_display_minutes: preDiveDisplayMinutes,
         chamberDiveActive,
         chamber_dive_active: chamberDiveActive,
+        chamberDiveEndTime: chamberDiveEnd ? chamberDiveEnd.toISO() : null,
+        chamber_dive_end_time: chamberDiveEnd ? chamberDiveEnd.toISO() : null,
         activeAppointment,
         active_appointment: activeAppointment,
         nextAppointment,

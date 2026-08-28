@@ -175,6 +175,8 @@ test('marks empty seat dimmable when another seat in the chamber is diving', () 
     assert.equal(payload.activeAppointment, null);
     assert.equal(payload.chamberDiveActive, true);
     assert.equal(payload.chamber_dive_active, true);
+    assert.equal(payload.chamberDiveEndTime, '2026-07-06T10:00:00.000-04:00');
+    assert.equal(payload.chamber_dive_end_time, '2026-07-06T10:00:00.000-04:00');
 });
 
 test('does not dim empty seat during another seat pre-dive window', () => {
@@ -201,4 +203,5 @@ test('does not dim empty seat during another seat pre-dive window', () => {
     assert.equal(payload.state, 'available');
     assert.equal(payload.activeAppointment, null);
     assert.equal(payload.chamberDiveActive, false);
+    assert.equal(payload.chamberDiveEndTime, null);
 });
