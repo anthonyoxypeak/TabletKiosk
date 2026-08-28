@@ -1694,13 +1694,29 @@
             }
         }
 
-        function formatPrivacyName(fullName) {
-            if (!fullName) return '';
-            const parts = fullName.trim().split(/\s+/);
-            if (parts.length < 2) return fullName;
-            const firstName = parts[0];
-            const lastName = parts[parts.length - 1];
-            return `${firstName} ${lastName.charAt(0).toUpperCase()}.`;
+        function cleanNamePart(value) {
+            return String(value || '').trim();
+        }
+
+        function formatPrivacyName(appointmentOrName) {
+            if (!appointmentOrName) return '';
+
+            if (typeof appointmentOrName === 'string') {
+                const parts = appointmentOrName.trim().split(/\s+/).filter(Boolean);
+                if (parts.length < 2) return appointmentOrName.trim();
+                return `${parts[0]} ${parts[parts.length - 1].charAt(0).toUpperCase()}.`;
+            }
+
+            const appt = appointmentOrName;
+            const fullName = cleanNamePart(appt.patientName || appt.patient_name);
+            const fullParts = fullName.split(/\s+/).filter(Boolean);
+            const preferredName = cleanNamePart(appt.preferredName || appt.preferred_name);
+            const firstName = cleanNamePart(appt.firstName || appt.first_name) || fullParts[0] || '';
+            const lastName = cleanNamePart(appt.lastName || appt.last_name) || (fullParts.length > 1 ? fullParts[fullParts.length - 1] : '');
+            const displayFirstName = preferredName || firstName;
+
+            if (!displayFirstName) return '';
+            return lastName ? `${displayFirstName} ${lastName.charAt(0).toUpperCase()}.` : displayFirstName;
         }
 
         function getAppointmentSessionKey(appt = currentAppointment) {
@@ -1744,8 +1760,7 @@
                 return;
             }
 
-            const rawName = currentAppointment.patientName || currentAppointment.patient_name || '';
-            const patientName = formatPrivacyName(rawName) || 'Patient';
+            const patientName = formatPrivacyName(currentAppointment) || 'Patient';
             const startsIn = Math.max(0, currentAppointment.startTime - now);
             const subtitle = now < currentAppointment.startTime
                 ? `Starts in ${formatDuration(startsIn)}`
@@ -1763,8 +1778,7 @@
             setStyle(display, 'opacity', '1');
             setClassName(display, `seat-info-card ${isActive ? 'state-active' : 'state-upcoming'}`);
 
-            const rawName = appt.patientName || appt.patient_name || '';
-            const patientName = formatPrivacyName(rawName);
+            const patientName = formatPrivacyName(appt);
             setStyle(els.patientName, 'opacity', '1');
             setStyle(els.patientName, 'color', 'var(--text-color)');
 

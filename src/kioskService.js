@@ -91,6 +91,20 @@ function pick(row, keys) {
 }
 
 function formatPatientDisplayName(row) {
+    const preferredName = pick(row, ['preferred_name', 'preferredName']);
+    if (preferredName) {
+        const lastName = pick(row, ['last_name', 'lastName']);
+        if (lastName) return `${preferredName} ${String(lastName).charAt(0)}.`;
+
+        const explicit = pick(row, ['patient_display_name', 'patientDisplayName', 'patient_name', 'patientName']);
+        if (explicit) {
+            const parts = String(explicit).trim().split(/\s+/);
+            if (parts.length > 1) return `${preferredName} ${parts[parts.length - 1].charAt(0)}.`;
+        }
+
+        return String(preferredName);
+    }
+
     const explicit = pick(row, ['patient_display_name', 'patientDisplayName', 'patient_name', 'patientName']);
     if (explicit) {
         const parts = String(explicit).trim().split(/\s+/);
@@ -129,6 +143,7 @@ function normalizeSessionRow(row, options = {}) {
     return {
         id: pick(row, ['session_id', 'sessionId', 'id']),
         patientName: formatPatientDisplayName(row),
+        preferredName: pick(row, ['preferred_name', 'preferredName']),
         chamberName: pick(row, ['chamber_name', 'chamberName', 'chamber']) || options.chamberName,
         chamberNumber: chamberNumberFromName(pick(row, ['chamber_name', 'chamberName', 'chamber']) || options.chamberName),
         seatNumber: Number(pick(row, ['seat_number', 'seatNumber', 'seat']) || options.seatNumber),
@@ -146,6 +161,8 @@ function serializeAppointment(session) {
         id: session.id,
         patientName: session.patientName,
         patient_name: session.patientName,
+        preferredName: session.preferredName,
+        preferred_name: session.preferredName,
         chamber: session.chamberName,
         chamberName: session.chamberName,
         chamberNumber: session.chamberNumber,

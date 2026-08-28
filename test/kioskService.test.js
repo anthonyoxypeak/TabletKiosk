@@ -73,6 +73,33 @@ test('returns an active appointment during the pre-dive display window', () => {
     assert.equal(payload.preDiveDisplayMinutes, 15);
 });
 
+test('uses preferred name with last initial when available', () => {
+    const payload = buildTabletSessionResponse([
+        {
+            session_id: 707,
+            first_name: 'Jonathan',
+            last_name: 'Doe',
+            preferred_name: 'Johnny',
+            status: 'scheduled',
+            chamber_name: 'HBOT 2',
+            seat_number: 1,
+            session_date: '2026-07-06',
+            start_time: '08:00:00',
+            duration_minutes: 120
+        }
+    ], {
+        chamberName: 'HBOT 2',
+        seatNumber: 1,
+        timeZone: 'America/New_York',
+        now: new Date('2026-07-06T07:45:00-04:00')
+    });
+
+    assert.equal(payload.activeAppointment.patientName, 'Johnny D.');
+    assert.equal(payload.activeAppointment.patient_name, 'Johnny D.');
+    assert.equal(payload.activeAppointment.preferredName, 'Johnny');
+    assert.equal(payload.activeAppointment.preferred_name, 'Johnny');
+});
+
 test('hides patient before the pre-dive display window starts', () => {
     const payload = buildTabletSessionResponse([
         {
