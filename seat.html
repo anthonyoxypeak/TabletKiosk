@@ -271,19 +271,43 @@
             box-shadow: var(--card-shadow);
         }
 
+        .feedback-btn {
+            height: 46px;
+            border-radius: 15px;
+            border: 1px solid var(--card-border);
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.78), var(--card-inner)),
+                var(--card-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 14px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            box-shadow: var(--card-shadow);
+            text-transform: uppercase;
+        }
+
         .theme-toggle-btn:hover,
-        .comfort-toggle-btn:hover {
+        .comfort-toggle-btn:hover,
+        .feedback-btn:hover {
             border-color: var(--text-secondary);
             color: var(--text-color);
         }
 
         .theme-toggle-btn:active,
-        .comfort-toggle-btn:active {
+        .comfort-toggle-btn:active,
+        .feedback-btn:active {
             transform: scale(0.92);
         }
 
         .theme-toggle-btn svg,
-        .comfort-toggle-btn svg {
+        .comfort-toggle-btn svg,
+        .feedback-btn svg {
             width: 22px;
             height: 22px;
         }
@@ -310,6 +334,7 @@
 
         [data-theme="dark"] .theme-toggle-btn,
         [data-theme="dark"] .comfort-toggle-btn,
+        [data-theme="dark"] .feedback-btn,
         [data-theme="dark"] .session-status-badge {
             background:
                 linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02)),
@@ -519,7 +544,7 @@
         }
 
         .clock-date {
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
@@ -550,7 +575,7 @@
         }
 
         .seat-info-card::after {
-            content: 'Physician-Led Hyperbaric Care';
+            content: '';
             position: absolute;
             right: 28px;
             top: 14px;
@@ -597,7 +622,7 @@
         }
 
         .info-label {
-            font-size: 8.5px;
+            font-size: 10.5px;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
@@ -627,7 +652,7 @@
         }
 
         .info-value-med {
-            font-size: 11.5px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--text-secondary);
         }
@@ -670,7 +695,7 @@
 
         .weather-condition {
             min-width: 0;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 800;
             color: var(--text-secondary);
             overflow: hidden;
@@ -733,7 +758,7 @@
         }
 
         .countdown-display {
-            font-size: 12.5px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--accent-teal-dark);
             font-variant-numeric: tabular-nums;
@@ -757,7 +782,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 8.5px;
+            font-size: 10px;
         }
 
         .countdown-display-small {
@@ -929,6 +954,15 @@
             width: 100%;
         }
 
+        .app-description {
+            margin-top: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.15;
+            color: var(--text-secondary);
+            letter-spacing: 0;
+        }
+
         .app-card:focus-visible {
             outline: 4px solid rgba(94, 184, 168, 0.35);
             outline-offset: 3px;
@@ -1002,9 +1036,17 @@
             }
 
             .theme-toggle-btn svg,
-            .comfort-toggle-btn svg {
+            .comfort-toggle-btn svg,
+            .feedback-btn svg {
                 width: 19px;
                 height: 19px;
+            }
+
+            .feedback-btn {
+                height: 40px;
+                padding: 0 12px;
+                font-size: 10.5px;
+                border-radius: 13px;
             }
 
             .session-status-badge {
@@ -1020,7 +1062,7 @@
             }
 
             .clock-date {
-                font-size: 8.5px;
+                font-size: 10px;
             }
 
             .seat-info-card {
@@ -1275,7 +1317,7 @@
         }
 
         .vol-label-title {
-            font-size: 8px;
+            font-size: 10.5px;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
@@ -1284,7 +1326,7 @@
         }
 
         .vol-label-val {
-            font-size: 11px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--text-color);
         }
@@ -1555,6 +1597,15 @@
                 </svg>
             </button>
 
+            <button class="feedback-btn" onclick="openFeedbackForm()" aria-label="Open tablet feedback form">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                    <path d="M8 9h8"></path>
+                    <path d="M8 13h5"></path>
+                </svg>
+                <span>Feedback</span>
+            </button>
+
             <div class="session-status-badge" id="sessionStatusBadge" data-state="checking">
                 <div class="pulse-dot" id="statusPulse"></div>
                 <span class="session-label" id="sessionStatus">Checking</span>
@@ -1622,7 +1673,6 @@
 
     <div class="seat-info-card" id="seatDisplay">
         <div class="patient-section">
-            <span class="info-label" id="patientLabel">Current Patient</span>
             <span class="info-value-large" id="patientName">Checking...</span>
             <span class="patient-hint" id="patientHint">Checking chamber schedule...</span>
         </div>
@@ -1684,14 +1734,19 @@
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z" fill="currentColor" fill-opacity="0.15"/><path d="M12 2.5C12 2.5 5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5z"/>
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M3.6 9h16.8"></path>
+                        <path d="M3.6 15h16.8"></path>
+                        <path d="M12 3a13.5 13.5 0 0 1 0 18"></path>
+                        <path d="M12 3a13.5 13.5 0 0 0 0 18"></path>
                     </svg>
                 </div>
                 <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             </div>
             <div class="card-bottom">
-                <span class="app-category">Health</span>
+                <span class="app-category">Public Website</span>
                 <span class="app-name">OxyPeak Website</span>
+                <span class="app-description">Clinic info, services, and contact</span>
             </div>
         </a>
 
@@ -1699,16 +1754,18 @@
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 19.5V8.8L12 3l8 5.8v10.7"/>
-                        <path d="M9 21v-7h6v7"/>
-                        <path d="M8.5 10.5h7"/>
+                        <path d="M20 21a8 8 0 0 0-16 0"></path>
+                        <circle cx="12" cy="8" r="4"></circle>
+                        <path d="M17.5 3.5h3v3"></path>
+                        <path d="M20.5 3.5 16 8"></path>
                     </svg>
                 </div>
                 <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             </div>
             <div class="card-bottom">
-                <span class="app-category">User Portal</span>
+                <span class="app-category">Patient Portal</span>
                 <span class="app-name">My OxyPeak</span>
+                <span class="app-description">Personal account and forms</span>
             </div>
         </a>
         <a href="https://m.youtube.com/" target="_blank" class="app-card card-youtube">
@@ -1901,6 +1958,7 @@
         // ====== API & STATE ======
         const DEFAULT_REMOTE_API_URL = 'https://oxypeak-to-tablets-grc7htdehuhea4b5.centralus-01.azurewebsites.net';
         const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=28.8436&longitude=-82.0107&current=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=America%2FNew_York';
+        const FEEDBACK_FORM_URL = ''; // Paste the Microsoft Forms feedback link here when ready.
         const API_BASE_URL = getApiBaseUrl();
         const CHAMBER_NAMES = {
             1: 'Suite 1',
@@ -2128,6 +2186,23 @@
                 els.comfortPanel.classList.add('is-open');
                 setAttributeValue(els.comfortPanel, 'aria-hidden', 'false');
                 setAttributeValue(els.comfortToggleBtn, 'aria-expanded', 'true');
+            }
+        }
+
+        function openFeedbackForm() {
+            if (!FEEDBACK_FORM_URL) {
+                alert('Feedback form is not connected yet.');
+                return;
+            }
+
+            try {
+                const url = new URL(FEEDBACK_FORM_URL, window.location.href);
+                url.searchParams.set('chamber', String(CHAMBER_NUMBER));
+                url.searchParams.set('seat', String(SEAT_NUMBER));
+                url.searchParams.set('source', 'tablet');
+                window.open(url.toString(), '_blank', 'noopener,noreferrer');
+            } catch (error) {
+                alert('Feedback form link needs to be updated.');
             }
         }
 
