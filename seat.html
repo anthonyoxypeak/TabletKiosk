@@ -61,9 +61,11 @@
         .app-card,
         .app-icon,
         .theme-toggle-btn,
+        .comfort-toggle-btn,
         .session-status-badge,
         .volume-control-center,
         .patient-start-overlay,
+        .comfort-panel,
         .patient-start-button,
         .vol-btn {
             transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 0.12s ease;
@@ -99,6 +101,69 @@
             gap: 10px;
             width: 100%;
             margin: 0;
+        }
+
+        html[data-text-size="large"] .info-value-large,
+        html[data-text-size="large"] .patient-start-name {
+            font-size: clamp(30px, 4vw, 46px);
+        }
+
+        html[data-text-size="large"] .app-name {
+            font-size: clamp(18px, 1.9vw, 27px);
+        }
+
+        html[data-text-size="large"] .patient-hint,
+        html[data-text-size="large"] .info-value-med,
+        html[data-text-size="large"] .weather-condition,
+        html[data-text-size="large"] .vol-label-val,
+        html[data-text-size="large"] .countdown-display {
+            font-size: 1.16em;
+        }
+
+        html[data-text-size="xlarge"] .info-value-large,
+        html[data-text-size="xlarge"] .patient-start-name {
+            font-size: clamp(34px, 4.45vw, 52px);
+        }
+
+        html[data-text-size="xlarge"] .app-name {
+            font-size: clamp(20px, 2.08vw, 30px);
+        }
+
+        html[data-text-size="xlarge"] .patient-hint,
+        html[data-text-size="xlarge"] .info-value-med,
+        html[data-text-size="xlarge"] .weather-condition,
+        html[data-text-size="xlarge"] .vol-label-val,
+        html[data-text-size="xlarge"] .countdown-display {
+            font-size: 1.28em;
+        }
+
+        html[data-contrast="high"] {
+            --text-secondary: #26384f;
+            --text-tertiary: #465870;
+            --card-border: rgba(19, 33, 55, 0.26);
+            --track-bg: rgba(19, 33, 55, 0.16);
+        }
+
+        html[data-theme="dark"][data-contrast="high"] {
+            --text-color: #ffffff;
+            --text-secondary: #edf4ff;
+            --text-tertiary: #cad8ea;
+            --card-border: rgba(255, 255, 255, 0.2);
+            --track-bg: rgba(255, 255, 255, 0.18);
+        }
+
+        html[data-contrast="high"] .app-card,
+        html[data-contrast="high"] .seat-info-card,
+        html[data-contrast="high"] .volume-control-center,
+        html[data-contrast="high"] .session-status-badge {
+            border-width: 2px;
+        }
+
+        html[data-motion="reduced"] *,
+        html[data-motion="reduced"] *::before,
+        html[data-motion="reduced"] *::after {
+            transition: none !important;
+            animation: none !important;
         }
 
         /* === TOP HEADER ROW === */
@@ -180,7 +245,8 @@
         }
 
         /* Sleek Sun/Moon Theme Toggle Button */
-        .theme-toggle-btn {
+        .theme-toggle-btn,
+        .comfort-toggle-btn {
             width: 34px;
             height: 34px;
             border-radius: 12px;
@@ -196,16 +262,19 @@
             box-shadow: var(--card-shadow);
         }
 
-        .theme-toggle-btn:hover {
+        .theme-toggle-btn:hover,
+        .comfort-toggle-btn:hover {
             border-color: var(--text-secondary);
             color: var(--text-color);
         }
 
-        .theme-toggle-btn:active {
+        .theme-toggle-btn:active,
+        .comfort-toggle-btn:active {
             transform: scale(0.92);
         }
 
-        .theme-toggle-btn svg {
+        .theme-toggle-btn svg,
+        .comfort-toggle-btn svg {
             width: 15px;
             height: 15px;
         }
@@ -231,10 +300,184 @@
         .session-status-badge[data-state="sync-issue"] .pulse-dot { background: var(--accent-gold); }
 
         [data-theme="dark"] .theme-toggle-btn,
+        [data-theme="dark"] .comfort-toggle-btn,
         [data-theme="dark"] .session-status-badge {
             background:
                 linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02)),
                 var(--card-bg);
+        }
+
+        .comfort-panel {
+            position: fixed;
+            top: 62px;
+            right: 18px;
+            z-index: 70;
+            width: min(360px, calc(100vw - 36px));
+            padding: 18px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 251, 244, 0.72)),
+                var(--card-bg);
+            color: var(--text-color);
+            box-shadow: 0 18px 48px rgba(19, 33, 55, 0.18), inset 0 1px 0 var(--card-highlight);
+            opacity: 0;
+            transform: translateY(-8px) scale(0.98);
+            pointer-events: none;
+        }
+
+        [data-theme="dark"] .comfort-panel {
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
+                rgba(5, 10, 18, 0.98);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42), inset 0 1px 0 var(--card-highlight);
+        }
+
+        .comfort-panel.is-open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .comfort-panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .comfort-panel-title {
+            display: block;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .comfort-panel-subtitle {
+            display: block;
+            margin-top: 3px;
+            font-size: 11px;
+            font-weight: 650;
+            color: var(--text-secondary);
+        }
+
+        .comfort-close-btn {
+            width: 34px;
+            height: 34px;
+            border: 1px solid var(--card-border);
+            border-radius: 50%;
+            background: var(--card-inner);
+            color: var(--text-secondary);
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .comfort-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 0;
+            border-top: 1px solid var(--divider-color);
+        }
+
+        .comfort-option-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-color);
+        }
+
+        .comfort-option-help {
+            display: block;
+            margin-top: 2px;
+            font-size: 10px;
+            font-weight: 650;
+            color: var(--text-secondary);
+        }
+
+        .comfort-segmented {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: var(--track-bg);
+            flex-shrink: 0;
+        }
+
+        .comfort-chip {
+            min-width: 46px;
+            border: 0;
+            border-radius: 999px;
+            padding: 8px 10px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .comfort-chip.is-active {
+            background: var(--accent-teal);
+            color: #05201c;
+        }
+
+        .comfort-switch {
+            position: relative;
+            width: 56px;
+            height: 32px;
+            flex-shrink: 0;
+            border: 0;
+            border-radius: 999px;
+            background: var(--track-bg);
+            cursor: pointer;
+        }
+
+        .comfort-switch::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 3px 8px rgba(19, 33, 55, 0.18);
+            transition: transform 0.14s ease;
+        }
+
+        .comfort-switch[aria-pressed="true"] {
+            background: var(--accent-teal);
+        }
+
+        .comfort-switch[aria-pressed="true"]::after {
+            transform: translateX(24px);
+        }
+
+        .comfort-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--divider-color);
+        }
+
+        .comfort-action-btn {
+            border: 1px solid var(--card-border);
+            border-radius: 999px;
+            padding: 10px 14px;
+            background: var(--card-inner);
+            color: var(--text-color);
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .comfort-action-btn.primary {
+            background: var(--accent-teal);
+            color: #05201c;
+            border-color: transparent;
         }
 
         .pulse-dot {
@@ -742,7 +985,8 @@
                 padding: 8px 15px;
             }
 
-            .theme-toggle-btn {
+            .theme-toggle-btn,
+            .comfort-toggle-btn {
                 width: 30px;
                 height: 30px;
                 border-radius: 10px;
@@ -1263,6 +1507,13 @@
                 </svg>
             </button>
 
+            <button class="comfort-toggle-btn" onclick="toggleComfortPanel()" aria-label="Open display settings" aria-expanded="false" aria-controls="comfortPanel" id="comfortToggleBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
+                    <path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.06.06a2.1 2.1 0 1 1-2.97 2.97l-.06-.06a1.8 1.8 0 0 0-1.98-.36 1.8 1.8 0 0 0-1.09 1.65V21.4a2.1 2.1 0 1 1-4.2 0v-.09a1.8 1.8 0 0 0-1.18-1.65 1.8 1.8 0 0 0-1.98.36l-.06.06a2.1 2.1 0 1 1-2.97-2.97l.06-.06a1.8 1.8 0 0 0 .36-1.98 1.8 1.8 0 0 0-1.65-1.09H2.6a2.1 2.1 0 1 1 0-4.2h.09a1.8 1.8 0 0 0 1.65-1.18 1.8 1.8 0 0 0-.36-1.98l-.06-.06A2.1 2.1 0 1 1 6.89 3.6l.06.06a1.8 1.8 0 0 0 1.98.36H9a1.8 1.8 0 0 0 1.09-1.65V2.6a2.1 2.1 0 1 1 4.2 0v.09A1.8 1.8 0 0 0 15.47 4a1.8 1.8 0 0 0 1.98-.36l.06-.06a2.1 2.1 0 1 1 2.97 2.97l-.06.06a1.8 1.8 0 0 0-.36 1.98v.08a1.8 1.8 0 0 0 1.65 1.09h.09a2.1 2.1 0 1 1 0 4.2h-.09A1.8 1.8 0 0 0 19.4 15z"></path>
+                </svg>
+            </button>
+
             <div class="session-status-badge" id="sessionStatusBadge" data-state="checking">
                 <div class="pulse-dot" id="statusPulse"></div>
                 <span class="session-label" id="sessionStatus">Checking</span>
@@ -1271,6 +1522,60 @@
                 <div class="clock-time" id="clockTime">—:—</div>
                 <div class="clock-date" id="clockDate">—</div>
             </div>
+        </div>
+    </div>
+
+    <div class="comfort-panel" id="comfortPanel" aria-hidden="true">
+        <div class="comfort-panel-header">
+            <div>
+                <span class="comfort-panel-title">Display Settings</span>
+                <span class="comfort-panel-subtitle">Resets after this seat session</span>
+            </div>
+            <button class="comfort-close-btn" type="button" onclick="closeComfortPanel()" aria-label="Close display settings">×</button>
+        </div>
+
+        <div class="comfort-option">
+            <div>
+                <span class="comfort-option-label">Theme</span>
+                <span class="comfort-option-help">Choose light or dark</span>
+            </div>
+            <div class="comfort-segmented" role="group" aria-label="Theme">
+                <button class="comfort-chip" type="button" data-setting="theme" data-value="light" onclick="setComfortOption('theme', 'light')">Light</button>
+                <button class="comfort-chip" type="button" data-setting="theme" data-value="dark" onclick="setComfortOption('theme', 'dark')">Dark</button>
+            </div>
+        </div>
+
+        <div class="comfort-option">
+            <div>
+                <span class="comfort-option-label">Text Size</span>
+                <span class="comfort-option-help">Make screen text easier to read</span>
+            </div>
+            <div class="comfort-segmented" role="group" aria-label="Text size">
+                <button class="comfort-chip" type="button" data-setting="textSize" data-value="normal" onclick="setComfortOption('textSize', 'normal')">A</button>
+                <button class="comfort-chip" type="button" data-setting="textSize" data-value="large" onclick="setComfortOption('textSize', 'large')">A+</button>
+                <button class="comfort-chip" type="button" data-setting="textSize" data-value="xlarge" onclick="setComfortOption('textSize', 'xlarge')">A++</button>
+            </div>
+        </div>
+
+        <div class="comfort-option">
+            <div>
+                <span class="comfort-option-label">High Contrast</span>
+                <span class="comfort-option-help">Sharper edges and brighter text</span>
+            </div>
+            <button class="comfort-switch" type="button" id="contrastSwitch" aria-pressed="false" onclick="toggleComfortBoolean('highContrast')" aria-label="Toggle high contrast"></button>
+        </div>
+
+        <div class="comfort-option">
+            <div>
+                <span class="comfort-option-label">Reduced Motion</span>
+                <span class="comfort-option-help">Turns off most motion effects</span>
+            </div>
+            <button class="comfort-switch" type="button" id="motionSwitch" aria-pressed="false" onclick="toggleComfortBoolean('reducedMotion')" aria-label="Toggle reduced motion"></button>
+        </div>
+
+        <div class="comfort-actions">
+            <button class="comfort-action-btn" type="button" onclick="resetComfortSettings()">Reset</button>
+            <button class="comfort-action-btn primary" type="button" onclick="closeComfortPanel()">Done</button>
         </div>
     </div>
 
@@ -1573,10 +1878,19 @@
         let currentAppointment = null;
         let diveStartTime = null;
         let emptyDiveDimmerUntil = 0;
+        let activeComfortSessionKey = '';
         let preDiveDisplayMs = DEFAULT_PRE_DIVE_DISPLAY_MS;
         let nextRefreshTimer = null;
         let countdownTimer = null;
         const WELCOME_ACK_STORAGE_KEY = `oxypeak-started-session:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
+        const COMFORT_SETTINGS_KEY = `oxypeak-comfort-settings:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
+        const COMFORT_SESSION_KEY = `oxypeak-comfort-session:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
+        const DEFAULT_COMFORT_SETTINGS = {
+            theme: 'light',
+            textSize: 'normal',
+            highContrast: false,
+            reducedMotion: false
+        };
         let acknowledgedWelcomeSessionKey = sessionStorage.getItem(WELCOME_ACK_STORAGE_KEY) || '';
         const els = {};
         const ELEMENT_IDS = [
@@ -1585,9 +1899,13 @@
             'chamberName',
             'clockDate',
             'clockTime',
+            'comfortPanel',
+            'comfortToggleBtn',
+            'contrastSwitch',
             'countdownDisplay',
             'countdownProgress',
             'emptyDiveDimmer',
+            'motionSwitch',
             'patientHint',
             'patientLabel',
             'patientName',
@@ -1641,10 +1959,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
             cacheElements();
-            updateThemeUI(savedTheme);
+            activeComfortSessionKey = sessionStorage.getItem(COMFORT_SESSION_KEY) || '';
+            applyComfortSettings(readComfortSettings());
 
             setupDisplay();
             updateClock();
@@ -1668,11 +1985,9 @@
         }
 
         function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', targetTheme);
-            localStorage.setItem('theme', targetTheme);
-            updateThemeUI(targetTheme);
+            const settings = readComfortSettings();
+            settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
+            saveComfortSettings(settings);
         }
 
         function updateThemeUI(theme) {
@@ -1683,6 +1998,103 @@
                 setStyle(els.themeIconSun, 'display', 'none');
                 setStyle(els.themeIconMoon, 'display', 'block');
             }
+        }
+
+        function readComfortSettings() {
+            try {
+                const parsed = JSON.parse(sessionStorage.getItem(COMFORT_SETTINGS_KEY) || '{}');
+                return {
+                    ...DEFAULT_COMFORT_SETTINGS,
+                    ...parsed
+                };
+            } catch (error) {
+                return { ...DEFAULT_COMFORT_SETTINGS };
+            }
+        }
+
+        function saveComfortSettings(settings) {
+            const cleanSettings = {
+                theme: settings.theme === 'dark' ? 'dark' : 'light',
+                textSize: ['normal', 'large', 'xlarge'].includes(settings.textSize) ? settings.textSize : 'normal',
+                highContrast: Boolean(settings.highContrast),
+                reducedMotion: Boolean(settings.reducedMotion)
+            };
+            sessionStorage.setItem(COMFORT_SETTINGS_KEY, JSON.stringify(cleanSettings));
+            applyComfortSettings(cleanSettings);
+        }
+
+        function applyComfortSettings(settings) {
+            document.documentElement.setAttribute('data-theme', settings.theme);
+            document.documentElement.setAttribute('data-text-size', settings.textSize);
+            document.documentElement.setAttribute('data-contrast', settings.highContrast ? 'high' : 'normal');
+            document.documentElement.setAttribute('data-motion', settings.reducedMotion ? 'reduced' : 'normal');
+            updateThemeUI(settings.theme);
+            updateComfortPanelUI(settings);
+        }
+
+        function resetComfortSettings() {
+            sessionStorage.removeItem(COMFORT_SETTINGS_KEY);
+            applyComfortSettings({ ...DEFAULT_COMFORT_SETTINGS });
+        }
+
+        function resetComfortSettingsForSeat() {
+            activeComfortSessionKey = '';
+            sessionStorage.removeItem(COMFORT_SESSION_KEY);
+            resetComfortSettings();
+            closeComfortPanel();
+        }
+
+        function ensureComfortSession(sessionKey) {
+            if (!sessionKey) {
+                resetComfortSettingsForSeat();
+                return;
+            }
+
+            if (activeComfortSessionKey !== sessionKey) {
+                activeComfortSessionKey = sessionKey;
+                sessionStorage.setItem(COMFORT_SESSION_KEY, sessionKey);
+                resetComfortSettings();
+            }
+        }
+
+        function updateComfortPanelUI(settings = readComfortSettings()) {
+            document.querySelectorAll('.comfort-chip[data-setting]').forEach(button => {
+                const isActive = settings[button.dataset.setting] === button.dataset.value;
+                button.classList.toggle('is-active', isActive);
+            });
+            if (els.contrastSwitch) els.contrastSwitch.setAttribute('aria-pressed', settings.highContrast ? 'true' : 'false');
+            if (els.motionSwitch) els.motionSwitch.setAttribute('aria-pressed', settings.reducedMotion ? 'true' : 'false');
+        }
+
+        function setComfortOption(key, value) {
+            const settings = readComfortSettings();
+            settings[key] = value;
+            saveComfortSettings(settings);
+        }
+
+        function toggleComfortBoolean(key) {
+            const settings = readComfortSettings();
+            settings[key] = !settings[key];
+            saveComfortSettings(settings);
+        }
+
+        function toggleComfortPanel() {
+            if (!els.comfortPanel) return;
+            if (els.comfortPanel.classList.contains('is-open')) {
+                closeComfortPanel();
+            } else {
+                updateComfortPanelUI();
+                els.comfortPanel.classList.add('is-open');
+                setAttributeValue(els.comfortPanel, 'aria-hidden', 'false');
+                setAttributeValue(els.comfortToggleBtn, 'aria-expanded', 'true');
+            }
+        }
+
+        function closeComfortPanel() {
+            if (!els.comfortPanel) return;
+            els.comfortPanel.classList.remove('is-open');
+            setAttributeValue(els.comfortPanel, 'aria-hidden', 'true');
+            setAttributeValue(els.comfortToggleBtn, 'aria-expanded', 'false');
         }
 
         function setStatus(text) {
@@ -1938,6 +2350,7 @@
                 setText(els.appointmentTime, apptTime);
                 diveStartTime = startTime;
                 currentAppointment = { ...appt, isActive: true, startTime, endTime };
+                ensureComfortSession(getAppointmentSessionKey(currentAppointment));
                 const timeUntilStart = Math.max(0, startTime - now);
                 setPatientHint(now < startTime
                     ? `Starts in ${formatDuration(timeUntilStart)} · tap welcome screen to begin`
@@ -1953,6 +2366,7 @@
                 setText(els.timeRemaining, formatDuration(timeUntilStart));
                 diveStartTime = null;
                 currentAppointment = { ...appt, isActive: false, startTime, endTime };
+                ensureComfortSession(getAppointmentSessionKey(currentAppointment));
                 setPatientHint(`Scheduled for ${apptTime}`);
             }
 
@@ -1963,6 +2377,7 @@
         function showEmpty(nextAppointment, chamberDiveActive = false) {
             currentAppointment = null;
             diveStartTime = null;
+            resetComfortSettingsForSeat();
             hidePatientStartOverlay();
             setEmptyDiveDimmer(chamberDiveActive);
             setStatus('Available');
@@ -1984,6 +2399,7 @@
         function showError(message) {
             currentAppointment = null;
             diveStartTime = null;
+            resetComfortSettingsForSeat();
             hidePatientStartOverlay();
             setEmptyDiveDimmer(false);
             setStatus('Error');
