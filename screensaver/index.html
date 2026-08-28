@@ -32,7 +32,8 @@
             align-items: center;
             gap: min(3vw, 28px);
             opacity: 0.66;
-            transform: translateY(-2vh);
+            animation: slow-drift 90s ease-in-out infinite alternate;
+            will-change: transform;
         }
 
         .ring {
@@ -53,6 +54,24 @@
 
         .word span {
             color: rgba(94, 184, 168, 0.17);
+        }
+
+        @keyframes slow-drift {
+            0% {
+                transform: translate(-2.4vw, -3.2vh) scale(0.98);
+            }
+
+            35% {
+                transform: translate(2.2vw, -1.4vh) scale(1);
+            }
+
+            70% {
+                transform: translate(1vw, 2.6vh) scale(1.015);
+            }
+
+            100% {
+                transform: translate(-1.8vw, 1.8vh) scale(0.99);
+            }
         }
 
         @media (max-width: 700px) {
