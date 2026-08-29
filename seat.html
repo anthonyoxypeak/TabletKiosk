@@ -1991,6 +1991,15 @@
             reducedMotion: false
         };
         let acknowledgedWelcomeSessionKey = sessionStorage.getItem(WELCOME_ACK_STORAGE_KEY) || '';
+        const comfortStorage = (() => {
+            try {
+                localStorage.setItem('__oxypeak_storage_test__', '1');
+                localStorage.removeItem('__oxypeak_storage_test__');
+                return localStorage;
+            } catch (error) {
+                return sessionStorage;
+            }
+        })();
         const els = {};
         const ELEMENT_IDS = [
             'appointmentLabel',
@@ -2059,7 +2068,9 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             cacheElements();
-            activeComfortSessionKey = sessionStorage.getItem(COMFORT_SESSION_KEY) || '';
+            activeComfortSessionKey = comfortStorage.getItem(COMFORT_SESSION_KEY)
+                || sessionStorage.getItem(COMFORT_SESSION_KEY)
+                || '';
             applyComfortSettings(readComfortSettings());
 
             setupDisplay();
@@ -2101,7 +2112,10 @@
 
         function readComfortSettings() {
             try {
-                const parsed = JSON.parse(sessionStorage.getItem(COMFORT_SETTINGS_KEY) || '{}');
+                const rawSettings = comfortStorage.getItem(COMFORT_SETTINGS_KEY)
+                    || sessionStorage.getItem(COMFORT_SETTINGS_KEY)
+                    || '{}';
+                const parsed = JSON.parse(rawSettings);
                 return {
                     ...DEFAULT_COMFORT_SETTINGS,
                     ...parsed
@@ -2118,7 +2132,8 @@
                 highContrast: Boolean(settings.highContrast),
                 reducedMotion: Boolean(settings.reducedMotion)
             };
-            sessionStorage.setItem(COMFORT_SETTINGS_KEY, JSON.stringify(cleanSettings));
+            comfortStorage.setItem(COMFORT_SETTINGS_KEY, JSON.stringify(cleanSettings));
+            sessionStorage.removeItem(COMFORT_SETTINGS_KEY);
             applyComfortSettings(cleanSettings);
         }
 
@@ -2132,12 +2147,14 @@
         }
 
         function resetComfortSettings() {
+            comfortStorage.removeItem(COMFORT_SETTINGS_KEY);
             sessionStorage.removeItem(COMFORT_SETTINGS_KEY);
             applyComfortSettings({ ...DEFAULT_COMFORT_SETTINGS });
         }
 
         function resetComfortSettingsForSeat() {
             activeComfortSessionKey = '';
+            comfortStorage.removeItem(COMFORT_SESSION_KEY);
             sessionStorage.removeItem(COMFORT_SESSION_KEY);
             resetComfortSettings();
             closeComfortPanel();
@@ -2151,7 +2168,8 @@
 
             if (activeComfortSessionKey !== sessionKey) {
                 activeComfortSessionKey = sessionKey;
-                sessionStorage.setItem(COMFORT_SESSION_KEY, sessionKey);
+                comfortStorage.setItem(COMFORT_SESSION_KEY, sessionKey);
+                sessionStorage.removeItem(COMFORT_SESSION_KEY);
                 resetComfortSettings();
             }
         }
@@ -2201,7 +2219,7 @@
                 url.searchParams.set('seat', String(SEAT_NUMBER));
                 url.searchParams.set('source', 'tablet');
                 const feedbackWindow = window.open(url.toString(), '_blank', 'noopener,noreferrer');
-                if (!feedbackWindow) window.location.href = url.toString();
+                if (!feedbackWindow) alert('Please allow popups to open the feedback form.');
             } catch (error) {
                 alert('Feedback form link needs to be updated.');
             }
