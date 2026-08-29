@@ -1958,7 +1958,7 @@
         // ====== API & STATE ======
         const DEFAULT_REMOTE_API_URL = 'https://oxypeak-to-tablets-grc7htdehuhea4b5.centralus-01.azurewebsites.net';
         const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=28.8436&longitude=-82.0107&current=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=America%2FNew_York';
-        const FEEDBACK_FORM_URL = ''; // Paste the Microsoft Forms feedback link here when ready.
+        const FEEDBACK_FORM_URL = 'https://forms.cloud.microsoft/r/frtru94iJY';
         const API_BASE_URL = getApiBaseUrl();
         const CHAMBER_NAMES = {
             1: 'Suite 1',
@@ -2200,7 +2200,8 @@
                 url.searchParams.set('chamber', String(CHAMBER_NUMBER));
                 url.searchParams.set('seat', String(SEAT_NUMBER));
                 url.searchParams.set('source', 'tablet');
-                window.open(url.toString(), '_blank', 'noopener,noreferrer');
+                const feedbackWindow = window.open(url.toString(), '_blank', 'noopener,noreferrer');
+                if (!feedbackWindow) window.location.href = url.toString();
             } catch (error) {
                 alert('Feedback form link needs to be updated.');
             }
