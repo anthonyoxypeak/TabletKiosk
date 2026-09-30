@@ -63,7 +63,7 @@ app.get('/api/staff/tablets', async (req, res) => {
     catch (_) { res.status(503).json({error:'Staff request status is unavailable. Check tablets directly.'}); }
 });
 
-app.get(['/staff.html', '/seat.html', '/tablet-session.js', '/tablet-experience.js', '/tablet-support.js', '/games.html', '/games.js', '/games.css', '/offline-worker.js'], (req, res) => {
+app.get(['/staff.html', '/seat.html', '/tablet-session.js', '/tablet-experience.js', '/tablet-support.js', '/games.html', '/games.js', '/games.css', '/games-core.js', '/game-words.js', '/offline-worker.js'], (req, res) => {
     res.set('Cache-Control', 'no-store, private');
     res.set('Referrer-Policy', 'no-referrer');
     res.sendFile(path.join(__dirname, req.path));

@@ -83,7 +83,7 @@ The tablet shows a patient starting 15 minutes before the scheduled dive, keeps 
 
 ## Games, Help, and staff announcements (1.2.0)
 
-The former Wordle tile is now Games. Its popup offers the original external Wordle plus Matching Pairs, Word Scramble, and Number Slide. There is no reading library. The three local games are cached after a successful download; Wordle still requires internet. Only games.html, games.js, and games.css are cached. Home, patient data, and APIs are never cached by this worker. Guest changes and the known dive deadline close the popup.
+The former Wordle tile is now Games Hub. Its popup offers the original external Wordle plus Matching Pairs, Word Scramble, Number Slide, Mini Sudoku, Sequence Memory, Number Sense, and Color Focus. There is no reading library. The seven local games are cached after a successful download; Wordle still requires internet. Only games.html, games.js, games.css, games-core.js, and game-words.js are cached. Home, patient data, and APIs are never cached by this worker. Guest changes and the known dive deadline close the popup.
 
 Help sits beside the moon icon and includes navigation and headphone guidance. Routine requests highlight the chamber/seat on staff.html. Staff can acknowledge and complete them. Requests expire with the assignment, and a database lookup validates the current booking before accepting a request. Failed delivery is shown explicitly. Urgent assistance should use the chamber's usual method.
 
@@ -92,3 +92,7 @@ Sign into staff.html with the existing KIOSK_API_KEY to send announcements and a
 Announcements target the occupied seats of one unambiguous current dive and expire after two minutes or at the earliest dive end. The dashboard counts tablets that displayed the message, not human reads. Backgrounded apps, external Wordle, sleeping tablets, or disconnected devices may not receive announcements.
 
 Communication state contains seat numbers, opaque booking tokens, staff message text and timestamps, never patient names. It is stored outside public web files at /home/data/oxypeak-tablet-data/communications.json on Azure (or the OS temporary directory locally). KIOSK_STATE_FILE can override this with a private persistent path. Acknowledgements are returned only after saving. This file store is for the current single-instance service; use a shared transactional store before scaling to multiple instances. Tablet check-ins remain process-local and reset on restart.
+
+## Games Hub (1.3.0)
+
+The eight game choices fit a landscape tablet. Word Scramble contains 2,478 unique curated words and remembers its shuffled word deck locally across visits, avoiding repeats until the entire deck is exhausted. It does not record player names. Mini Sudoku generates uniquely solvable 4×4 puzzles; Number Slide starts with solvable boards. Number Sense has three difficulty levels and Color Focus has ten-round sets, without time pressure. Sequence Memory uses both shapes and labels. Help remains only on the main tablet screen, beside the moon icon.

@@ -1,6 +1,6 @@
 /* Home remains mounted while the seating chart or games are open. */
 (() => {
-    const VERSION = '1.2.0';
+    const VERSION = '1.3.0';
     let dialog, frame, lifecycle, lastSync = 'checking', heartbeatPending = false;
     const chartLink = document.getElementById('seatingChartLink');
     const gamesLink = document.getElementById('gamesLink');
@@ -76,7 +76,7 @@
             dialog.showModal();
         }
         chartLink.addEventListener('click', event => openPanel(chartLink, 'Current dive seating chart', event));
-        gamesLink?.addEventListener('click', event => openPanel(gamesLink, 'Games', event));
+        gamesLink?.addEventListener('click', event => openPanel(gamesLink, 'Games Hub', event));
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('offline-worker.js').catch(() => {});
         dialog.addEventListener('cancel', event => { event.preventDefault(); closeChart(); });
         window.addEventListener('message', event => {

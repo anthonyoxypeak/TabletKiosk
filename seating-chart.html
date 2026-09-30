@@ -54,7 +54,7 @@
         .seat:nth-child(5), .seat:nth-child(10) { grid-column:5; }
         .seat:nth-child(6), .seat:nth-child(9) { grid-column:6; }
         .seat:nth-child(7), .seat:nth-child(8) { grid-column:7; }
-        footer { margin:0; gap:12px; font-size:12px; }
+        footer { margin:0; gap:12px; font-size:12px; justify-content:flex-end; }
         @media(max-height:480px) { main { padding:8px 12px; gap:6px; } .brand { display:none; } h1 { font-size:22px; } .name { margin-top:4px; } }
         @media(max-width:600px) and (orientation:portrait) { .chamber { overflow-x:auto; } #seats { min-width:630px; } main { padding:12px; } }
     </style>
@@ -64,7 +64,7 @@
     <header><div><span class="brand">OxyPeak</span><div class="heading"><h1>Seating Chart</h1><span class="eyebrow" id="suite">Current dive</span></div></div><a id="back" href="seat.html">← Back to home</a></header>
     <p id="status" role="status" aria-live="polite">Loading the current dive…</p>
     <div class="chamber"><div class="station">IA Station</div><ul id="seats" aria-label="Seats in the current dive"></ul></div>
-    <footer><span>First names and nicknames only.</span><button id="refresh" type="button">Refresh</button></footer>
+    <footer><button id="refresh" type="button">Refresh</button></footer>
 </main>
 <script>
     const params = new URLSearchParams(location.search);
@@ -145,7 +145,7 @@
                 seats.append(item);
             }
             const format = new Intl.DateTimeFormat('en-US', { hour:'numeric', minute:'2-digit', timeZone:data.facilityTimeZone || 'America/New_York' });
-            status.textContent = `${format.format(new Date(data.dive.startTime))} – ${format.format(new Date(data.dive.endTime))} · Updates automatically`;
+            status.textContent = `${format.format(new Date(data.dive.startTime))} – ${format.format(new Date(data.dive.endTime))}`;
             expiry = setTimeout(() => {
                 clearChart('Refreshing the current dive…');
                 loadChart();
