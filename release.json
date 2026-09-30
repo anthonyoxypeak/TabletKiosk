@@ -1,8 +1,9 @@
 {
-  "version": "1.7.0",
+  "version": "1.8.0",
   "date": "2026-09-30",
   "changes": [
     "Today’s IA briefing — September 30, 2026. This release brings together all of today’s tablet updates.",
+    "NEW: Staff alerts keep checking while the dashboard is in a background tab. Click Enable alerts after signing in to enable a chime and allow desktop notifications. A blinking tab title and red icon identify waiting requests; sound repeats about every 30 seconds until acknowledgment. Test sound and Mute controls are included. Desktop alerts show only suite and seat, not guest names. Alerts pause if the connection cannot be confirmed. Keep the computer awake and the dashboard tab out of browser sleeping mode.",
     "Seating Chart replaces CogniFit. It uses Dion’s current dive assignments, shows first names or nicknames, and highlights the guest’s own seat.",
     "The chart matches the chamber layout: seats 14–8 across the top, seats 1–7 below, with the IA station and center aisle. It now fills the tablet screen with larger names and chair icons.",
     "The chart refreshes every 15 seconds, clears old names when the scheduled dive ends, and checks for the next dive. Returning from sleep fetches the current roster; unavailable or stale data does not leave old names on screen.",
