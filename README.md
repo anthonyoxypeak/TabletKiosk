@@ -87,7 +87,7 @@ The former Wordle tile is now Games. Its popup offers the original external Word
 
 Help sits beside the moon icon and includes navigation and headphone guidance. Routine requests highlight the chamber/seat on staff.html. Staff can acknowledge and complete them. Requests expire with the assignment, and a database lookup validates the current booking before accepting a request. Failed delivery is shown explicitly. Urgent assistance should use the chamber's usual method.
 
-Set a distinct KIOSK_STAFF_KEY in Azure App Service environment variables to enable requests and announcements, then sign into staff.html using that key. Keep the existing KIOSK_API_KEY unchanged. Without a distinct staff key, these controls stay disabled; Games and Help instructions still work. Keep the staff dashboard open and attended.
+Sign into staff.html with the existing KIOSK_API_KEY to send announcements and acknowledge help requests. No tablet links or Azure settings need changing. Anyone who knows that shared key can use staff controls. An optional KIOSK_STAFF_KEY takes precedence if configured later. Without either key, staff controls remain disabled. Keep the staff dashboard open and attended.
 
 Announcements target the occupied seats of one unambiguous current dive and expire after two minutes or at the earliest dive end. The dashboard counts tablets that displayed the message, not human reads. Backgrounded apps, external Wordle, sleeping tablets, or disconnected devices may not receive announcements.
 

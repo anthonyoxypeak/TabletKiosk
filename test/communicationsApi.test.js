@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path');
-test('staff controls require a separate key; a current dive receives requests and announcements end-to-end',async t=>{
+test('staff controls honor a separate key when set and the existing tablet key otherwise; dive delivery works end-to-end',async t=>{
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'kiosk-api-'));t.after(()=>fs.rm(dir,{recursive:true,force:true}));
  Object.assign(process.env,{KIOSK_DEMO_MODE:'true',KIOSK_API_KEY:'tablet-test',KIOSK_STAFF_KEY:'staff-test',KIOSK_STATE_FILE:path.join(dir,'state.json')});
  const app=require('../server'),server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(()=>new Promise(r=>server.close(r)));
@@ -21,5 +21,8 @@ test('staff controls require a separate key; a current dive receives requests an
  await post('/api/tablet/announcement-receipt',{...request,id:msg.id});
  assert.equal((await(await get('/api/staff/tablets','staff-test')).json()).announcements[0].displayedCount,1);
  assert.equal((await post('/api/staff/requests/request-api',{action:'resolved'},'staff-test')).status,200);
- process.env.KIOSK_STAFF_KEY='tablet-test';assert.equal((await post('/api/staff/announcements',msg)).status,503);
+ delete process.env.KIOSK_STAFF_KEY;
+ assert.equal((await post('/api/staff/announcements',{...msg,id:'shared-key-message'})).status,200);
+ assert.equal((await get('/api/staff/tablets')).status,200);
+ assert.equal((await post('/api/staff/announcements',msg,'wrong-key')).status,401);
 });

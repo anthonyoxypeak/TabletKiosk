@@ -10,10 +10,10 @@ const { createCommunicationRoutes } = require('./src/communicationRoutes');
 const { normalizeSessionRow, serializeAppointment } = require('./src/kioskService');
 const os = require('node:os');
 const communications = createCommunications({ filePath:process.env.KIOSK_STATE_FILE || path.join(process.env.WEBSITE_SITE_NAME ? '/home/data' : os.tmpdir(), 'oxypeak-tablet-data', 'communications.json') });
-function staffMessagingEnabled() { return Boolean(process.env.KIOSK_STAFF_KEY && process.env.KIOSK_STAFF_KEY !== process.env.KIOSK_API_KEY); }
+function staffMessagingEnabled() { return Boolean(process.env.KIOSK_STAFF_KEY || API_KEY); }
 function requireStaffControl(req,res,next) {
-    if(!staffMessagingEnabled()) return res.status(503).json({error:'Configure a separate staff access key to enable requests and announcements.'});
-    if(req.get('x-kiosk-key')!==process.env.KIOSK_STAFF_KEY) return res.status(401).json({error:'Staff access required'});
+    if(!staffMessagingEnabled()) return res.status(503).json({error:'Staff access is not configured.'});
+    if(req.get('x-kiosk-key')!==(process.env.KIOSK_STAFF_KEY || API_KEY)) return res.status(401).json({error:'Staff access required'});
     next();
 }
 const APP_VERSION = require('./package.json').version;
