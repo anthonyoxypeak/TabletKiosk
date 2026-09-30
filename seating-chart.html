@@ -57,6 +57,22 @@
         footer { margin:0; gap:12px; font-size:12px; justify-content:flex-end; }
         @media(max-height:480px) { main { padding:8px 12px; gap:6px; } .brand { display:none; } h1 { font-size:22px; } .name { margin-top:4px; } }
         @media(max-width:600px) and (orientation:portrait) { .chamber { overflow-x:auto; } #seats { min-width:630px; } main { padding:12px; } }
+        /* A compact chamber map, rather than full-height passenger columns. */
+        :root{--bg:#f3f7f6;--line:#dbe7e2;--accent:#247f70}
+        main{height:auto;min-height:100dvh;max-width:1280px;padding:28px 32px;gap:16px}
+        header{padding-bottom:4px}.brand{font-size:13px;letter-spacing:.06em}.heading{gap:8px 18px}h1{font-size:32px;letter-spacing:-.035em}.eyebrow{font-size:12px;letter-spacing:.08em}
+        #status{font-size:14px;color:var(--muted)}
+        .chamber{position:relative;flex:0 0 auto;height:clamp(240px,48vh,380px);padding:16px;background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:0 12px 40px #234b3b08;gap:14px}
+        .chamber::after{content:'CHAMBER AISLE';position:absolute;top:50%;left:60px;right:16px;transform:translateY(-50%);text-align:center;font-size:9px;letter-spacing:.24em;color:var(--muted);pointer-events:none}
+        .station{width:30px;border:0;border-radius:14px;background:var(--bg);font-size:10px;letter-spacing:.1em}
+        #seats{gap:30px 10px}.seat{align-items:center;justify-content:center;gap:6px;padding:12px 5px;background:#f5faf8;border:1px solid #d9e8e0;border-radius:17px;text-align:center;overflow-wrap:anywhere}
+        .seat::before{content:'';display:block;width:30px;height:30px;order:1;background:var(--accent);opacity:.65;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='none' stroke='black' stroke-width='2' stroke-linecap='round' d='M9 18V8a3 3 0 013-3h8a3 3 0 013 3v10M6 14v8h20v-8M9 22v5m14-5v5M6 18h20'/%3E%3C/svg%3E") center/contain no-repeat}
+        .seat-label{order:0;font-size:12px;color:var(--muted);font-weight:650}.name{order:2;font-size:clamp(15px,1.8vw,23px);margin:0;line-height:1.2}.empty{background:var(--card);border-style:dashed}.empty::before{opacity:.2}.empty .name{font-size:12px;color:var(--muted)}
+        .seat.mine{padding:11px 4px;border:2px solid var(--accent);background:#e5f4ee;box-shadow:0 4px 16px #247f7018}.mine .seat-label{color:var(--accent)}.mine::before{opacity:1}
+        footer{justify-content:flex-end}footer button{font-size:13px;background:transparent}
+        @media(max-height:520px){main{height:100dvh;min-height:360px;padding:10px 16px;gap:7px}header{padding:0}h1{font-size:25px}.brand{display:none}.chamber{flex:1;height:auto;min-height:190px;padding:10px;border-radius:20px;gap:8px}#seats{gap:23px 7px}.seat{gap:3px;border-radius:12px}.seat::before{width:22px;height:22px}.seat-label{font-size:11px}.name{font-size:17px}footer button{min-height:36px;padding:6px 12px}}
+        @media(max-width:600px) and (orientation:portrait){main{padding:16px}.chamber{height:330px;overflow-x:auto}#seats{min-width:650px}.chamber::after{display:none}h1{font-size:26px}}
+        @media(prefers-color-scheme:dark){:root{--bg:#101c29;--card:#1a2b3c;--line:#354b5c;--accent:#83d7c4}.seat{background:#213c41;border-color:#355551}.seat.mine{background:#244e45}.empty{background:var(--card)}}
     </style>
 </head>
 <body>

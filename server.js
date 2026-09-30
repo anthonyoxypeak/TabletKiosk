@@ -5,7 +5,7 @@ const { DateTime } = require('luxon');
 require('dotenv').config();
 const { buildSeatingChart } = require('./src/seatingChart');
 const { createTabletStatus } = require('./src/tabletStatus');
-const { createCommunications, sessionToken } = require('./src/communications');
+const { createCommunications, sessionToken, idleToken } = require('./src/communications');
 const { createCommunicationRoutes } = require('./src/communicationRoutes');
 const { normalizeSessionRow, serializeAppointment } = require('./src/kioskService');
 const os = require('node:os');
@@ -117,19 +117,21 @@ app.use(createCommunicationRoutes({
     staffEnabled:staffMessagingEnabled,
     requireStaff:requireStaffControl,
     async currentSeat({chamber,seat}) {
-        if(!provider) return null;
+        if(!provider) throw Error('Schedule unavailable');
         const chamberName=(process.env.KIOSK_CHAMBER_PREFIX || 'HBOT')+' '+chamber;
         const rows=await provider.fetchSeatSessions({chamberName,seatNumber:seat,...getSessionWindow()});
         return buildTabletSessionResponse(rows,{chamberName,seatNumber:seat,timeZone:TIME_ZONE,diveDurationMinutes:DIVE_DURATION_MINUTES,preDiveDisplayMinutes:PRE_DIVE_DISPLAY_MINUTES}).activeAppointment;
     },
     async currentChamber(chamber) {
-        if(!provider?.fetchChamberSessions)return [];
+        if(!provider?.fetchChamberSessions)throw Error('Schedule unavailable');
         const chamberName=(process.env.KIOSK_CHAMBER_PREFIX || 'HBOT')+' '+chamber;
         const rows=await provider.fetchChamberSessions({chamberName,...getSessionWindow()});
-        const options={chamberName,timeZone:TIME_ZONE,diveDurationMinutes:DIVE_DURATION_MINUTES};
-        const chart=buildSeatingChart(rows,options);
-        if(!chart.dive || chart.unavailable)return [];
-        return rows.map(row=>normalizeSessionRow(row,options)).filter(a=>a && a.chamberName===chamberName && a.start.toISO()===chart.dive.startTime && a.end.toMillis()>Date.now() && ['scheduled','active','in_progress'].includes(a.status) && chart.seats.some(s=>s.seatNumber===a.seatNumber)).map(serializeAppointment);
+        return Array.from({length:14},(_,i)=>{
+            const seatNumber=i+1;
+            const seatRows=rows.filter(row=>normalizeSessionRow(row,{chamberName,timeZone:TIME_ZONE})?.seatNumber===seatNumber);
+            const active=buildTabletSessionResponse(seatRows,{chamberName,seatNumber,timeZone:TIME_ZONE,diveDurationMinutes:DIVE_DURATION_MINUTES,preDiveDisplayMinutes:PRE_DIVE_DISPLAY_MINUTES}).activeAppointment;
+            return {seatNumber,token:sessionToken(active)||idleToken(chamber,seatNumber),endTime:active?.endTime};
+        });
     }
 }));
 
@@ -202,7 +204,7 @@ app.get(['/api/tablet/session', '/api/seat-session'], requireKioskApiKey, async 
             now: now.toJSDate()
         });
 
-        payload.sessionToken = sessionToken(payload.activeAppointment);
+        payload.sessionToken = sessionToken(payload.activeAppointment) || idleToken(location.chamberNumber, location.seatNumber);
         payload.staffMessagingEnabled = staffMessagingEnabled();
         try { await communications.reconcile(location.chamberNumber, location.seatNumber, payload.sessionToken); }
         catch (_) { payload.staffMessagingEnabled=false; }

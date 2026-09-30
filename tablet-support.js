@@ -17,7 +17,7 @@
         trigger.style.background=active?'#ffdc89':'';
         send.disabled=busy||!enabled||!token||active;
         cancel.hidden=!active;cancel.disabled=busy;
-        status.textContent=!enabled?'Staff requests are not connected yet. Please get staff attention directly.':!token?'Please get staff attention directly. There is no current dive assigned to this seat.':request?.status==='acknowledged'?'Staff acknowledged your request.':active?'Request received by the dashboard. Waiting for staff to acknowledge.':request?.status==='resolved'?'Staff marked your request complete.':request?.status==='cancelled'?'Request cancelled.':'You can request routine assistance from staff.';
+        status.textContent=!enabled?'Staff requests are not connected yet. Please get staff attention directly.':!token?'Please get staff attention directly. The tablet is still checking its seat connection.':request?.status==='acknowledged'?'Staff acknowledged your request.':active?'Request received by the dashboard. Waiting for staff to acknowledge.':request?.status==='resolved'?'Staff marked your request complete.':request?.status==='cancelled'?'Request cancelled.':'You can request routine assistance from staff, including between dives.';
     }
     async function act(action) {
         if(busy||!token)return;busy=true;render();const captured=epoch;
