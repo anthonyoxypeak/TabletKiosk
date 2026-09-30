@@ -4,6 +4,9 @@ const cors = require('cors');
 const { DateTime } = require('luxon');
 require('dotenv').config();
 const { buildSeatingChart } = require('./src/seatingChart');
+const { createTabletStatus } = require('./src/tabletStatus');
+const APP_VERSION = require('./package.json').version;
+const tabletStatus = createTabletStatus({ version:APP_VERSION });
 
 const {
     DEFAULT_DIVE_DURATION_MINUTES,
@@ -31,6 +34,28 @@ app.use(cors({
         : true
 }));
 app.use(express.json());
+app.use('/api', (req, res, next) => { res.set('Cache-Control', 'no-store, private'); next(); });
+
+app.post('/api/tablet/heartbeat', (req, res, next) => {
+    if (!API_KEY && !DEMO_MODE) return res.status(503).json({ error:'Tablet authentication is not configured' });
+    return requireKioskApiKey(req, res, next);
+}, (req, res) => {
+    if (!tabletStatus.record(req.body)) return res.status(400).json({ error:'Invalid tablet status' });
+    res.json({ version:APP_VERSION });
+});
+
+app.get('/api/staff/tablets', (req, res) => {
+    const staffKey = process.env.KIOSK_STAFF_KEY || API_KEY;
+    if (!staffKey) return res.status(503).json({ error:'Staff access is not configured' });
+    if (req.get('x-kiosk-key') !== staffKey) return res.status(401).json({ error:'Enter the staff access key' });
+    res.json(tabletStatus.snapshot());
+});
+
+app.get(['/staff.html', '/seat.html', '/tablet-session.js', '/tablet-experience.js'], (req, res) => {
+    res.set('Cache-Control', 'no-store, private');
+    res.set('Referrer-Policy', 'no-referrer');
+    res.sendFile(path.join(__dirname, req.path));
+});
 
 function createDemoProvider() {
     return {
@@ -48,7 +73,7 @@ function createDemoProvider() {
         },
         async fetchSeatSessions({ chamberName, seatNumber }) {
             const now = DateTime.now().setZone(TIME_ZONE);
-            const start = now.minus({ minutes: 18 });
+            const start = now.startOf('hour');
             const date = start.toISODate();
             const startTime = start.toFormat('HH:mm:ss');
             return [{

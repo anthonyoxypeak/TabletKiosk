@@ -22,6 +22,38 @@ synthetic bookings; live health verification alone does not verify patient rows.
 
 Tablet display for OxyPeak HBOT chambers.
 
+## Tablet experience and staff status (1.1.0)
+
+The homepage opens the seating chart in a full-screen dialog. Returning home
+does not reload the homepage. Closing the chart destroys its roster and pending
+requests; each opening fetches a fresh roster. Older browsers without dialog
+support keep the original full-page navigation.
+
+Session cleanup uses the API's server timestamp and scheduled end, subtracting
+request time. It closes the embedded chart, removes the welcome acknowledgement,
+clears displayed guest names, and resets comfort settings when a booking ends,
+changes, or disappears from a successful schedule response. An expiry record
+containing only the session identifier and deadline survives refreshes. Failed
+requests do not erase that deadline. Sleeping browsers clean up on resuming;
+browser timers cannot guarantee execution while Android suspends the app.
+Fully Kiosk's existing JavaScript bridge is used to focus the home tab if available.
+External tabs, external app sessions, and third-party cookies are not cleared.
+
+Open `/staff.html` on the Azure site. Enter `KIOSK_STAFF_KEY` if configured;
+otherwise use the existing `KIOSK_API_KEY`. The key stays in page memory, is sent
+only in a request header, and is removed by **Lock dashboard**. The dashboard
+has no remote-control functions or patient names. A separate staff key can be
+configured without changing tablet credentials.
+
+Homepages send a bounded status check-in every 60 seconds. The dashboard shows
+56 configured seats, version, last reported schedule-sync state and view.
+After 150 seconds without a check-in, it says **No recent check-in**, which is
+not proof the device is offline. Old app versions that never send check-ins
+remain **Not yet seen**. Reload the tablet homepage once to enable this release.
+Records are in memory and reset on restart; this dashboard is intended for the
+current single-instance deployment. Multiple server instances require a shared
+status store before using these reports operationally.
+
 The tablets call this app, and this app reads Dion's scheduling database through a server-side PostgreSQL connection. The browser page never stores database credentials or Dr. Chrono OAuth tokens.
 
 ## Local Demo
