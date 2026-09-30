@@ -86,6 +86,12 @@
     // Existing tablet URLs use the shared key. Keep it available when returning home.
     if (apiKey) backUrl.searchParams.set('key', apiKey);
     document.getElementById('back').href = backUrl.toString();
+    document.getElementById('back').addEventListener('click', event => {
+        if (window.parent !== window && location.protocol !== 'file:') {
+            event.preventDefault();
+            window.parent.postMessage({ type:'oxypeak-chart-close' }, location.origin);
+        }
+    });
     document.getElementById('suite').textContent = `Suite ${chamber} · Current dive`;
     const status = document.getElementById('status');
     const seats = document.getElementById('seats');

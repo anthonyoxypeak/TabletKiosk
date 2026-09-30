@@ -1987,6 +1987,9 @@
         let preDiveDisplayMs = DEFAULT_PRE_DIVE_DISPLAY_MS;
         let nextRefreshTimer = null;
         let countdownTimer = null;
+        let sessionRequestPending = false;
+        let serverClockOffset = 0;
+        function sessionNow() { return new Date(Date.now() + serverClockOffset); }
         const WELCOME_ACK_STORAGE_KEY = `oxypeak-started-session:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
         const COMFORT_SETTINGS_KEY = `oxypeak-comfort-settings:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
         const COMFORT_SESSION_KEY = `oxypeak-comfort-session:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
@@ -2305,7 +2308,7 @@
         }
 
         async function updateWeather() {
-            if (!els.weatherTemp || !els.weatherCondition) return;
+            if (document.hidden || !els.weatherTemp || !els.weatherCondition) return;
 
             const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
             const timeout = controller ? setTimeout(() => controller.abort(), 4500) : null;
@@ -2342,15 +2345,20 @@
         }
 
         async function fetchAndDisplayAppointment() {
+            if (sessionRequestPending) return;
+            sessionRequestPending = true;
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 8000);
+            const started = performance.now();
             try {
                 setStatus('Checking');
                 const params = new URLSearchParams({
                     chamber: String(CHAMBER_NUMBER),
                     seat: String(SEAT_NUMBER)
                 });
-                if (API_KEY) params.set('key', API_KEY);
 
                 const response = await fetch(`${API_BASE_URL}/api/tablet/session?${params.toString()}`, {
+                    cache:'no-store', signal:controller.signal,
                     headers: {
                         'Accept': 'application/json',
                         ...(API_KEY ? { 'X-Kiosk-Key': API_KEY } : {})
@@ -2360,6 +2368,11 @@
                 if (!response.ok) throw new Error(`API error: ${response.status}`);
 
                 const data = await response.json();
+                const elapsed = performance.now() - started;
+                const serverTime = Date.parse(data.fetchedAt);
+                if (!Number.isFinite(serverTime)) throw new Error('Missing schedule timestamp');
+                serverClockOffset = serverTime + elapsed - Date.now();
+                window.TabletExperience?.sync(data, elapsed);
                 const preDiveMinutes = Number(data.preDiveDisplayMinutes || data.pre_dive_display_minutes);
                 if (Number.isFinite(preDiveMinutes) && preDiveMinutes >= 0) {
                     preDiveDisplayMs = preDiveMinutes * 60 * 1000;
@@ -2371,7 +2384,7 @@
                 const chamberDiveEndTime = data.chamberDiveEndTime || data.chamber_dive_end_time;
                 const dimEmptySeat = shouldDimEmptySeat(chamberDiveActive, chamberDiveEndTime);
 
-                if (activeAppointment) {
+                if (activeAppointment && Date.parse(activeAppointment.endTime || activeAppointment.end_time) > sessionNow().getTime()) {
                     clearEmptyDiveDimmerLatch();
                     setEmptyDiveDimmer(false);
                     displayAppointment(activeAppointment, true);
@@ -2386,8 +2399,12 @@
                     showEmpty(nextAppointment, dimEmptySeat);
                 }
             } catch (error) {
+                window.TabletExperience?.failed();
                 console.error('Error fetching appointment:', error);
                 showError(`Error: ${error.message}`);
+            } finally {
+                clearTimeout(timeout);
+                sessionRequestPending = false;
             }
         }
 
@@ -2442,7 +2459,7 @@
             setAttributeValue(overlay, 'aria-hidden', 'true');
         }
 
-        function updatePatientStartOverlay(now = new Date()) {
+        function updatePatientStartOverlay(now = sessionNow()) {
             const overlay = els.patientStartOverlay;
             if (!overlay) return;
 
@@ -2482,7 +2499,7 @@
             const apptTime = formatTime(appt.startTime || appt.start_time);
             const startTime = new Date(appt.startTime || appt.start_time);
             const endTime = new Date(appt.endTime || appt.end_time || startTime.getTime() + DIVE_DURATION_MS);
-            const now = new Date();
+            const now = sessionNow();
 
             if (isActive) {
                 setText(els.patientName, patientName ? `Welcome, ${patientName}` : 'No Current Patient');
@@ -2561,13 +2578,14 @@
         }
 
         function updateCountdown() {
+            window.TabletExperience?.check();
             if (!currentAppointment) {
                 setText(els.countdownDisplay, '—:—');
                 setStyle(els.countdownProgress, 'width', '0%');
                 return;
             }
 
-            const now = new Date();
+            const now = sessionNow();
 
             if (currentAppointment.isActive && diveStartTime && currentAppointment.endTime) {
                 const hasStarted = now >= currentAppointment.startTime;
@@ -2700,5 +2718,7 @@
             setText(els.volValue, level + ' %');
         }
     </script>
+    <script src="tablet-session.js?v=1.1.0"></script>
+    <script src="tablet-experience.js?v=1.1.0"></script>
 </body>
 </html>

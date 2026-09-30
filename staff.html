@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer"><title>Tablet Status · OxyPeak</title>
+<style>
+[hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:#173048;font:16px/1.5 system-ui,sans-serif}main{max-width:1250px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:16px}h1{margin:0}h2{font-size:20px;margin-top:28px}p{color:#526b7c}button,input{font:inherit;padding:10px 14px;border:1px solid #bbcdd3;border-radius:8px;min-height:44px}button{cursor:pointer;background:white;color:#173048}form{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:24px 0}label{display:grid;gap:6px}.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}.card{background:white;border:1px solid #d9e5e9;border-radius:12px;padding:12px;overflow-wrap:anywhere}.card strong,.card small{display:block}.card small{color:#526b7c;margin-top:6px}.badge{font-size:13px;font-weight:700;color:#216e52}.stale,.error{color:#946200}.unknown{color:#526b7c}#summary{font-weight:700}#signout[hidden]{display:none}@media(max-width:850px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:480px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:16px}}
+</style></head><body><main>
+<header><div><strong>OxyPeak · Staff</strong><h1>Tablet Status</h1></div><button id="signout" hidden>Lock dashboard</button></header>
+<p>Check which tablets are reporting, syncing their schedule, and running the current app.</p>
+<form id="login"><label>Staff access key<input id="key" type="password" autocomplete="off" required></label><button>Open dashboard</button></form>
+<p id="status" role="status" aria-live="polite">Enter your staff access key. If a separate staff key has not been set up, use the existing tablet access key.</p>
+<p id="summary"></p><div id="chambers"></div>
+<p>No recent check-in can mean a tablet is asleep, using another app, or disconnected. Status is reported by the tablet homepage, not a device-management service.</p>
+<p>Check-ins contain no patient names. The list resets when the server restarts. Tablets appear after their updated homepage is opened.</p>
+</main><script>
+(() => {
+    let key = '', controller, generation = 0;
+    const status = document.getElementById('status'), chambers = document.getElementById('chambers');
+    const summary = document.getElementById('summary'), login = document.getElementById('login'), lock = document.getElementById('signout');
+    function clear() { chambers.replaceChildren(); summary.textContent = ''; }
+    function signout() { key = ''; generation++; controller?.abort(); clear(); login.hidden = false; lock.hidden = true; status.textContent = 'Dashboard locked.'; }
+    function node(tag, text, className) { const e = document.createElement(tag); e.textContent = text; if(className)e.className = className; return e; }
+    async function load() {
+        if (!key || document.hidden) return;
+        const request = ++generation; controller?.abort(); controller = new AbortController();
+        const requestController = controller;
+        const timer = setTimeout(() => requestController.abort(), 8000);
+        try {
+            const response = await fetch('/api/staff/tablets', {cache:'no-store', headers:{'X-Kiosk-Key':key}, signal:controller.signal});
+            if (!response.ok) throw Error(response.status === 401 ? 'Access key not accepted.' : 'Status service unavailable.');
+            const data = await response.json(); if(request !== generation) return;
+            clear(); login.hidden = true; lock.hidden = false;
+            summary.textContent = `${data.tablets.filter(t=>t.status==='reporting').length} of 56 seats reporting · Current version ${data.version}`;
+            for(const chamber of [1,3,4,6]) {
+                chambers.append(node('h2', `Suite ${chamber}`)); const grid = node('div','', 'grid');
+                for(const tablet of data.tablets.filter(t=>t.chamber===chamber)) {
+                    const card = node('div','', 'card'); card.append(node('strong',`Seat ${tablet.seat}`));
+                    card.append(node('span', tablet.status==='reporting' ? 'Reporting' : tablet.status==='stale' ? 'No recent check-in' : 'Not yet seen', `badge ${tablet.status}`));
+                    if(tablet.lastSeen) {
+                        card.append(node('small',`Last seen ${new Date(tablet.lastSeen).toLocaleTimeString()}`));
+                        card.append(node('small',`Version ${tablet.version}${tablet.updateAvailable ? ' · Update available' : ''}`));
+                        card.append(node('small',`Last sync: ${tablet.sync==='ok'?'Connected':tablet.sync==='error'?'Sync issue':'Checking'}`,tablet.sync));
+                        card.append(node('small',`View: ${tablet.view}`));
+                    }
+                    grid.append(card);
+                }
+                chambers.append(grid);
+            }
+            status.textContent = `Updated ${new Date(data.fetchedAt).toLocaleTimeString()} · Refreshes every 30 seconds`;
+        } catch(error) { if(request===generation) { clear(); status.textContent = `${error.message} Retrying automatically.`; login.hidden=false; lock.hidden=false; } }
+        finally { clearTimeout(timer); }
+    }
+    login.addEventListener('submit', event=>{event.preventDefault();key=document.getElementById('key').value;document.getElementById('key').value='';load();});
+    lock.addEventListener('click',signout);setInterval(load,30000);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){generation++;controller?.abort();clear();}else load();});
+})();
+</script></body></html>
