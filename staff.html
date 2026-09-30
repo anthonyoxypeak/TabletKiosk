@@ -60,7 +60,7 @@
     }
     function renderCommunications(data){
         communications.hidden=false;
-        document.getElementById('setup').textContent=data.messagingEnabled?'Send to occupied seats in the current dive. Keep this dashboard open to receive help requests.':'Requests and announcements need a separate KIOSK_STAFF_KEY configured in Azure. Sign in with that staff key after setup.';
+        document.getElementById('setup').textContent=data.messagingEnabled?'Send to occupied seats in the current dive. Keep this dashboard open to receive help requests.':'Requests and announcements need an access key configured in Azure.';
         document.getElementById('announce-send').disabled=!data.messagingEnabled||sending;
         requests.replaceChildren();announcements.replaceChildren();
         if(!data.requests?.length)requests.append(node('p','No active help requests.'));
