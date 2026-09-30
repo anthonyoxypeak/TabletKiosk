@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 test('offline worker caches only public games and never patient pages or API responses',async()=>{
  const events={},cached=[],deleted=[];const cache={addAll:async urls=>cached.push(...urls),match:async req=>'cached:'+req.url};
- const sandbox={URL,caches:{open:async()=>cache,keys:async()=>['other-cache','oxypeak-games-old','oxypeak-games-1.5.0'],delete:async k=>deleted.push(k)},self:{location:{href:'https://example.test/offline-worker.js'},addEventListener:(name,fn)=>events[name]=fn,skipWaiting:async()=>{},clients:{claim:async()=>{}}}};
+ const sandbox={URL,caches:{open:async()=>cache,keys:async()=>['other-cache','oxypeak-games-old','oxypeak-games-1.6.0'],delete:async k=>deleted.push(k)},self:{location:{href:'https://example.test/offline-worker.js'},addEventListener:(name,fn)=>events[name]=fn,skipWaiting:async()=>{},clients:{claim:async()=>{}}}};
  vm.runInNewContext(fs.readFileSync(require.resolve('../offline-worker.js'),'utf8'),sandbox);
  let work;events.install({waitUntil:p=>work=p});await work;assert.deepEqual(cached.map(x=>new URL(x).pathname),['/games.html','/games.js','/games.css','/games-core.js','/game-words.js']);
  events.activate({waitUntil:p=>work=p});await work;assert.deepEqual(deleted,['oxypeak-games-old']);
