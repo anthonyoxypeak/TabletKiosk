@@ -6,7 +6,6 @@
     function button(label,action){const b=document.createElement('button');b.textContent=label;b.addEventListener('click',action);return b;}
     function message(type){if(window.parent!==window){window.parent.postMessage({type},location.origin);return true;}return false;}
     document.getElementById('home').onclick=()=>{if(!message('oxypeak-chart-close'))history.back();};
-    document.getElementById('help').onclick=()=>{if(!message('oxypeak-help-open'))document.getElementById('offline').textContent='Use the Help button on the tablet homepage, or get staff attention directly.';};
     function start(game){selected=game;generation++;board.replaceChildren();result.textContent='';overview.hidden=true;play.hidden=false;
         const titles={pairs:'Matching Pairs',words:'Word Scramble',tiles:'Number Slide'};document.getElementById('game-title').textContent=titles[game];
         if(game==='pairs')pairs();if(game==='words')scramble();if(game==='tiles')tiles();
