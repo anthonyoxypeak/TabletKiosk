@@ -30,17 +30,17 @@ test('dashboard continues authenticated polling while hidden, without rendering 
 });
 test('alert controls play sound, mute reminders, hide names in notifications and clear browser alerts on acknowledgment and lock',async()=>{
  const elements=new Map(),intervals=[],notices=[];let now=100000,tones=0;class Clock extends Date{static now(){return now;}}
- class Audio {constructor(){this.state='suspended';this.currentTime=0;this.destination={};}async resume(){this.state='running';}async suspend(){this.state='suspended';}createOscillator(){return {frequency:{},connect(){},start(){tones++;},stop(){},disconnect(){}};}createGain(){return {gain:{setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){},disconnect(){}};}}
+ class Audio {constructor(){this.state='suspended';Object.defineProperty(this,'currentTime',{get:()=>now/1000});this.destination={};}async resume(){this.state='running';}async suspend(){this.state='suspended';}createOscillator(){return {frequency:{},connect(){},start(){tones++;},stop(){},disconnect(){}};}createGain(){return {gain:{setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){},disconnect(){}};}}
  class Notice {static permission='granted';constructor(title,options){this.title=title;this.options=options;notices.push(this);}close(){this.closed=true;this.onclose?.();}}
  const document={title:'',head:{append(){}},createElement:()=>element(),getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);}};
  const window={AudioContext:Audio,matchMedia:()=>({matches:false}),focus(){}};
  vm.runInNewContext(fs.readFileSync(require.resolve('../staff-alerts'),'utf8'),{window,document,Notification:Notice,Date:Clock,setInterval:fn=>intervals.push(fn),encodeURIComponent});
  const alerts=window.StaffAlerts.mount(),r={id:'request',chamber:3,seat:7,status:'requested',expiresAt:now+120000,guestName:'Private name'};
  const data=()=>({requests:[r],fetchedAt:new Date(now).toISOString()});alerts.update(data());assert.equal(notices.length,1);assert.ok(!JSON.stringify(notices).includes('Private name'));assert.match(document.title,/waiting for help/);
- await elements.get('enable-alerts').onclick();assert.equal(tones,3);intervals[0]();assert.equal(tones,3);
- elements.get('mute-alerts').onclick();now+=30000;alerts.update(data());intervals[0]();assert.equal(tones,3);
- elements.get('mute-alerts').onclick();intervals[0]();assert.equal(tones,6);
+ await elements.get('enable-alerts').onclick();assert.equal(tones,6);intervals[0]();assert.equal(tones,6);
+ elements.get('mute-alerts').onclick();now+=30000;alerts.update(data());intervals[0]();assert.equal(tones,6);
+ elements.get('mute-alerts').onclick();intervals[0]();assert.equal(tones,12);
  alerts.update({...data(),requests:[{...r,status:'acknowledged'}]});assert.equal(notices[0].closed,true);assert.equal(document.title,'Tablet Dashboard · OxyPeak');
- alerts.reset();now+=30000;intervals[0]();assert.equal(tones,6);assert.equal(elements.get('alert-controls').hidden,true);
- Notice.permission='denied';alerts.update(data());const count=notices.length;await elements.get('enable-alerts').onclick();assert.equal(notices.length,count);assert.match(elements.get('alert-status').textContent,/notifications blocked/);assert.equal(tones,9);
+ alerts.reset();now+=30000;intervals[0]();assert.equal(tones,12);assert.equal(elements.get('alert-controls').hidden,true);
+ Notice.permission='denied';alerts.update(data());const count=notices.length;await elements.get('enable-alerts').onclick();assert.equal(notices.length,count);assert.match(elements.get('alert-status').textContent,/notifications blocked/);assert.equal(tones,18);
 });
