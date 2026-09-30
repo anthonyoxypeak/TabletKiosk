@@ -1,16 +1,19 @@
-/* Home remains mounted while the seating chart is open. */
+/* Home remains mounted while the seating chart or games are open. */
 (() => {
-    const VERSION = '1.1.0';
+    const VERSION = '1.2.0';
     let dialog, frame, lifecycle, lastSync = 'checking', heartbeatPending = false;
     const chartLink = document.getElementById('seatingChartLink');
+    const gamesLink = document.getElementById('gamesLink');
+    let opener = chartLink;
     function closeChart() {
         if (!dialog || !dialog.open) return;
         dialog.close();
-        frame.src = 'about:blank'; // Destroy the roster, including any pending response.
-        chartLink.focus();
+        frame.src = 'about:blank'; // Destroy guest content and any pending responses.
+        opener?.focus();
     }
     function resetGuest() {
         closeChart();
+        window.TabletSupport?.reset();
         acknowledgedWelcomeSessionKey = '';
         try { sessionStorage.removeItem(WELCOME_ACK_STORAGE_KEY); } catch (_) {}
         resetComfortSettingsForSeat();
@@ -47,6 +50,7 @@
                 key:`${appt.id || ''}:${appt.startTime || appt.start_time}`,
                 endTime:appt.endTime || appt.end_time
             } : null, data.fetchedAt, elapsed);
+            window.TabletSupport?.sync(data);
         },
         failed() { lastSync = 'error'; },
         check() { lifecycle?.check(); },
@@ -61,16 +65,24 @@
         frame.title = 'Current dive seating chart';
         frame.style.cssText = 'display:block;width:100%;height:100%;border:0';
         dialog.append(frame); document.body.append(dialog);
-        chartLink.addEventListener('click', event => {
+        function openPanel(link, title, event) {
             if (typeof dialog.showModal !== 'function' || location.protocol === 'file:') return;
             event.preventDefault();
             lifecycle.check();
-            frame.src = chartLink.href;
+            opener = link;
+            dialog.setAttribute('aria-label', title);
+            frame.title = title;
+            frame.src = link.href;
             dialog.showModal();
-        });
+        }
+        chartLink.addEventListener('click', event => openPanel(chartLink, 'Current dive seating chart', event));
+        gamesLink?.addEventListener('click', event => openPanel(gamesLink, 'Games', event));
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('offline-worker.js').catch(() => {});
         dialog.addEventListener('cancel', event => { event.preventDefault(); closeChart(); });
         window.addEventListener('message', event => {
-            if (event.origin === location.origin && event.source === frame.contentWindow && event.data?.type === 'oxypeak-chart-close') closeChart();
+            if (event.origin !== location.origin || event.source !== frame.contentWindow) return;
+            if (event.data?.type === 'oxypeak-chart-close') closeChart();
+            if (event.data?.type === 'oxypeak-help-open') window.TabletSupport?.open();
         });
         let storage;
         try { storage = localStorage; } catch (_) { storage = { getItem:() => null, setItem() {}, removeItem() {} }; }

@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Games · OxyPeak</title><link rel="stylesheet" href="games.css"></head>
+<body><main>
+<header><div><span class="brand">OxyPeak</span><h1>Games</h1></div><nav><button id="help">Help</button><button id="home">Back to home</button></nav></header>
+<section id="overview"><p class="intro">A little challenge, at your own pace.</p>
+<div class="choices">
+<a class="choice" href="https://bosorioo.github.io/wordle-unlimited/" target="_blank" rel="noopener noreferrer"><span class="art">W</span><h2>Wordle</h2><p>Your familiar five-letter word game.</p><small>Opens the original game · Internet needed</small></a>
+<button class="choice" data-game="pairs"><span class="art">◇ ◇</span><h2>Matching Pairs</h2><p>Turn over the cards and find each matching pair.</p><small>Works offline after download</small></button>
+<button class="choice" data-game="words"><span class="art">A B C</span><h2>Word Scramble</h2><p>Put the letters in order. A hint is always available.</p><small>Works offline after download</small></button>
+<button class="choice" data-game="tiles"><span class="art">1 2 3</span><h2>Number Slide</h2><p>Slide the tiles into order, leaving the last square empty.</p><small>Works offline after download</small></button>
+</div><p id="offline" role="status">Checking offline availability…</p></section>
+<section id="play" hidden><div class="play-header"><h2 id="game-title"></h2><button id="all-games">All games</button><button id="new-game">New game</button></div><p id="instructions"></p><div id="board"></div><p id="result" role="status" aria-live="polite"></p></section>
+</main><script src="games.js"></script></body></html>
