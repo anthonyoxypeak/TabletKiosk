@@ -7,7 +7,7 @@
 <p>Check which tablets are reporting, syncing their schedule, and running the current app.</p>
 <form id="login"><label>Staff access key<input id="key" type="password" autocomplete="off" required></label><button>Open dashboard</button></form>
 <p id="status" role="status" aria-live="polite">Enter your staff access key. If a separate staff key has not been set up, use the existing tablet access key.</p>
-<section id="communications" hidden><h2>Staff requests</h2><div id="requests"></div><h2>Chamber announcement</h2><p id="setup"></p><form id="announce"><label>Chamber<select id="chamber"><option value="1">Suite 1</option><option value="3">Suite 3</option><option value="4">Suite 4</option><option value="6">Suite 6</option></select></label><label>Message<input id="announcement-text" maxlength="240" required placeholder="Message for this chamber"></label><button id="announce-send">Send announcement</button><button type="button" id="preset">Headphones message</button></form><p>Messages expire after two minutes or when the dive ends. Displayed counts show tablets that showed the message, not whether someone read it. Sleeping tablets and external apps may miss it.</p><p id="action-status" role="status"></p><div id="announcements"></div></section><p id="summary"></p><div id="chambers"></div>
+<section id="communications" hidden><h2>Staff requests</h2><div id="requests"></div><h2>Chamber announcement</h2><p id="setup"></p><form id="announce"><label>Chamber<select id="chamber"><option value="1">Suite 1</option><option value="3">Suite 3</option><option value="4">Suite 4</option><option value="6">Suite 6</option></select></label><label>Message<input id="announcement-text" maxlength="240" required placeholder="Message for this chamber"></label><button id="announce-send">Send announcement</button><button type="button" id="preset">Headphones message</button></form><p>Messages expire after two minutes or when the dive ends. Between-dive help requests expire after 15 minutes. Displayed counts show tablets that showed the message, not whether someone read it. Sleeping tablets and external apps may miss it.</p><p id="action-status" role="status"></p><div id="announcements"></div></section><p id="summary"></p><div id="chambers"></div>
 <p>No recent check-in can mean a tablet is asleep, using another app, or disconnected. Status is reported by the tablet homepage, not a device-management service.</p>
 <p>Check-ins contain no patient names. The list resets when the server restarts. Tablets appear after their updated homepage is opened.</p>
 </main><script>
@@ -60,7 +60,7 @@
     }
     function renderCommunications(data){
         communications.hidden=false;
-        document.getElementById('setup').textContent=data.messagingEnabled?'Send to occupied seats in the current dive. Keep this dashboard open to receive help requests.':'Requests and announcements need an access key configured in Azure.';
+        document.getElementById('setup').textContent=data.messagingEnabled?'Send to all 14 seats in a chamber, including between dives. Keep this dashboard open to receive help requests.':'Requests and announcements need an access key configured in Azure.';
         document.getElementById('announce-send').disabled=!data.messagingEnabled||sending;
         requests.replaceChildren();announcements.replaceChildren();
         if(!data.requests?.length)requests.append(node('p','No active help requests.'));

@@ -25,3 +25,7 @@ test('number slides always begin unsolved and are reachable from the solved boar
 test('math rounds offer four distinct answers including the mathematically correct result',()=>{
  for(let level=1;level<=3;level++)for(let i=0;i<100;i++){const q=core.mathQuestion(level);assert.equal(q.choices.length,4);assert.equal(new Set(q.choices).size,4);assert.ok(q.choices.includes(q.answer));assert.ok(q.choices.every(n=>Number.isInteger(n)&&n>=0));assert.equal(q.answer,q.symbol==='+'?q.a+q.b:q.symbol==='−'?q.a-q.b:q.a*q.b);}
 });
+
+test('classic Sudoku difficulties generate unique 9 by 9 boards with progressively fewer clues',()=>{
+ for(const level of ['easy','medium','hard'])for(let i=0;i<4;i++){const game=core.sudoku(Math.random,level);assert.equal(game.size,9);assert.equal(game.puzzle.length,81);assert.equal(core.sudokuCount(game.puzzle),1);const clues=game.puzzle.filter(Boolean).length;assert.ok(clues<=(level==='easy'?44:level==='medium'?38:33),level+': '+clues);for(let row=0;row<9;row++)assert.equal(new Set(game.solution.slice(row*9,row*9+9)).size,9);}
+});

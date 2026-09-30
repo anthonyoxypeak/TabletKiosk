@@ -12,16 +12,20 @@
  function neighbors(index){return [index-4,index+4,...(index%4?[index-1]:[]),...(index%4<3?[index+1]:[])].filter(n=>n>=0&&n<16);}
  function slideBoard(random=Math.random){const values=Array.from({length:16},(_,i)=>(i+1)%16);let empty=15,previous=-1;for(let i=0;i<120;i++){const choices=neighbors(empty).filter(n=>n!==previous),next=choices[Math.floor(random()*choices.length)];[values[empty],values[next]]=[values[next],values[empty]];previous=empty;empty=next;}if(values.every((n,i)=>n===(i+1)%16))[values[14],values[15]]=[values[15],values[14]];return values;}
  function sudokuCount(board,limit=2){
-  const values=[...board];let count=0;
-  function solve(){if(count>=limit)return;const i=values.indexOf(0);if(i<0){count++;return;}const row=Math.floor(i/4),col=i%4;
-   for(let n=1;n<=4;n++){if(values.some((v,j)=>v===n&&(Math.floor(j/4)===row||j%4===col||Math.floor(j/8)===Math.floor(i/8)&&Math.floor(j%4/2)===Math.floor(col/2))))continue;values[i]=n;solve();values[i]=0;}
+  const n=Math.sqrt(board.length),box=Math.sqrt(n),values=[...board];if(!Number.isInteger(box))return 0;let count=0;
+  function options(i){const row=Math.floor(i/n),col=i%n;const used=new Set(values.filter((v,j)=>v&&(Math.floor(j/n)===row||j%n===col||Math.floor(Math.floor(j/n)/box)===Math.floor(row/box)&&Math.floor(j%n/box)===Math.floor(col/box))));return Array.from({length:n},(_,k)=>k+1).filter(v=>!used.has(v));}
+  for(let i=0;i<values.length;i++)if(values[i]){const v=values[i];values[i]=0;if(!options(i).includes(v))return 0;values[i]=v;}
+  function solve(){if(count>=limit)return;let index=-1,candidates;
+   for(let i=0;i<values.length;i++)if(!values[i]){const available=options(i);if(!available.length)return;if(!candidates||available.length<candidates.length){index=i;candidates=available;if(available.length===1)break;}}
+   if(index<0){count++;return;}for(const n of candidates){values[index]=n;solve();values[index]=0;if(count>=limit)break;}
   }solve();return count;
  }
- function sudoku(random=Math.random){
-  const digits=shuffle([1,2,3,4],random),rows=shuffle([0,1],random).flatMap(b=>shuffle([b*2,b*2+1],random)),cols=shuffle([0,1],random).flatMap(b=>shuffle([b*2,b*2+1],random));
-  const solution=rows.flatMap(r=>cols.map(c=>digits[(r*2+Math.floor(r/2)+c)%4])),puzzle=[...solution];
-  for(const index of shuffle([...puzzle.keys()],random)){const old=puzzle[index];puzzle[index]=0;if(sudokuCount(puzzle)!==1)puzzle[index]=old;if(puzzle.filter(v=>!v).length>=9)break;}
-  return {solution,puzzle};
+ function sudoku(random=Math.random,level='mini'){
+  const size=level==='mini'?4:9,box=Math.sqrt(size),range=n=>Array.from({length:n},(_,i)=>i);
+  const digits=shuffle(range(size).map(i=>i+1),random),order=()=>shuffle(range(box),random).flatMap(b=>shuffle(range(box).map(i=>b*box+i),random)),rows=order(),cols=order();
+  const solution=rows.flatMap(r=>cols.map(c=>digits[(r*box+Math.floor(r/box)+c)%size])),puzzle=[...solution],clues=level==='mini'?7:level==='easy'?44:level==='hard'?28:36;
+  for(const index of shuffle([...puzzle.keys()],random)){const old=puzzle[index];puzzle[index]=0;if(sudokuCount(puzzle)!==1)puzzle[index]=old;if(puzzle.filter(Boolean).length<=clues)break;}
+  return {solution,puzzle,size,box};
  }
  function mathQuestion(level=1,random=Math.random){const pick=n=>Math.floor(random()*n),op=pick(level===1?2:3);let a,b,answer,symbol;
   if(op===0){a=2+pick(level*15);b=2+pick(level*10);answer=a+b;symbol='+';}

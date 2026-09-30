@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const CHAMBERS = [1,3,4,6];
 const validLocation = (chamber, seat) => CHAMBERS.includes(chamber) && Number.isInteger(seat) && seat >= 1 && seat <= 14;
 const validId = id => typeof id === 'string' && /^[a-zA-Z0-9-]{8,80}$/.test(id);
+function idleToken(chamber,seat,now=Date.now()) { return 'idle:'+chamber+':'+seat+':'+new Date(now).toISOString().slice(0,10); }
 function sessionToken(appointment) {
     if (!appointment) return '';
     return crypto.createHash('sha256').update(`${appointment.chamberNumber}:${appointment.seatNumber}:${appointment.id || ''}:${appointment.startTime}`).digest('hex');
@@ -101,4 +102,4 @@ function createCommunications({ filePath, now = Date.now }) {
         dismiss(id) { return mutate(next=>{const a=Object.values(next.announcements).find(a=>a.id===id);if(!a)return false;a.dismissed=true;return true;}); }
     };
 }
-module.exports = { createCommunications, sessionToken, validLocation, validId };
+module.exports = { createCommunications, sessionToken, idleToken, validLocation, validId };
