@@ -1,9 +1,11 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const core=require('../games-core'),words=require('../game-words');
-test('matching pairs rotate 64 unique themes across eight rounds and retain the deck after reload',()=>{
+test('matching pairs use the exact 20 labels, exhaust each cycle and never duplicate a pair within a round',()=>{
+ const expected=['Dr. Mo','HBOT','Oxygen','Hyperbaric','Hypoxic','Brain','Brain Gym','Longevity','Veterans','Focus','Aging','Healthy Aging','Therapy','The Villages','Community','Life Span','Chamber 1','Chamber 3','Chamber 4','Chamber 6'];
+ assert.deepEqual(core.pairThemes.map(c=>c.name),expected);
  let saved;const storage={getItem:()=>saved,setItem:(k,v)=>saved=v};let next=core.pairDeck(storage);const names=[];
- for(let round=0;round<8;round++){if(round===3)next=core.pairDeck(storage);const cards=next();assert.equal(cards.length,8);assert.equal(new Set(cards.map(c=>c.name)).size,8);names.push(...cards.map(c=>c.name));}
- assert.equal(new Set(names).size,64);assert.ok(['Dr. Mo','HBOT','Oxygen'].every(n=>names.includes(n)));assert.equal(next().length,8);
+ for(let round=0;round<25;round++){if(round%3===2)next=core.pairDeck(storage);const cards=next();assert.equal(cards.length,8);assert.equal(new Set(cards.map(c=>c.name)).size,8);names.push(...cards.map(c=>c.name));}
+ for(let i=0;i<names.length;i+=20)assert.equal(new Set(names.slice(i,i+20)).size,20);
  const broken=core.pairDeck({getItem:()=>'{bad json',setItem:()=>{throw Error('Unavailable');}});assert.equal(broken().length,8);
 });
 test('large curated word bank is unique and does not repeat across a complete saved cycle',()=>{
