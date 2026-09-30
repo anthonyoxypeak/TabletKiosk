@@ -1,4 +1,4 @@
-const CACHE='oxypeak-games-1.6.0';
+const CACHE='oxypeak-games-1.7.0';
 const FILES=['games.html','games.js','games.css','games-core.js','game-words.js'].map(file=>new URL(file,self.location.href).href);
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('oxypeak-games-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
