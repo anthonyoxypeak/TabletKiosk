@@ -5,6 +5,17 @@ const { DateTime } = require('luxon');
 require('dotenv').config();
 const { buildSeatingChart } = require('./src/seatingChart');
 const { createTabletStatus } = require('./src/tabletStatus');
+const { createCommunications, sessionToken } = require('./src/communications');
+const { createCommunicationRoutes } = require('./src/communicationRoutes');
+const { normalizeSessionRow, serializeAppointment } = require('./src/kioskService');
+const os = require('node:os');
+const communications = createCommunications({ filePath:process.env.KIOSK_STATE_FILE || path.join(process.env.WEBSITE_SITE_NAME ? '/home/data' : os.tmpdir(), 'oxypeak-tablet-data', 'communications.json') });
+function staffMessagingEnabled() { return Boolean(process.env.KIOSK_STAFF_KEY && process.env.KIOSK_STAFF_KEY !== process.env.KIOSK_API_KEY); }
+function requireStaffControl(req,res,next) {
+    if(!staffMessagingEnabled()) return res.status(503).json({error:'Configure a separate staff access key to enable requests and announcements.'});
+    if(req.get('x-kiosk-key')!==process.env.KIOSK_STAFF_KEY) return res.status(401).json({error:'Staff access required'});
+    next();
+}
 const APP_VERSION = require('./package.json').version;
 const tabletStatus = createTabletStatus({ version:APP_VERSION });
 
@@ -44,14 +55,15 @@ app.post('/api/tablet/heartbeat', (req, res, next) => {
     res.json({ version:APP_VERSION });
 });
 
-app.get('/api/staff/tablets', (req, res) => {
+app.get('/api/staff/tablets', async (req, res) => {
     const staffKey = process.env.KIOSK_STAFF_KEY || API_KEY;
     if (!staffKey) return res.status(503).json({ error:'Staff access is not configured' });
     if (req.get('x-kiosk-key') !== staffKey) return res.status(401).json({ error:'Enter the staff access key' });
-    res.json(tabletStatus.snapshot());
+    try { res.json({ ...tabletStatus.snapshot(), messagingEnabled:staffMessagingEnabled(), ...await communications.snapshot() }); }
+    catch (_) { res.status(503).json({error:'Staff request status is unavailable. Check tablets directly.'}); }
 });
 
-app.get(['/staff.html', '/seat.html', '/tablet-session.js', '/tablet-experience.js'], (req, res) => {
+app.get(['/staff.html', '/seat.html', '/tablet-session.js', '/tablet-experience.js', '/tablet-support.js', '/games.html', '/games.js', '/games.css', '/offline-worker.js'], (req, res) => {
     res.set('Cache-Control', 'no-store, private');
     res.set('Referrer-Policy', 'no-referrer');
     res.sendFile(path.join(__dirname, req.path));
@@ -63,6 +75,7 @@ function createDemoProvider() {
         async fetchChamberSessions({ chamberName }) {
             const start = DateTime.now().setZone(TIME_ZONE).startOf('hour');
             return ['Alex', 'Sam', 'Jo', 'Mary Jane', 'Taylor', 'Chris'].map((name, index) => ({
+                session_id: 'demo-active',
                 first_name: name,
                 chamber_name: chamberName,
                 seat_number: index + 1,
@@ -94,6 +107,31 @@ function createDemoProvider() {
 const provider = DEMO_MODE
     ? createDemoProvider()
     : (hasPostgresConfig() ? createPostgresProvider({ diveDurationMinutes: DIVE_DURATION_MINUTES }) : null);
+
+app.use(createCommunicationRoutes({
+    store:communications,
+    requireTablet(req,res,next) {
+        if(!API_KEY && !DEMO_MODE) return res.status(503).json({error:'Tablet authentication is not configured'});
+        return requireKioskApiKey(req,res,next);
+    },
+    staffEnabled:staffMessagingEnabled,
+    requireStaff:requireStaffControl,
+    async currentSeat({chamber,seat}) {
+        if(!provider) return null;
+        const chamberName=(process.env.KIOSK_CHAMBER_PREFIX || 'HBOT')+' '+chamber;
+        const rows=await provider.fetchSeatSessions({chamberName,seatNumber:seat,...getSessionWindow()});
+        return buildTabletSessionResponse(rows,{chamberName,seatNumber:seat,timeZone:TIME_ZONE,diveDurationMinutes:DIVE_DURATION_MINUTES,preDiveDisplayMinutes:PRE_DIVE_DISPLAY_MINUTES}).activeAppointment;
+    },
+    async currentChamber(chamber) {
+        if(!provider?.fetchChamberSessions)return [];
+        const chamberName=(process.env.KIOSK_CHAMBER_PREFIX || 'HBOT')+' '+chamber;
+        const rows=await provider.fetchChamberSessions({chamberName,...getSessionWindow()});
+        const options={chamberName,timeZone:TIME_ZONE,diveDurationMinutes:DIVE_DURATION_MINUTES};
+        const chart=buildSeatingChart(rows,options);
+        if(!chart.dive || chart.unavailable)return [];
+        return rows.map(row=>normalizeSessionRow(row,options)).filter(a=>a && a.chamberName===chamberName && a.start.toISO()===chart.dive.startTime && a.end.toMillis()>Date.now() && ['scheduled','active','in_progress'].includes(a.status) && chart.seats.some(s=>s.seatNumber===a.seatNumber)).map(serializeAppointment);
+    }
+}));
 
 function requireKioskApiKey(req, res, next) {
     if (!API_KEY) return next();
@@ -164,6 +202,10 @@ app.get(['/api/tablet/session', '/api/seat-session'], requireKioskApiKey, async 
             now: now.toJSDate()
         });
 
+        payload.sessionToken = sessionToken(payload.activeAppointment);
+        payload.staffMessagingEnabled = staffMessagingEnabled();
+        try { await communications.reconcile(location.chamberNumber, location.seatNumber, payload.sessionToken); }
+        catch (_) { payload.staffMessagingEnabled=false; }
         res.json(payload);
     } catch (error) {
         console.error('Tablet session lookup failed:', error);

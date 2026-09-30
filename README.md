@@ -42,7 +42,7 @@ External tabs, external app sessions, and third-party cookies are not cleared.
 Open `/staff.html` on the Azure site. Enter `KIOSK_STAFF_KEY` if configured;
 otherwise use the existing `KIOSK_API_KEY`. The key stays in page memory, is sent
 only in a request header, and is removed by **Lock dashboard**. The dashboard
-has no remote-control functions or patient names. A separate staff key can be
+does not show patient names. A separate staff key can be
 configured without changing tablet credentials.
 
 Homepages send a bounded status check-in every 60 seconds. The dashboard shows
@@ -80,3 +80,15 @@ GET /api/tablet/session?chamber=1&seat=1
 ```
 
 The tablet shows a patient starting 15 minutes before the scheduled dive, keeps them visible through the 2-hour dive window, then returns to `Available` at the scheduled end. Add `showNext=1` to the tablet URL only if you explicitly want later upcoming patients shown before their privacy window starts.
+
+## Games, Help, and staff announcements (1.2.0)
+
+The former Wordle tile is now Games. Its popup offers the original external Wordle plus Matching Pairs, Word Scramble, and Number Slide. There is no reading library. The three local games are cached after a successful download; Wordle still requires internet. Only games.html, games.js, and games.css are cached. Home, patient data, and APIs are never cached by this worker. Guest changes and the known dive deadline close the popup.
+
+Help sits beside the moon icon and includes navigation and headphone guidance. Routine requests highlight the chamber/seat on staff.html. Staff can acknowledge and complete them. Requests expire with the assignment, and a database lookup validates the current booking before accepting a request. Failed delivery is shown explicitly. Urgent assistance should use the chamber's usual method.
+
+Set a distinct KIOSK_STAFF_KEY in Azure App Service environment variables to enable requests and announcements, then sign into staff.html using that key. Keep the existing KIOSK_API_KEY unchanged. Without a distinct staff key, these controls stay disabled; Games and Help instructions still work. Keep the staff dashboard open and attended.
+
+Announcements target the occupied seats of one unambiguous current dive and expire after two minutes or at the earliest dive end. The dashboard counts tablets that displayed the message, not human reads. Backgrounded apps, external Wordle, sleeping tablets, or disconnected devices may not receive announcements.
+
+Communication state contains seat numbers, opaque booking tokens, staff message text and timestamps, never patient names. It is stored outside public web files at /home/data/oxypeak-tablet-data/communications.json on Azure (or the OS temporary directory locally). KIOSK_STATE_FILE can override this with a private persistent path. Acknowledgements are returned only after saving. This file store is for the current single-instance service; use a shared transactional store before scaling to multiple instances. Tablet check-ins remain process-local and reset on restart.
