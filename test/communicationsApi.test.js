@@ -1,0 +1,25 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path');
+test('staff controls require a separate key; a current dive receives requests and announcements end-to-end',async t=>{
+ const dir=await fs.mkdtemp(path.join(os.tmpdir(),'kiosk-api-'));t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ Object.assign(process.env,{KIOSK_DEMO_MODE:'true',KIOSK_API_KEY:'tablet-test',KIOSK_STAFF_KEY:'staff-test',KIOSK_STATE_FILE:path.join(dir,'state.json')});
+ const app=require('../server'),server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(()=>new Promise(r=>server.close(r)));
+ const base=`http://127.0.0.1:${server.address().port}`;
+ const get=(url,key='tablet-test')=>fetch(base+url,{headers:{'X-Kiosk-Key':key}});
+ const post=(url,body,key='tablet-test')=>fetch(base+url,{method:'POST',headers:{'X-Kiosk-Key':key,'Content-Type':'application/json'},body:JSON.stringify(body)});
+ const session=await(await get('/api/tablet/session?chamber=6&seat=3')).json();assert.ok(session.sessionToken);
+ const request={chamber:6,seat:3,session:session.sessionToken,id:'request-api',action:'request'};
+ assert.equal((await post('/api/tablet/help',{...request,session:'old-dive'})).status,409);
+ assert.equal((await post('/api/tablet/help',request)).status,200);
+ assert.equal((await post('/api/staff/requests/request-api',{action:'acknowledged'})).status,401);
+ assert.equal((await post('/api/staff/requests/request-api',{action:'acknowledged'},'staff-test')).status,200);
+ const url='/api/tablet/communications?chamber=6&seat=3&session='+session.sessionToken;
+ assert.equal((await(await get(url)).json()).request.status,'acknowledged');
+ const msg={id:'announce-api',chamber:6,text:'Local test only'};
+ assert.equal((await post('/api/staff/announcements',msg)).status,401);
+ const sent=await post('/api/staff/announcements',msg,'staff-test');assert.equal(sent.status,200,await sent.text());
+ const delivered=await get(url);assert.match(delivered.headers.get('cache-control'),/no-store/);assert.equal((await delivered.json()).announcement.text,msg.text);
+ await post('/api/tablet/announcement-receipt',{...request,id:msg.id});
+ assert.equal((await(await get('/api/staff/tablets','staff-test')).json()).announcements[0].displayedCount,1);
+ assert.equal((await post('/api/staff/requests/request-api',{action:'resolved'},'staff-test')).status,200);
+ process.env.KIOSK_STAFF_KEY='tablet-test';assert.equal((await post('/api/staff/announcements',msg)).status,503);
+});
