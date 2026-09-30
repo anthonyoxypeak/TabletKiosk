@@ -1,5 +1,25 @@
 # OxyPeak Tablet Kiosk
 
+## Seating chart
+
+The Seating Chart button uses the same server-side Dion PostgreSQL connection as
+the tablet home screen. It shows preferred names (or first names) and assigned
+seats for the tablet's chamber and the currently scheduled dive, and highlights
+the tablet's configured seat. Last names and patient IDs are not returned by the
+chart endpoint. Conflicting timeslots or duplicate seat assignments show an
+unavailable message instead of a potentially incorrect roster.
+
+The chart refreshes every 15 seconds and clears the roster at the scheduled dive
+end, immediately checking for the next dive. It also clears names on a failed
+refresh, on leaving the page, or if the last response is over 25 seconds old.
+Returning from the background fetches fresh data. Timing uses the server's
+schedule and configured dive duration (120 minutes by default), rather than the
+tablet clock; this is not a signal from the physical chamber equipment.
+
+`GET /api/tablet/seating-chart?chamber=3&seat=7` requires the existing kiosk key.
+No new database credentials or production configuration are required. Tests use
+synthetic bookings; live health verification alone does not verify patient rows.
+
 Tablet display for OxyPeak HBOT chambers.
 
 The tablets call this app, and this app reads Dion's scheduling database through a server-side PostgreSQL connection. The browser page never stores database credentials or Dr. Chrono OAuth tokens.

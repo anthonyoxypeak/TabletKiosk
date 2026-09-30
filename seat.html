@@ -1271,7 +1271,7 @@
         .card-apnews .app-icon { background: linear-gradient(145deg, #e6f0ff, #c7dcff); color: #2563eb; }
         .card-wordle .app-icon { background: linear-gradient(145deg, #e7f8d8, #c6e8a6); color: #538d4e; }
         .card-duolingo .app-icon { background: linear-gradient(145deg, #ddffd6, #b4f49d); color: #58a700; }
-        .card-cognifit .app-icon { background: linear-gradient(145deg, #e6eaff, #ccd4ff); color: #4338ca; }
+        .card-seating-chart .app-icon { background: linear-gradient(145deg, #e6eaff, #ccd4ff); color: #4338ca; }
         .card-brainhq .app-icon { background: linear-gradient(145deg, #f1dcff, #ddb7ff); color: #6b21a8; }
         .card-google .app-icon { background: linear-gradient(145deg, #fff7d6, #dff5ff); color: #2563eb; }
         .card-myoxypeak .app-icon { background: linear-gradient(145deg, #d7ffe1, #b7f2c8); color: #15803d; }
@@ -1285,7 +1285,7 @@
         [data-theme="dark"] .card-apnews .app-icon { background: rgba(37, 99, 235, 0.16); color: #93c5fd; }
         [data-theme="dark"] .card-wordle .app-icon { background: rgba(83, 141, 78, 0.18); color: #a7d59c; }
         [data-theme="dark"] .card-duolingo .app-icon { background: rgba(88, 167, 0, 0.2); color: #9fe870; }
-        [data-theme="dark"] .card-cognifit .app-icon { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+        [data-theme="dark"] .card-seating-chart .app-icon { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
         [data-theme="dark"] .card-brainhq .app-icon { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
         [data-theme="dark"] .card-google .app-icon { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
         [data-theme="dark"] .card-myoxypeak .app-icon { background: rgba(34, 197, 94, 0.15); color: #86efac; }
@@ -1878,20 +1878,21 @@
             </div>
         </a>
 
-        <a href="https://www.cognifit.com" target="_blank" class="app-card card-cognifit">
+        <a href="seating-chart.html" id="seatingChartLink" class="app-card card-seating-chart">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.9 1M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.9 1"/>
-                        <path d="M12 4h5M12 8h6M12 12h5M12 16h6"/>
-                        <path d="M12 4H7M12 8H6M12 12H7M12 16H6"/>
+                        <rect x="3" y="3" width="7" height="7" rx="2"/>
+                        <rect x="14" y="3" width="7" height="7" rx="2"/>
+                        <rect x="3" y="14" width="7" height="7" rx="2"/>
+                        <rect x="14" y="14" width="7" height="7" rx="2"/>
                     </svg>
                 </div>
                 <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
             </div>
             <div class="card-bottom">
-                <span class="app-category">Brain</span>
-                <span class="app-name">CogniFit</span>
+                <span class="app-category">Current Dive</span>
+                <span class="app-name">Seating Chart</span>
             </div>
         </a>
 
@@ -1953,6 +1954,11 @@
         const CHAMBER_NUMBER = parseInt(urlParams.get('chamber')) || 1;
         const SEAT_NUMBER = parseInt(urlParams.get('seat')) || 1;
         const API_KEY = urlParams.get('key') || '';
+        const chartUrl = new URL('seating-chart.html', window.location.href);
+        chartUrl.search = urlParams.toString();
+        chartUrl.searchParams.delete('key');
+        if (API_KEY) chartUrl.hash = new URLSearchParams({ key: API_KEY }).toString();
+        document.getElementById('seatingChartLink').href = chartUrl.toString();
         const SHOW_NEXT = ['1', 'true', 'yes'].includes((urlParams.get('showNext') || '').toLowerCase());
         
         // ====== API & STATE ======
