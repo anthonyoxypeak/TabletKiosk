@@ -1,0 +1,11 @@
+{
+  "version": "1.6.0",
+  "date": "2026-09-30",
+  "changes": [
+    "Clearer guest help screen with large request and confirmation messages.",
+    "64 OxyPeak-only matching themes, including Dr. Mo, HBOT and Oxygen.",
+    "Larger seating chart that fills the tablet screen.",
+    "Compact staff dashboard with version tracking and release notes.",
+    "Tablet Settings now shows its loaded version and update status."
+  ]
+}

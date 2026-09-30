@@ -1,6 +1,7 @@
 /* Home remains mounted while the seating chart or games are open. */
 (() => {
-    const VERSION = '1.5.0';
+    const VERSION = '1.6.0';
+    function showVersion(current) {const label=document.getElementById('tablet-version');if(label)label.textContent='Tablet version '+VERSION+' · '+(current?(current===VERSION?'Up to date':'Version '+current+' available — reload the homepage when finished.'):'Update check unavailable');}
     let dialog, frame, lifecycle, lastSync = 'checking', heartbeatPending = false;
     const chartLink = document.getElementById('seatingChartLink');
     const gamesLink = document.getElementById('gamesLink');
@@ -32,14 +33,15 @@
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 5000);
         try {
-            await fetch(`${API_BASE_URL}/api/tablet/heartbeat`, {
+            const response=await fetch(`${API_BASE_URL}/api/tablet/heartbeat`, {
                 method:'POST', cache:'no-store', signal:controller.signal,
                 headers:{ 'Content-Type':'application/json', 'X-Kiosk-Key':API_KEY },
                 body:JSON.stringify({ chamber:CHAMBER_NUMBER, seat:SEAT_NUMBER, version:VERSION,
                     sync:lastSync, view:document.hidden ? 'background' : dialog?.open ? 'chart' : 'home',
                     cleanup:typeof fully !== 'undefined' && typeof fully.focusThisTab === 'function' ? 'ready' : 'browser-only' })
             });
-        } catch (_) { /* The dashboard expires missing check-ins using server time. */ }
+            if(!response.ok)throw Error('Update check failed');showVersion((await response.json()).version);
+        } catch (_) { showVersion(); }
         finally { clearTimeout(timer); heartbeatPending = false; }
     }
     window.TabletExperience = {
@@ -57,6 +59,7 @@
         closeChart
     };
     document.addEventListener('DOMContentLoaded', () => {
+        const versionLabel=document.getElementById('tablet-version');if(versionLabel)versionLabel.textContent='Tablet version '+VERSION+' · Checking for updates…';
         dialog = document.createElement('dialog');
         dialog.id = 'chartDialog';
         dialog.setAttribute('aria-label', 'Seating chart');

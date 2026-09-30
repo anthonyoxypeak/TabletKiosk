@@ -24,7 +24,7 @@
         let opened=[],matched=0,locked=false,moves=0;chips('0 of 8 pairs','0 turns');const grid=element('div',undefined,'tile-grid');board.append(grid);
         deck.forEach((symbol,index)=>{const card=button('♡',()=>{
             if(locked||card.disabled||opened.some(x=>x.card===card))return;
-            card.replaceChildren(element('span',symbol.icon,'pair-icon'),element('span',symbol.name,'pair-name'));card.classList.add('revealed');card.setAttribute('aria-label',symbol.name);opened.push({card,symbol,index});if(opened.length!==2)return;moves++;
+            card.replaceChildren(element('span',symbol.icon,'pair-icon'),element('span',symbol.name.startsWith('OxyPeak')?symbol.name:'OxyPeak · '+symbol.name,'pair-name'));card.classList.add('revealed');card.setAttribute('aria-label',symbol.name);opened.push({card,symbol,index});if(opened.length!==2)return;moves++;
             if(opened[0].symbol===opened[1].symbol){opened.forEach(x=>{x.card.disabled=true;x.card.classList.add('matched');});opened=[];matched++;say(matched===8?'All pairs found! A lovely bit of remembering.':'A match! Keep going.');}
             else{locked=true;later(()=>{opened.forEach(x=>{x.card.textContent='♡';x.card.classList.remove('revealed');x.card.setAttribute('aria-label','Card '+(x.index+1)+', face down');});opened=[];locked=false;},1100);}
             chips(matched+' of 8 pairs',moves+' turns');
