@@ -1,7 +1,7 @@
 (() => {
     const byId=id=>document.getElementById(id),overview=byId('overview'),play=byId('play'),board=byId('board'),result=byId('result'),score=byId('score');
     const C=GameCore;let storage;try{storage=localStorage;}catch(_){}
-    const nextWord=C.wordDeck(GameWords,storage);let selected='',generation=0,opener=null,wordWins=0,mathLevel=1,focusLevel=1,sequenceLevel=1;const timers=new Set();
+    const nextWord=C.wordDeck(GameWords,storage),nextPairs=C.pairDeck(storage);let selected='',generation=0,opener=null,wordWins=0,mathLevel=1,focusLevel=1,sequenceLevel=1;const timers=new Set();
     const info={pairs:['Matching Pairs','Memory','Turn over two cards at a time. Find all eight pairs.'],words:['Word Scramble','Word power','Put the letters in order. A category and a hint can help.'],tiles:['Number Slide','Spatial thinking','Tap a highlighted tile next to the empty space, or swipe it into the space. No typing. Arrange 1–15 across each row.'],sudoku:['Sudoku','Logic','Choose your challenge. Fill each row, column and box without repeating a number.'],sequence:['Sequence Memory','Recall','Watch the highlighted shapes, then tap them in the same order.'],math:['Number Sense','Mental math','Ten little number challenges. Take all the time you need.'],focus:['Color Focus','Attention','Choose the color of the ink, rather than the word it spells.']};
     function element(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;}
     function button(text,action,cls=''){const b=element('button',text,cls);b.type='button';b.onclick=action;return b;}
@@ -20,7 +20,7 @@
     byId('new-game').onclick=()=>start(selected);
     byId('home').onclick=()=>{if(parent!==window)parent.postMessage({type:'oxypeak-chart-close'},location.origin);else if(history.length>1)history.back();else location.href='seat.html';};
     function pairs(){
-        const symbols=[{name:'Dr. Mo',icon:'🧑‍⚕️'},{name:'HBOT',icon:'🫧'},{name:'Oxygen',icon:'O₂'},{name:'OxyPeak',icon:'💚'},{name:'Longevity',icon:'🧬'},{name:'Brain Power',icon:'🧠'},{name:'Vitality',icon:'🌱'},{name:'Good Vibes',icon:'☀️'}],deck=C.shuffle([...symbols,...symbols]);
+        const symbols=nextPairs(),deck=C.shuffle([...symbols,...symbols]);
         let opened=[],matched=0,locked=false,moves=0;chips('0 of 8 pairs','0 turns');const grid=element('div',undefined,'tile-grid');board.append(grid);
         deck.forEach((symbol,index)=>{const card=button('♡',()=>{
             if(locked||card.disabled||opened.some(x=>x.card===card))return;

@@ -17,5 +17,13 @@ test('empty seats can request help and receive announcements; new bookings clear
  const active=await(await get('/api/tablet/session?chamber=6&seat=3')).json();assert.notEqual(active.sessionToken,idle.sessionToken);
  const fresh=await(await get('/api/tablet/communications?chamber=6&seat=3&session='+active.sessionToken)).json();assert.equal(fresh.request,null);assert.equal(fresh.announcement,null);
  assert.equal((await post('/api/tablet/help',req)).status,409);assert.equal((await(await get('/api/staff/tablets')).json()).requests.length,0);
- unavailable=true;assert.equal((await post('/api/staff/announcements',{chamber:6,id:'offline-schedule',text:'Must not pretend empty'})).status,503);
+ assert.equal(dashboard.requests[0].guestName,null);assert.equal(dashboard.requests[0].nameStatus,'unassigned');
+ rows[0].preferred_name='Sunny';rows[0].last_name='Tester';
+ assert.equal((await post('/api/tablet/help',{...req,id:'named-help-request',session:active.sessionToken})).status,200);
+ const named=await(await get('/api/staff/tablets')).json();assert.equal(named.requests[0].guestName,'Sunny T.');assert.equal(named.requests[0].nameStatus,'verified');assert.equal(named.requests[0].token,undefined);
+ assert.doesNotMatch(await fs.readFile(path.join(dir,'state.json'),'utf8'),/Sunny|Tester|guestName/);
+ unavailable=true;const failed=await(await get('/api/staff/tablets')).json();assert.equal(failed.requests.length,1);assert.equal(failed.requests[0].guestName,null);assert.equal(failed.requests[0].nameStatus,'unavailable');
+ assert.equal((await post('/api/staff/announcements',{chamber:6,id:'offline-schedule',text:'Must not pretend empty'})).status,503);
+ unavailable=false;rows[0].session_id='replacement';rows[0].preferred_name='Replacement';
+ assert.equal((await(await get('/api/staff/tablets')).json()).requests.length,0,'dashboard rejects reassigned names before the tablet checks in');
 });

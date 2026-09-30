@@ -59,7 +59,18 @@ app.get('/api/staff/tablets', async (req, res) => {
     const staffKey = process.env.KIOSK_STAFF_KEY || API_KEY;
     if (!staffKey) return res.status(503).json({ error:'Staff access is not configured' });
     if (req.get('x-kiosk-key') !== staffKey) return res.status(401).json({ error:'Enter the staff access key' });
-    try { res.json({ ...tabletStatus.snapshot(), messagingEnabled:staffMessagingEnabled(), ...await communications.snapshot() }); }
+    try {
+        const snapshot=await communications.snapshot({includeTokens:true});
+        snapshot.requests=(await Promise.all(snapshot.requests.map(async ({token,...request})=>{
+            try {
+                const appointment=await currentSeat(request);
+                const current=sessionToken(appointment)||idleToken(request.chamber,request.seat);
+                if(current!==token){await communications.reconcile(request.chamber,request.seat,current);return null;}
+                return {...request,guestName:appointment?.patientName||null,nameStatus:appointment?'verified':'unassigned'};
+            } catch (_) {return {...request,guestName:null,nameStatus:'unavailable'};}
+        }))).filter(Boolean);
+        res.json({ ...tabletStatus.snapshot(), messagingEnabled:staffMessagingEnabled(), ...snapshot });
+    }
     catch (_) { res.status(503).json({error:'Staff request status is unavailable. Check tablets directly.'}); }
 });
 
@@ -108,6 +119,12 @@ const provider = DEMO_MODE
     ? createDemoProvider()
     : (hasPostgresConfig() ? createPostgresProvider({ diveDurationMinutes: DIVE_DURATION_MINUTES }) : null);
 
+async function currentSeat({chamber,seat}) {
+    if(!provider) throw Error('Schedule unavailable');
+    const chamberName=(process.env.KIOSK_CHAMBER_PREFIX || 'HBOT')+' '+chamber;
+    const rows=await provider.fetchSeatSessions({chamberName,seatNumber:seat,...getSessionWindow()});
+    return buildTabletSessionResponse(rows,{chamberName,seatNumber:seat,timeZone:TIME_ZONE,diveDurationMinutes:DIVE_DURATION_MINUTES,preDiveDisplayMinutes:PRE_DIVE_DISPLAY_MINUTES}).activeAppointment;
+}
 app.use(createCommunicationRoutes({
     store:communications,
     requireTablet(req,res,next) {
@@ -116,12 +133,7 @@ app.use(createCommunicationRoutes({
     },
     staffEnabled:staffMessagingEnabled,
     requireStaff:requireStaffControl,
-    async currentSeat({chamber,seat}) {
-        if(!provider) throw Error('Schedule unavailable');
-        const chamberName=(process.env.KIOSK_CHAMBER_PREFIX || 'HBOT')+' '+chamber;
-        const rows=await provider.fetchSeatSessions({chamberName,seatNumber:seat,...getSessionWindow()});
-        return buildTabletSessionResponse(rows,{chamberName,seatNumber:seat,timeZone:TIME_ZONE,diveDurationMinutes:DIVE_DURATION_MINUTES,preDiveDisplayMinutes:PRE_DIVE_DISPLAY_MINUTES}).activeAppointment;
-    },
+    currentSeat,
     async currentChamber(chamber) {
         if(!provider?.fetchChamberSessions)throw Error('Schedule unavailable');
         const chamberName=(process.env.KIOSK_CHAMBER_PREFIX || 'HBOT')+' '+chamber;

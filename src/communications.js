@@ -38,10 +38,10 @@ function createCommunications({ filePath, now = Date.now }) {
     }
     async function read() { await ready; await queue; }
     return {
-        async snapshot() {
+        async snapshot({ includeTokens = false } = {}) {
             await read();
             return {
-                requests:Object.values(state.requests).filter(r => active(r) && ['requested','acknowledged'].includes(r.status)).map(({ token, ...r }) => r),
+                requests:Object.values(state.requests).filter(r => active(r) && ['requested','acknowledged'].includes(r.status)).map(({ token, ...r }) => includeTokens ? {...r,token} : r),
                 announcements:Object.values(state.announcements).filter(a => active(a) && !a.dismissed).map(({ recipients, ...a }) => ({ ...a, targetCount:Object.keys(recipients).length, displayedCount:Object.keys(a.receipts).length }))
             };
         },

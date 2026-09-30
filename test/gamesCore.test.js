@@ -1,5 +1,11 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const core=require('../games-core'),words=require('../game-words');
+test('matching pairs rotate 64 unique themes across eight rounds and retain the deck after reload',()=>{
+ let saved;const storage={getItem:()=>saved,setItem:(k,v)=>saved=v};let next=core.pairDeck(storage);const names=[];
+ for(let round=0;round<8;round++){if(round===3)next=core.pairDeck(storage);const cards=next();assert.equal(cards.length,8);assert.equal(new Set(cards.map(c=>c.name)).size,8);names.push(...cards.map(c=>c.name));}
+ assert.equal(new Set(names).size,64);assert.ok(['Dr. Mo','HBOT','Oxygen'].every(n=>names.includes(n)));assert.equal(next().length,8);
+ const broken=core.pairDeck({getItem:()=>'{bad json',setItem:()=>{throw Error('Unavailable');}});assert.equal(broken().length,8);
+});
 test('large curated word bank is unique and does not repeat across a complete saved cycle',()=>{
  assert.ok(words.length>2400);assert.equal(new Set(words.map(w=>w.word)).size,words.length);assert.ok(words.every(w=>/^[A-Z]{3,12}$/.test(w.word)&&w.category));
  let saved;const storage={getItem:()=>saved,setItem:(k,v)=>saved=v};let next=core.wordDeck(words,storage);const played=[];
