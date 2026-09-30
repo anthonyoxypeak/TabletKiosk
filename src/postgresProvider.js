@@ -32,6 +32,7 @@ const DEFAULT_TABLET_SESSION_QUERY = `
 const DEFAULT_CHAMBER_SESSION_QUERY = `
     SELECT
         su.id AS session_id,
+        ts.id AS timeslot_id,
         p.first_name,
         p.last_name,
         p.preferred_name,

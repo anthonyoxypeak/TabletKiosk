@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { DateTime } = require('luxon');
 require('dotenv').config();
+const { buildSeatingChart } = require('./src/seatingChart');
 
 const {
     DEFAULT_DIVE_DURATION_MINUTES,
@@ -34,6 +35,17 @@ app.use(express.json());
 function createDemoProvider() {
     return {
         name: 'demo',
+        async fetchChamberSessions({ chamberName }) {
+            const start = DateTime.now().setZone(TIME_ZONE).startOf('hour');
+            return ['Alex', 'Sam', 'Jo', 'Mary Jane', 'Taylor', 'Chris'].map((name, index) => ({
+                first_name: name,
+                chamber_name: chamberName,
+                seat_number: index + 1,
+                start_at: start.toISO(),
+                duration_minutes: DIVE_DURATION_MINUTES,
+                status: 'scheduled'
+            }));
+        },
         async fetchSeatSessions({ chamberName, seatNumber }) {
             const now = DateTime.now().setZone(TIME_ZONE);
             const start = now.minus({ minutes: 18 });
@@ -135,6 +147,47 @@ app.get(['/api/tablet/session', '/api/seat-session'], requireKioskApiKey, async 
             detail: process.env.NODE_ENV === 'production' ? undefined : error.message
         });
     }
+});
+
+app.get('/api/tablet/seating-chart', (req, res, next) => {
+    res.set('Cache-Control', 'no-store, private');
+    res.set('Pragma', 'no-cache');
+    if (!API_KEY && !DEMO_MODE) return res.status(503).json({ error: 'Seating chart authentication is not configured' });
+    return requireKioskApiKey(req, res, next);
+}, async (req, res) => {
+    let location;
+    try {
+        if (!/^(1|3|4|6)$/.test(String(req.query.chamber || ''))
+            || !/^(?:[1-9]|1[0-4])$/.test(String(req.query.seat || ''))) {
+            throw new Error('A valid chamber and seat are required');
+        }
+        location = getLocationFromQuery(req.query, {
+            chamberPrefix: process.env.KIOSK_CHAMBER_PREFIX || 'HBOT'
+        });
+    } catch (error) {
+        return res.status(400).json({ error: error.message });
+    }
+    if (!provider || !provider.fetchChamberSessions) {
+        return res.status(503).json({ error: 'Seating chart is not configured' });
+    }
+    try {
+        const rows = await provider.fetchChamberSessions({ ...location, ...getSessionWindow() });
+        return res.json(buildSeatingChart(rows, {
+            chamberName: location.chamberName,
+            seatNumber: location.seatNumber,
+            timeZone: TIME_ZONE,
+            diveDurationMinutes: DIVE_DURATION_MINUTES
+        }));
+    } catch (error) {
+        console.error('Seating chart lookup failed; code=%s', error.code || 'unknown');
+        return res.status(500).json({ error: 'Unable to load seating chart' });
+    }
+});
+
+app.get('/seating-chart.html', (req, res) => {
+    res.set('Cache-Control', 'no-store, private');
+    res.set('Referrer-Policy', 'no-referrer');
+    res.sendFile(path.join(__dirname, 'seating-chart.html'));
 });
 
 app.use(express.static(__dirname));
