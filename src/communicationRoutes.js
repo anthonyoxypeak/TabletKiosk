@@ -1,5 +1,5 @@
 const express = require('express');
-const { validLocation, validId, sessionToken } = require('./communications');
+const { validLocation, validId, sessionToken, idleToken } = require('./communications');
 function createCommunicationRoutes({ store, requireTablet, staffEnabled, requireStaff, currentSeat, currentChamber }) {
     const router=express.Router();
     const wrap=fn=>async(req,res)=>{try{await fn(req,res);}catch(error){console.error('Tablet communication failed; code=%s',error.code||'unavailable');res.status(503).json({error:'Could not confirm delivery. Get staff attention directly.'});}};
@@ -19,13 +19,14 @@ function createCommunicationRoutes({ store, requireTablet, staffEnabled, require
         const loc=location(req,res);if(!loc)return;
         if(!validId(req.body.id))return res.status(400).json({error:'Invalid request ID'});
         const appointment=await currentSeat(loc);
-        if(!appointment || sessionToken(appointment)!==req.body.session)return res.status(409).json({error:'The seat assignment changed. Get staff attention directly.'});
+        const expected=sessionToken(appointment)||idleToken(loc.chamber,loc.seat);
+        if(expected!==req.body.session)return res.status(409).json({error:'The seat assignment changed. Get staff attention directly.'});
         if(req.body.action==='cancel') {
             const ok=await store.updateRequest(req.body.id,'cancelled',req.body.session);
             return res.status(ok?200:409).json({ok});
         }
         if(req.body.action!=='request')return res.status(400).json({error:'Invalid action'});
-        const request=await store.request({...loc,id:req.body.id,token:req.body.session,expiresAt:Date.parse(appointment.endTime)});
+        const request=await store.request({...loc,id:req.body.id,token:req.body.session,expiresAt:appointment?Date.parse(appointment.endTime):Date.now()+15*60000});
         res.json({request});
     }));
     router.post('/api/tablet/announcement-receipt',requireTablet,wrap(async(req,res)=>{
@@ -42,9 +43,9 @@ function createCommunicationRoutes({ store, requireTablet, staffEnabled, require
         const {id,chamber,text}=req.body;
         if(![1,3,4,6].includes(chamber)||!validId(id)||typeof text!=='string'||!text.trim()||text.length>240)return res.status(400).json({error:'Select a chamber and enter up to 240 characters.'});
         const appointments=await currentChamber(chamber);
-        if(!appointments.length)return res.status(409).json({error:'No unambiguous active dive was found in that chamber.'});
-        const expiresAt=Math.min(Date.now()+120000,...appointments.map(a=>Date.parse(a.endTime)));
-        const recipients=Object.fromEntries(appointments.map(a=>[a.seatNumber,sessionToken(a)]));
+        if(!appointments.length)return res.status(503).json({error:'Chamber status is unavailable. Try again shortly.'});
+        const expiresAt=Math.min(Date.now()+120000,...appointments.filter(a=>a.endTime).map(a=>Date.parse(a.endTime)));
+        const recipients=Object.fromEntries(appointments.map(a=>[a.seatNumber,a.token]));
         res.json(await store.announce({id,chamber,text,expiresAt,recipients}));
     }));
     router.post('/api/staff/announcements/:id/dismiss',requireStaff,wrap(async(req,res)=>{
