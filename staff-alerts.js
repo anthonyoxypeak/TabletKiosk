@@ -17,13 +17,16 @@
     }
     function mount(){
         const state=createState(),baseTitle='Tablet Dashboard · OxyPeak',bar=document.getElementById('alert-controls'),enable=document.getElementById('enable-alerts'),mute=document.getElementById('mute-alerts'),test=document.getElementById('test-alerts'),label=document.getElementById('alert-status');
-        let signedIn=false,soundEnabled=false,muted=false,audio,blink=false,notices=new Map(),audioProblem='',permissionProblem='';
+        let signedIn=false,soundEnabled=false,muted=false,audio,blink=false,notices=new Map(),audioProblem='',permissionProblem='',chimeUntil=0;
         const icon=document.createElement('link');icon.rel='icon';document.head.append(icon);
         const svg=color=>'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="'+color+'"/><text x="16" y="23" text-anchor="middle" font-size="22" font-family="sans-serif" font-weight="bold" fill="white">!</text></svg>');
         function closeNotices(ids=new Set()){for(const [id,n] of notices)if(!ids.has(id)){n.close();notices.delete(id);}}
         function chime(){
             if(!audio||audio.state!=='running'){audioProblem='Sound paused by browser — click Enable alerts again.';render();return;}
-            [660,880,660].forEach((frequency,i)=>{const oscillator=audio.createOscillator(),gain=audio.createGain(),start=audio.currentTime+i*.23;oscillator.type='sine';oscillator.frequency.value=frequency;gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(.16,start+.025);gain.gain.exponentialRampToValueAtTime(.001,start+.19);oscillator.connect(gain);gain.connect(audio.destination);oscillator.start(start);oscillator.stop(start+.21);oscillator.onended=()=>{oscillator.disconnect();gain.disconnect();};});
+            // Sustained notes with headroom; never stack sounds and clip the output.
+            if(audio.currentTime<chimeUntil)return;
+            chimeUntil=audio.currentTime+2.16;
+            [740,980,740,980,740,980].forEach((frequency,i)=>{const oscillator=audio.createOscillator(),gain=audio.createGain(),start=audio.currentTime+i*.36;oscillator.type='triangle';oscillator.frequency.value=frequency;gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(.8,start+.015);gain.gain.setValueAtTime(.8,start+.24);gain.gain.linearRampToValueAtTime(0,start+.31);oscillator.connect(gain);gain.connect(audio.destination);oscillator.start(start);oscillator.stop(start+.32);oscillator.onended=()=>{oscillator.disconnect();gain.disconnect();};});
         }
         async function prepareAudio(){const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw Error('Sound is unavailable in this browser.');audio=audio||new Audio();await audio.resume();if(audio.state!=='running')throw Error('Sound was blocked. Try Enable alerts again.');soundEnabled=true;muted=false;audioProblem='';}
         function render(){
@@ -48,13 +51,13 @@
             if(permissionWork){const permission=await permissionWork.catch(()=> 'denied');permissionProblem=permission==='granted'?'':'Desktop notifications blocked; sound and tab alerts still work.';if(signedIn&&permission==='granted'&&state.view().connected)state.view().pending.forEach(notify);}
             render();
         };
-        test.onclick=async()=>{try{await prepareAudio();if(signedIn)chime();}catch(error){audioProblem=error.message;}render();};
+        test.onclick=async()=>{try{await prepareAudio();if(signedIn){state.due(true);chime();}}catch(error){audioProblem=error.message;}render();};
         mute.onclick=()=>{muted=!muted;render();};
         setInterval(()=>{if(!signedIn)return;blink=window.matchMedia('(prefers-reduced-motion: reduce)').matches?true:!blink;const view=state.view();closeNotices(new Set(view.connected?view.pending.map(r=>r.id):[]));if(soundEnabled&&!muted&&state.due())chime();render();},2000);
         return {
             update(data,elapsed=0){signedIn=true;const fresh=state.update(data.requests||[],data.fetchedAt,elapsed),view=state.view();closeNotices(new Set(view.pending.map(r=>r.id)));fresh.forEach(notify);if(soundEnabled&&!muted&&state.due(fresh.length>0))chime();render();},
             failed(){state.failed();closeNotices();render();},
-            reset(){signedIn=false;soundEnabled=false;muted=false;state.reset();closeNotices();audio?.suspend().catch(()=>{});render();}
+            reset(){signedIn=false;soundEnabled=false;muted=false;chimeUntil=0;state.reset();closeNotices();audio?.suspend().catch(()=>{});render();}
         };
     }
     return {createState,mount};

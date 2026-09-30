@@ -1,7 +1,8 @@
 {
-  "version": "1.8.0",
+  "version": "1.8.1",
   "date": "2026-09-30",
   "changes": [
+    "Louder staff help alert: six sustained alternating tones replace the quiet chime. Test sound previews the new alert. Mute and 30-second reminders still work; overlapping sounds are prevented.",
     "Today’s IA briefing — September 30, 2026. This release brings together all of today’s tablet updates.",
     "NEW: Staff alerts keep checking while the dashboard is in a background tab. Click Enable alerts after signing in to enable a chime and allow desktop notifications. A blinking tab title and red icon identify waiting requests; sound repeats about every 30 seconds until acknowledgment. Test sound and Mute controls are included. Desktop alerts show only suite and seat, not guest names. Alerts pause if the connection cannot be confirmed. Keep the computer awake and the dashboard tab out of browser sleeping mode.",
     "Seating Chart replaces CogniFit. It uses Dion’s current dive assignments, shows first names or nicknames, and highlights the guest’s own seat.",
