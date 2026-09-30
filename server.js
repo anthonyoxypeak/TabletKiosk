@@ -69,7 +69,7 @@ app.get('/api/staff/tablets', async (req, res) => {
                 return {...request,guestName:appointment?.patientName||null,nameStatus:appointment?'verified':'unassigned'};
             } catch (_) {return {...request,guestName:null,nameStatus:'unavailable'};}
         }))).filter(Boolean);
-        res.json({ ...tabletStatus.snapshot(), messagingEnabled:staffMessagingEnabled(), ...snapshot });
+        res.json({ ...tabletStatus.snapshot(), release:require('./release.json'), messagingEnabled:staffMessagingEnabled(), ...snapshot });
     }
     catch (_) { res.status(503).json({error:'Staff request status is unavailable. Check tablets directly.'}); }
 });

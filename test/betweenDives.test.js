@@ -17,7 +17,7 @@ test('empty seats can request help and receive announcements; new bookings clear
  const active=await(await get('/api/tablet/session?chamber=6&seat=3')).json();assert.notEqual(active.sessionToken,idle.sessionToken);
  const fresh=await(await get('/api/tablet/communications?chamber=6&seat=3&session='+active.sessionToken)).json();assert.equal(fresh.request,null);assert.equal(fresh.announcement,null);
  assert.equal((await post('/api/tablet/help',req)).status,409);assert.equal((await(await get('/api/staff/tablets')).json()).requests.length,0);
- assert.equal(dashboard.requests[0].guestName,null);assert.equal(dashboard.requests[0].nameStatus,'unassigned');
+ assert.equal(dashboard.requests[0].guestName,null);assert.equal(dashboard.requests[0].nameStatus,'unassigned');assert.equal(dashboard.release.version,dashboard.version);assert.ok(dashboard.release.changes.length);
  rows[0].preferred_name='Sunny';rows[0].last_name='Tester';
  assert.equal((await post('/api/tablet/help',{...req,id:'named-help-request',session:active.sessionToken})).status,200);
  const named=await(await get('/api/staff/tablets')).json();assert.equal(named.requests[0].guestName,'Sunny T.');assert.equal(named.requests[0].nameStatus,'verified');assert.equal(named.requests[0].token,undefined);
