@@ -122,7 +122,8 @@ test('hides patient before the pre-dive display window starts', () => {
 
     assert.equal(payload.state, 'available');
     assert.equal(payload.activeAppointment, null);
-    assert.equal(payload.nextAppointment.patientName, 'Future P.');
+    assert.equal(payload.nextAppointment, null);
+    assert.doesNotMatch(JSON.stringify(payload), /Future P/);
 });
 
 test('hides patient exactly when the scheduled dive window ends', () => {
