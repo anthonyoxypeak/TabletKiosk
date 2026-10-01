@@ -3,7 +3,7 @@ test('chat page clears messages and drafts at the server deadline, on hiding, an
  let now=0,body={token:'private-token',self:'public-id',participants:[],messages:[],blocked:[],muted:false,fetchedAt:new Date(100000).toISOString(),validUntil:new Date(102000).toISOString()},hold=false,resolve;
  const elements=new Map(),events={},timers=new Map();let id=0;
  function element(){return {textContent:'',value:'',disabled:false,open:false,children:[],replaceChildren(){this.children=[];},append(e){this.children.push(e);},addEventListener(){},close(){this.open=false;},showModal(){this.open=true;},focus(){}};}
- const document={hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},querySelectorAll:()=>[],createElement:element,addEventListener:(name,fn)=>events[name]=fn};
+ const document={hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},querySelector:()=>element(),querySelectorAll:()=>[],createElement:element,addEventListener:(name,fn)=>events[name]=fn};
  const window={addEventListener(){}};
  const context={window,document,URLSearchParams,AbortController,crypto:{randomUUID:()=> 'test-message-id'},performance:{now:()=>now},setTimeout:(fn,ms)=>{timers.set(++id,{fn,at:now+ms});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>{},fetch:async()=>{if(hold)await new Promise(r=>resolve=r);return {ok:true,json:async()=>body};}};
  vm.runInNewContext(fs.readFileSync(require.resolve('../seating-chat.js'),'utf8'),context);

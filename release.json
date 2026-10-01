@@ -1,7 +1,10 @@
 {
-  "version": "1.9.0",
+  "version": "1.10.0",
   "date": "2026-10-01",
   "changes": [
+    "NEW: Chat follows a guest to their new seat when an IA moves them within the same dive in Dion’s app. The old tablet’s chat session is revoked; the new seat’s tablet can reopen the conversation.",
+    "NEW: A Chat button at the top of the tablet homepage shows the unread-message count, without names or message previews. Read messages clear the badge. Open the seating chart to read and reply.",
+    "NEW: Between dives, all 14 seats show Unassigned with Chat buttons for testing. These separate test conversations expire after 30 minutes or when the next dive starts. Failed schedule checks do not enable test mode.",
     "NEW October 1: Tap Chat on an occupied seating-chart seat to message that guest during the same dive. Includes unread badges, an English profanity filter, blocking a seat and pausing your chat. Staff can pause or resume each chamber from the dashboard.",
     "Chats are temporary: only the current two seat assignments can retrieve a conversation. Old conversations clear at dive end, seat reassignment, staff pause or server restart. Messages are never saved in browser storage. Wi-Fi is required; delivery may wait while the other guest is outside the seating chart. The filter catches common profanity and obfuscations but cannot catch every offensive message.",
     "Louder staff help alert: six sustained alternating tones replace the quiet chime. Test sound previews the new alert. Mute and 30-second reminders still work; overlapping sounds are prevented.",

@@ -2,7 +2,7 @@
 window.createSeatChat=function({apiBase,apiKey,chamber,seat}){
     const $=id=>document.getElementById(id),dialog=$('chat-dialog'),log=$('chat-log'),draft=$('chat-draft'),message=$('chat-message'),hint=$('chat-hint');
     let self='',data=null,token='',selected='',epoch=0,busy=false,sending=false,locked=false,expiry,signature='',pending=null;
-    const read=new Map();
+    const read=new Map(),marking=new Set();
     const node=(tag,text)=>{const e=document.createElement(tag);e.textContent=text;return e;};
     function clear(text){clearTimeout(expiry);data=null;epoch++;log.replaceChildren();draft.value='';pending=null;signature='';$('chat-title').textContent='Dive chat';$('chat-send').disabled=true;$('chat-block').disabled=true;$('chat-pause').disabled=true;message.textContent=text;hint.textContent=text;decorate();}
     async function api(path,body){
@@ -13,23 +13,26 @@ window.createSeatChat=function({apiBase,apiKey,chamber,seat}){
         const remaining=Date.parse(next.validUntil)-Date.parse(next.fetchedAt)-(performance.now()-started);
         if(!(remaining>0)){clear('This dive has ended. Return home for your next dive.');return;}
         if(token&&token!==next.token){locked=true;clear('Your seat changed. Return home before opening chat again.');return;}
-        token=next.token;self=next.self;data=next;clearTimeout(expiry);expiry=setTimeout(()=>clear('Checking the current dive. Messages are hidden until reconnected.'),Math.min(remaining,12000));render();
+        token=next.token;self=next.self;data=next;for(const [id,value] of Object.entries(next.read||{}))read.set(id,Math.max(read.get(id)||0,value));clearTimeout(expiry);expiry=setTimeout(()=>clear('Checking the current dive. Messages are hidden until reconnected.'),Math.min(remaining,12000));render();
     }
     function decorate(){
         for(const item of document.querySelectorAll('#seats > li')){
             let button=item.querySelector('.chat-seat');const number=Number(item.querySelector('.seat-label')?.textContent.match(/Seat (\d+)/)?.[1]);
-            const peer=data?.participants.find(p=>p.seat===number&&p.id!==self);
+            const occupant=data?.participants.find(p=>p.seat===number);
+            if(occupant){item.querySelector('.name').textContent=occupant.name;item.classList.toggle('empty',Boolean(data.testMode));}
+            const peer=occupant?.id!==self?occupant:null;
             if(!peer){button?.remove();continue;}
             if(!button){button=node('button','Chat');button.type='button';button.className='chat-seat';item.append(button);}
             const count=data.messages.filter(m=>m.from===peer.id&&m.to===self&&m.id>(read.get(peer.id)||0)).length;
-            button.textContent=count?'Chat · '+count:'Chat';button.classList.toggle('unread',count>0);button.setAttribute('aria-label',`Chat with ${peer.name}, seat ${peer.seat}${count?', '+count+' unread':''}`);button.onclick=()=>open(peer.id);
+            button.textContent=count?'Chat · '+count:'Chat';button.classList.toggle('unread',count>0);button.setAttribute('aria-label',`Chat with ${data.testMode?'unassigned seat '+peer.seat:peer.name+', seat '+peer.seat}${count?', '+count+' unread':''}`);button.onclick=()=>open(peer.id);
         }
     }
     function render(){
         if(!data)return;
         const peer=data.participants.find(p=>p.id===selected),blocked=data.blocked.includes(selected);
         $('chat-pause').disabled=false;$('chat-pause').textContent=data.muted?'Resume my chat':'Pause my chat';
-        hint.textContent=data.muted?'Your chat is paused. Resume when you want to exchange messages.':'Tap Chat on an occupied seat. Conversations clear after this dive.';
+        hint.textContent=data.muted?'Your chat is paused. Resume when you want to exchange messages.':data.testMode?'TEST CHAT · No dive running. Tap any other seat. Test messages clear when a dive starts.':'Tap Chat on an occupied seat. Conversations follow guests if staff move their seats.';
+        document.querySelector('.chat-note').textContent=data.testMode?'Between-dive test chat. Use test messages only. This chat clears when a dive starts.':'Just you and this guest. Messages clear after the dive. Keep it friendly; profanity is filtered.';
         if(dialog.open){
             $('chat-title').textContent=peer?`${peer.name} · Seat ${peer.seat}`:'Dive chat';
             $('chat-block').disabled=!peer;$('chat-block').textContent=blocked?'Unblock seat':'Block seat';
@@ -39,7 +42,7 @@ window.createSeatChat=function({apiBase,apiKey,chamber,seat}){
                 const rows=data.messages.filter(m=>(m.from===self&&m.to===selected)||(m.from===selected&&m.to===self));
                 const next=JSON.stringify(rows);
                 if(next!==signature){signature=next;log.replaceChildren();if(!rows.length)log.append(node('p','Say hello! Keep messages friendly.'));for(const m of rows){const bubble=node('div','');bubble.className='chat-bubble'+(m.from===self?' outgoing':'');bubble.append(node('strong',m.from===self?'You':peer.name),node('p',m.text));log.append(bubble);}log.scrollTop=log.scrollHeight;}
-                if(!document.hidden)read.set(selected,Math.max(read.get(selected)||0,...rows.filter(m=>m.from===selected).map(m=>m.id)));
+                if(!document.hidden){const through=Math.max(read.get(selected)||0,...rows.filter(m=>m.from===selected).map(m=>m.id));read.set(selected,through);if(through>(data.read?.[selected]||0)&&!marking.has(selected)){const who=selected;marking.add(who);api('/api/tablet/chat/preferences',{chamber:Number(chamber),seat:Number(seat),token,readFrom:who,through}).catch(()=>{}).finally(()=>marking.delete(who));}}
                 if(blocked||data.muted)message.textContent=blocked?'This seat is blocked.':'Your chat is paused.';
             }
         }
