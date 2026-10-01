@@ -9,6 +9,7 @@ const { createCommunications, sessionToken, idleToken } = require('./src/communi
 const { createCommunicationRoutes } = require('./src/communicationRoutes');
 const { normalizeSessionRow, serializeAppointment } = require('./src/kioskService');
 const os = require('node:os');
+const { createTabletChat } = require('./src/tabletChat');
 const communications = createCommunications({ filePath:process.env.KIOSK_STATE_FILE || path.join(process.env.WEBSITE_SITE_NAME ? '/home/data' : os.tmpdir(), 'oxypeak-tablet-data', 'communications.json') });
 function staffMessagingEnabled() { return Boolean(process.env.KIOSK_STAFF_KEY || API_KEY); }
 function requireStaffControl(req,res,next) {
@@ -69,12 +70,12 @@ app.get('/api/staff/tablets', async (req, res) => {
                 return {...request,guestName:appointment?.patientName||null,nameStatus:appointment?'verified':'unassigned'};
             } catch (_) {return {...request,guestName:null,nameStatus:'unavailable'};}
         }))).filter(Boolean);
-        res.json({ ...tabletStatus.snapshot(), release:require('./release.json'), messagingEnabled:staffMessagingEnabled(), ...snapshot });
+        res.json({ ...tabletStatus.snapshot(), release:require('./release.json'), chat:await tabletChat.settings(), messagingEnabled:staffMessagingEnabled(), ...snapshot });
     }
     catch (_) { res.status(503).json({error:'Staff request status is unavailable. Check tablets directly.'}); }
 });
 
-app.get(['/staff.html', '/staff-alerts.js', '/seat.html', '/tablet-session.js', '/tablet-experience.js', '/tablet-support.js', '/games.html', '/games.js', '/games.css', '/games-core.js', '/game-words.js', '/offline-worker.js'], (req, res) => {
+app.get(['/seating-chat.js', '/seating-chat.css', '/staff.html', '/staff-alerts.js', '/seat.html', '/tablet-session.js', '/tablet-experience.js', '/tablet-support.js', '/games.html', '/games.js', '/games.css', '/games-core.js', '/game-words.js', '/offline-worker.js'], (req, res) => {
     res.set('Cache-Control', 'no-store, private');
     res.set('Referrer-Policy', 'no-referrer');
     res.sendFile(path.join(__dirname, req.path));
@@ -118,6 +119,15 @@ function createDemoProvider() {
 const provider = DEMO_MODE
     ? createDemoProvider()
     : (hasPostgresConfig() ? createPostgresProvider({ diveDurationMinutes: DIVE_DURATION_MINUTES }) : null);
+
+const tabletChat=createTabletChat({
+    requireTablet(req,res,next){if(!API_KEY&&!DEMO_MODE)return res.status(503).json({error:'Tablet authentication is not configured'});return requireKioskApiKey(req,res,next);},
+    requireStaff:requireStaffControl,
+    settingsPath:(process.env.KIOSK_STATE_FILE || path.join(process.env.WEBSITE_SITE_NAME?'/home/data':os.tmpdir(),'oxypeak-tablet-data','communications.json'))+'.chat-settings',
+    options:{timeZone:TIME_ZONE,diveDurationMinutes:DIVE_DURATION_MINUTES,chamberPrefix:process.env.KIOSK_CHAMBER_PREFIX||'HBOT'},
+    async loadRows(chamberName){if(!provider?.fetchChamberSessions)throw Error('Schedule unavailable');return provider.fetchChamberSessions({chamberName,...getSessionWindow()});}
+});
+app.use(tabletChat.router);
 
 async function currentSeat({chamber,seat}) {
     if(!provider) throw Error('Schedule unavailable');
