@@ -8,7 +8,7 @@
         busy=true;const current=generation,started=performance.now(),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
         try{
             const query=new URLSearchParams({chamber:CHAMBER_NUMBER,seat:SEAT_NUMBER,summary:'1'});
-            const response=await fetch(`${API_BASE_URL}/api/tablet/chat?${query}`,{cache:'no-store',signal:controller.signal,headers:{'X-Kiosk-Key':API_KEY,...(token?{'X-Chat-Session':token}:{})}});
+            const response=await fetch(`${API_BASE_URL}/api/tablet/chat?${query}`,{credentials:'omit',cache:'no-store',signal:controller.signal,headers:{'X-Kiosk-Key':API_KEY,...(token?{'X-Chat-Session':token}:{})}});
             if(current!==generation||document.hidden)return;
             if(!response.ok){hide();if(response.status===409){token='';generation++;window.TabletExperience?.closeChart();}return;}
             const data=await response.json();if(current!==generation||document.hidden)return;

@@ -34,3 +34,11 @@
 - The bottom of the tabletâ€™s Settings gear shows its loaded version, whether it is up to date, or whether an update check is unavailable. Reload the homepage when the guest is finished, then reopen Games Hub. Updates do not forcibly interrupt an active guest.
 - Text cleanup: the home tile reads GAMES / Games Hub. The offline-download explanations, First names and nicknames only, and Updates automatically captions were removed from the guest-facing screens.
 - IA access: use the existing staff dashboard sign-in. Keep the dashboard open and attended for requests. The Help button is for routine assistance; urgent needs still require getting staff attention directly.
+
+## 1.12.0 — October 1, 2026
+
+- Four new brain games: Word Search, Pattern Recall, Number Trail and Lights Out—with Easy, Medium and Hard options.
+- A steadier tablet toolbar: background checks no longer flash “Checking” or blink the chat badge.
+- A simpler staff dashboard: Guest assistance, Tablets & updates, and What’s new each have their own place.
+- Help requests come first, with guest names, suite and seat. Announcements are beside the queue; chat controls are tucked below.
+- Shorter release notes and smoother dashboard updates. Microsoft staff sign-in and existing tablet links continue to work.

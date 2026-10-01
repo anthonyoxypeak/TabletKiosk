@@ -1,6 +1,6 @@
 /* Home remains mounted while the seating chart or games are open. */
 (() => {
-    const VERSION = '1.12.0';
+    const VERSION = '1.12.1';
     function showVersion(current) {const label=document.getElementById('tablet-version');if(label)label.textContent='Tablet version '+VERSION+' · '+(current?(current===VERSION?'Up to date':'Version '+current+' available — reload the homepage when finished.'):'Update check unavailable');}
     let dialog, frame, lifecycle, lastSync = 'checking', heartbeatPending = false;
     const chartLink = document.getElementById('seatingChartLink');
@@ -35,7 +35,7 @@
         const timer = setTimeout(() => controller.abort(), 5000);
         try {
             const response=await fetch(`${API_BASE_URL}/api/tablet/heartbeat`, {
-                method:'POST', cache:'no-store', signal:controller.signal,
+                method:'POST', credentials:'omit', cache:'no-store', signal:controller.signal,
                 headers:{ 'Content-Type':'application/json', 'X-Kiosk-Key':API_KEY },
                 body:JSON.stringify({ chamber:CHAMBER_NUMBER, seat:SEAT_NUMBER, version:VERSION,
                     sync:lastSync, view:document.hidden ? 'background' : dialog?.open ? 'chart' : 'home',

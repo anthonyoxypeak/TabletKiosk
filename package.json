@@ -1,6 +1,6 @@
 {
   "name": "oxypeak-tablet-kiosk",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "description": "OxyPeak HBOT tablet kiosk display API and frontend",
   "main": "server.js",
   "scripts": {

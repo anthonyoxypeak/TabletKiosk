@@ -2368,7 +2368,7 @@
                 });
 
                 const response = await fetch(`${API_BASE_URL}/api/tablet/session?${params.toString()}`, {
-                    cache:'no-store', signal:controller.signal,
+                    credentials:'omit', cache:'no-store', signal:controller.signal,
                     headers: {
                         'Accept': 'application/json',
                         ...(API_KEY ? { 'X-Kiosk-Key': API_KEY } : {})
@@ -2729,8 +2729,8 @@
         }
     </script>
     <script src="tablet-session.js?v=1.1.0"></script>
-    <script src="tablet-experience.js?v=1.12.0"></script>
-    <script src="tablet-chat-home.js?v=1.12.0"></script>
-    <script src="tablet-support.js?v=1.12.0"></script>
+    <script src="tablet-experience.js?v=1.12.1"></script>
+    <script src="tablet-chat-home.js?v=1.12.1"></script>
+    <script src="tablet-support.js?v=1.12.1"></script>
 </body>
 </html>
