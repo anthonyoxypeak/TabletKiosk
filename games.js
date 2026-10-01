@@ -13,7 +13,7 @@
     function controls(...buttons){const row=element('div',undefined,'controls');row.append(...buttons);return row;}
     function start(game){clearTimers();generation++;selected=game;board.replaceChildren();board.className='';document.querySelector('.game-surface').classList.remove('sudoku-surface');document.body.classList.remove('sudoku-mode');score.replaceChildren();say('');overview.hidden=true;play.hidden=false;
         const [title,category,instructions]=info[game];byId('game-title').textContent=title;byId('game-category').textContent=category;byId('instructions').textContent=instructions;
-        ({pairs,words:scramble,tiles,sudoku,sequence,math,focus:colorFocus})[game]();byId('game-title').focus();
+        ({pairs,words:scramble,tiles,sudoku,sequence,math,focus:colorFocus,search:searchGame,pattern:patternGame,trail:trailGame,lights:lightsGame})[game]();byId('game-title').focus();
     }
     document.querySelectorAll('[data-game]').forEach(b=>b.onclick=()=>{opener=b;start(b.dataset.game);});
     byId('all-games').onclick=()=>{clearTimers();generation++;document.body.classList.remove('sudoku-mode');play.hidden=true;overview.hidden=false;board.replaceChildren();opener?.focus();};
@@ -82,5 +82,48 @@
     }
     function math(){chips('Choose your pace');board.append(element('p','Which challenge feels right today?','hint'),controls(...[['Gentle',1],['Balanced',2],['Stretch',3]].map(([label,level])=>button(label,()=>{mathLevel=level;quizRound('math');},level===mathLevel?'primary':''))));}
     function colorFocus(){chips('Choose difficulty');board.append(element('p','Hard mode switches between reading the word and matching the ink.','hint'),controls(...[['Easy · no timer',1],['Medium · 7 seconds',2],['Hard · 4 seconds + rule switches',3]].map(([label,level])=>button(label,()=>{focusLevel=level;quizRound('focus');},level===2?'primary':''))));}
+    Object.assign(info,{
+        search:['Word Search','Word discovery','Find the hidden words. Tap the first and last letters of a word.'],
+        pattern:['Pattern Recall','Visual memory','Remember the highlighted squares, then find them after they disappear.'],
+        trail:['Number Trail','Attention & sequencing','Find and tap the numbers in order. Take your time—accuracy comes first.'],
+        lights:['Lights Out','Planning & logic','Switch every light off. Each tap flips that square and its neighbors above, below, left and right.']
+    });
+    function difficulty(begin){chips('Choose your challenge');board.append(element('p','Start gently or stretch yourself.','hint'),controls(...['Easy','Medium','Hard'].map((name,i)=>button(name,()=>{board.replaceChildren();say('');begin(i+1,name);},i===1?'primary':''))));}
+    function squareGrid(size){const grid=element('div',undefined,'brain-grid');grid.style.setProperty('--cols',size);board.append(grid);return grid;}
+    function searchGame(){difficulty((level,name)=>{
+        const size=level===1?7:level===2?9:11,pool=[...new Set(GameWords.map(w=>w.word).filter(w=>/^[A-Z]+$/.test(w)&&w.length>=4&&w.length<=Math.min(size,8)))];
+        const puzzle=C.wordSearch(C.shuffle(pool).slice(0,level+4),size,level>1),found=new Set(),grid=squareGrid(size),cells=[];let anchor=null;
+        const list=element('div',undefined,'word-list'),labels=puzzle.words.map(entry=>{const tag=element('span',entry.word,'word-tag');list.append(tag);return tag;});board.append(list);
+        function progress(){chips(name,found.size+' of '+puzzle.words.length+' words');}
+        puzzle.cells.forEach((letter,index)=>{const cell=button(letter,()=>{
+            if(found.size===puzzle.words.length)return;
+            if(anchor===null){anchor=index;cell.classList.add('selected');say('Now tap the last letter. Tap the same square to cancel.');return;}
+            const start=anchor;anchor=null;cells.forEach(c=>c.classList.remove('selected'));if(start===index){say('Choose a word’s first letter.');return;}
+            const path=C.lineCells(start,index,size),word=path.map(i=>puzzle.cells[i]).join(''),reverse=[...word].reverse().join('');
+            const match=puzzle.words.findIndex(entry=>!found.has(entry.word)&&(entry.word===word||entry.word===reverse));
+            if(match<0){say('Not one of the remaining words. Try another straight line.');return;}
+            found.add(puzzle.words[match].word);path.forEach(i=>cells[i].classList.add('found'));labels[match].classList.add('found');progress();say(found.size===puzzle.words.length?'Every word found! Beautiful focus.':'Found '+puzzle.words[match].word+'!');
+        },'brain-cell letter-cell');cell.setAttribute('aria-label',letter+', row '+(Math.floor(index/size)+1)+', column '+(index%size+1));cells.push(cell);grid.append(cell);});
+        board.append(controls(button('Hint',()=>{const entry=puzzle.words.find(w=>!found.has(w.word));if(!entry)return;cells.forEach(c=>c.classList.remove('hint-cell'));cells[entry.path[0]].classList.add('hint-cell');say('Look for '+entry.word+' starting at the outlined square.');})));progress();
+    });}
+    function patternGame(){difficulty((level,name)=>{let round=0,correct=0;
+        function next(){clearTimers();board.replaceChildren();say('');round++;if(round>5){chips(name,'Complete');board.append(element('p',correct+' of 5 patterns remembered perfectly.','celebrate'),button('Play again',()=>start('pattern'),'primary next'));return;}
+            const size=level+2,count=Math.min(size*size-1,level+round+1),target=new Set(C.shuffle(Array.from({length:size*size},(_,i)=>i)).slice(0,count)),chosen=new Set(),grid=squareGrid(size),cells=[];let phase='ready';
+            chips(name,'Pattern '+round+' of 5',count+' squares');
+            for(let i=0;i<size*size;i++){const cell=button('·',()=>{if(phase!=='recall')return;if(chosen.has(i))chosen.delete(i);else if(chosen.size<count)chosen.add(i);cell.classList.toggle('selected',chosen.has(i));cell.textContent=chosen.has(i)?'●':'·';check.disabled=chosen.size!==count;},'brain-cell');cell.setAttribute('aria-label','Square '+(i+1));cells.push(cell);grid.append(cell);}
+            const show=button('Show pattern',()=>{phase='watch';show.disabled=true;cells.forEach((c,i)=>{c.classList.toggle('lit',target.has(i));c.textContent=target.has(i)?'●':'·';});say('Remember these '+count+' squares.');later(()=>{phase='recall';cells.forEach(c=>{c.classList.remove('lit');c.textContent='·';});say('Your turn. Select '+count+' squares, then Check pattern.');},level===1?4000:level===2?3000:2000);},'primary');
+            const check=button('Check pattern',()=>{if(phase!=='recall'||chosen.size!==count)return;phase='done';check.disabled=true;const won=[...target].every(i=>chosen.has(i));if(won)correct++;cells.forEach((c,i)=>{c.classList.toggle('found',target.has(i));c.classList.toggle('missed',chosen.has(i)&&!target.has(i));c.textContent=target.has(i)?'●':chosen.has(i)?'×':'·';});say(won?'Perfect recall!':'The green dots show the original pattern.');board.append(button(round===5?'See results':'Next pattern',next,'primary next'));});check.disabled=true;board.append(controls(show,check));
+        }next();});}
+    function trailGame(){difficulty((level,name)=>{const size=level+2,total=size*size,values=C.shuffle(Array.from({length:total},(_,i)=>i+1)),grid=squareGrid(size);let next=1,misses=0;
+        function label(n){return level===3?(n%2?String((n+1)/2):String.fromCharCode(64+n/2)):String(n);}
+        byId('instructions').textContent=level===3?'Alternate numbers and letters: 1 → A → 2 → B → 3 → C, and so on.':'Tap 1, then 2, then 3. Keep going until every number is cleared.';
+        const progress=()=>chips(name,next>total?'Complete':'Find '+label(next),misses+' retries');progress();
+        values.forEach(n=>{const cell=button(label(n),()=>{if(n!==next){misses++;say('Look for '+label(next)+' next.');progress();return;}cell.disabled=true;cell.classList.add('found');next++;progress();say(next>total?'Trail complete! '+total+' steps, '+misses+' retries.':'Next: '+label(next));if(next>total)board.append(button('New trail',()=>start('trail'),'primary next'));},'brain-cell trail-cell');grid.append(cell);});
+    });}
+    function lightsGame(){difficulty((level,name)=>{const size=level+2,puzzle=C.lightsPuzzle(size),initial=[...puzzle.cells],values=[...initial],solution=new Set(puzzle.solution),grid=squareGrid(size),cells=[];let moves=0,won=false;
+        function render(){won=values.every(v=>!v);cells.forEach((cell,i)=>{cell.classList.toggle('lit',values[i]);cell.classList.remove('hint-cell');cell.textContent=values[i]?'●':'○';cell.setAttribute('aria-label','Row '+(Math.floor(i/size)+1)+', column '+(i%size+1)+', '+(values[i]?'on':'off'));cell.disabled=won;});chips(name,moves+' moves',values.filter(Boolean).length+' lights on');if(won)say('All lights out! Solved in '+moves+' moves.');}
+        values.forEach((_,i)=>{const cell=button('',()=>{if(won)return;for(const j of C.crossCells(i,size))values[j]=!values[j];solution.has(i)?solution.delete(i):solution.add(i);moves++;say('');render();},'brain-cell light-cell');cells.push(cell);grid.append(cell);});
+        board.append(controls(button('Hint',()=>{if(won)return;const i=[...solution][0];cells[i].classList.add('hint-cell');say('Try the outlined square. Each move affects a cross.');}),button('Restart puzzle',()=>{values.splice(0,values.length,...initial);solution.clear();puzzle.solution.forEach(i=>solution.add(i));moves=0;say('Same puzzle, fresh start.');render();})));render();
+    });}
     if('serviceWorker' in navigator)navigator.serviceWorker.register('offline-worker.js').catch(()=>{});
 })();
