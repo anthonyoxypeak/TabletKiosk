@@ -6,9 +6,13 @@
     async function api(path,body) {
         const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),7000);
         try {
-            const response=await fetch(`${API_BASE_URL}${path}`,{method:body?'POST':'GET',cache:'no-store',signal:controller.signal,
+            const response=await fetch(`${API_BASE_URL}${path}`,{method:body?'POST':'GET',credentials:'omit',cache:'no-store',signal:controller.signal,
                 headers:{'X-Kiosk-Key':API_KEY,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
-            const data=await response.json();if(!response.ok)throw Error(data.error||'Could not confirm delivery.');return data;
+            // Azure/proxies can reject a request with an empty or HTML response.
+            // Never expose parser errors or treat an empty 200 as confirmed delivery.
+            const data=await response.json().catch(()=>null);
+            if(!response.ok||!data||typeof data!=='object'||Array.isArray(data))throw Error(typeof data?.error==='string'?data.error:'The connection could not confirm delivery. Please try again.');
+            return data;
         } finally {clearTimeout(timer);}
     }
     function render() {
@@ -25,6 +29,7 @@
         try {
             const data=await api('/api/tablet/help',{chamber:CHAMBER_NUMBER,seat:SEAT_NUMBER,session:token,id:pendingId,action});
             if(captured!==epoch)return;
+            if(action==='cancel'?data.ok!==true:!data.request?.id)throw Error('The connection could not confirm delivery. Please try again.');
             request=action==='cancel'?{...request,status:'cancelled'}:data.request;pendingId='';
         } catch(error) {if(captured===epoch){busy=false;render();status.textContent=`Delivery not confirmed. Get staff attention directly. ${error.name==='AbortError'?'Connection timed out.':error.message}`;return;}}
         finally {busy=false;}

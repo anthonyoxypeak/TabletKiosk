@@ -1,11 +1,9 @@
 {
-  "version": "1.12.0",
+  "version": "1.12.1",
   "date": "2026-10-01",
   "changes": [
-    "Four new brain games: Word Search, Pattern Recall, Number Trail and Lights Out—with Easy, Medium and Hard options.",
-    "A steadier tablet toolbar: background checks no longer flash “Checking” or blink the chat badge.",
-    "A simpler staff dashboard: Guest assistance, Tablets & updates, and What’s new each have their own place.",
-    "Help requests come first, with guest names, suite and seat. Announcements are beside the queue; chat controls are tucked below.",
-    "Shorter release notes and smoother dashboard updates. Microsoft staff sign-in and existing tablet links continue to work."
+    "Fixed Help and chat sending when the browser is also signed in to the staff dashboard.",
+    "Staff actions work with Microsoft sign-in while tablet requests continue using their existing key.",
+    "Connection errors now show a clear retry message; an empty response is never shown as successful delivery."
   ]
 }

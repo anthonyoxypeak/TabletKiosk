@@ -7,7 +7,7 @@ window.createSeatChat=function({apiBase,apiKey,chamber,seat}){
     function clear(text){clearTimeout(expiry);data=null;epoch++;log.replaceChildren();draft.value='';pending=null;signature='';$('chat-title').textContent='Dive chat';$('chat-send').disabled=true;$('chat-block').disabled=true;$('chat-pause').disabled=true;message.textContent=text;hint.textContent=text;decorate();}
     async function api(path,body){
         const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
-        try{const response=await fetch(apiBase+path,{method:body?'POST':'GET',cache:'no-store',signal:controller.signal,headers:{'X-Kiosk-Key':apiKey,...(token?{'X-Chat-Session':token}:{}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});const result=await response.json();if(!response.ok)throw Object.assign(Error(result.error||'Chat unavailable.'),{status:response.status});return result;}finally{clearTimeout(timer);}
+        try{const response=await fetch(apiBase+path,{method:body?'POST':'GET',credentials:'omit',cache:'no-store',signal:controller.signal,headers:{'X-Kiosk-Key':apiKey,...(token?{'X-Chat-Session':token}:{}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});const result=await response.json().catch(()=>null);if(!response.ok||!result||typeof result!=='object'||Array.isArray(result))throw Object.assign(Error(typeof result?.error==='string'?result.error:'Chat connection unavailable. Please try again.'),{status:response.status});return result;}finally{clearTimeout(timer);}
     }
     function accept(next,started){
         const remaining=Date.parse(next.validUntil)-Date.parse(next.fetchedAt)-(performance.now()-started);
