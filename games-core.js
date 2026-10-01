@@ -38,5 +38,28 @@
     function pairDeck(storage,random=Math.random){const key='oxypeak-pairs-1.7';let remaining=[];try{const saved=JSON.parse(storage?.getItem(key));if(Array.isArray(saved)&&new Set(saved).size===saved.length&&saved.every(i=>Number.isInteger(i)&&i>=0&&i<pairThemes.length))remaining=saved;}catch(_){}
         return ()=>{const picked=[];while(picked.length<8){if(!remaining.length){const fresh=shuffle(pairThemes.map((_,i)=>i),random);remaining=[...fresh.filter(i=>!picked.includes(i)),...fresh.filter(i=>picked.includes(i))];}picked.push(remaining.shift());}try{storage?.setItem(key,JSON.stringify(remaining));}catch(_){}return picked.map(i=>pairThemes[i]);};
     }
-    return {shuffle,wordDeck,neighbors,slideBoard,sudoku,sudokuCount,mathQuestion,pairDeck,pairThemes};
+    function crossCells(index,size){return [index,...(index>=size?[index-size]:[]),...(index<size*(size-1)?[index+size]:[]),...(index%size?[index-1]:[]),...(index%size<size-1?[index+1]:[])];}
+    function lightsPuzzle(size=4,random=Math.random){
+        const cells=Array(size*size).fill(false),solution=shuffle(cells.map((_,i)=>i),random).slice(0,size+2);
+        for(const i of solution)for(const j of crossCells(i,size))cells[j]=!cells[j];
+        if(!cells.some(Boolean)){const existing=solution.indexOf(0);if(existing<0)solution.push(0);else solution.splice(existing,1);for(const j of crossCells(0,size))cells[j]=!cells[j];}
+        return {cells,solution,size};
+    }
+    function lineCells(start,end,size){
+        const r=Math.floor(start/size),c=start%size,dr=Math.floor(end/size)-r,dc=end%size-c;
+        if(dr&&dc&&Math.abs(dr)!==Math.abs(dc))return [];
+        return Array.from({length:Math.max(Math.abs(dr),Math.abs(dc))+1},(_,i)=>(r+i*Math.sign(dr))*size+c+i*Math.sign(dc));
+    }
+    function wordSearch(words,size=9,diagonal=false,random=Math.random){
+        const cells=Array(size*size).fill(''),placed=[],directions=diagonal?[[0,1],[1,0],[1,1],[-1,1]]:[[0,1],[1,0]];
+        for(const word of words){
+            const candidates=[];
+            for(let start=0;start<cells.length;start++)for(const [dr,dc] of directions){const r=Math.floor(start/size),c=start%size,er=r+dr*(word.length-1),ec=c+dc*(word.length-1);if(er<0||er>=size||ec<0||ec>=size)continue;
+                const path=Array.from(word,(_,i)=>(r+dr*i)*size+c+dc*i);if(path.every((j,i)=>!cells[j]||cells[j]===word[i]))candidates.push(path);}
+            if(!candidates.length)continue;
+            const path=candidates[Math.floor(random()*candidates.length)];path.forEach((j,i)=>cells[j]=word[i]);placed.push({word,path});
+        }
+        return {size,cells:cells.map(c=>c||'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(random()*26)]),words:placed};
+    }
+    return {shuffle,wordDeck,neighbors,slideBoard,sudoku,sudokuCount,mathQuestion,pairDeck,pairThemes,crossCells,lightsPuzzle,lineCells,wordSearch};
 });

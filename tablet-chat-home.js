@@ -13,8 +13,11 @@
             if(!response.ok){hide();if(response.status===409){token='';generation++;window.TabletExperience?.closeChart();}return;}
             const data=await response.json();if(current!==generation||document.hidden)return;
             const remaining=Date.parse(data.validUntil)-Date.parse(data.fetchedAt)-(performance.now()-started);
-            hide();if(!(remaining>0))return;token=data.token;
-            const count=Math.max(0,Number(data.unreadCount)||0);badge.textContent=count>99?'99+':String(count);badge.hidden=count===0;button.setAttribute('aria-label',count?`Chat, ${count} unread message${count===1?'':'s'}`:'Chat');
+            clearTimeout(expiry);if(!(remaining>0)){hide();return;}token=data.token;
+            const count=Math.max(0,Number(data.unreadCount)||0),label=count>99?'99+':String(count),aria=count?`Chat, ${count} unread message${count===1?'':'s'}`:'Chat';
+            if(badge.textContent!==label)badge.textContent=label;
+            if(badge.hidden!==(count===0))badge.hidden=count===0;
+            if(button.getAttribute('aria-label')!==aria)button.setAttribute('aria-label',aria);
             expiry=setTimeout(hide,Math.min(12000,remaining));
         }catch(_){if(current===generation)hide();}finally{clearTimeout(timer);busy=false;}
     }

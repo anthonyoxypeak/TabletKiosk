@@ -1,6 +1,6 @@
 /* Home remains mounted while the seating chart or games are open. */
 (() => {
-    const VERSION = '1.11.0';
+    const VERSION = '1.12.0';
     function showVersion(current) {const label=document.getElementById('tablet-version');if(label)label.textContent='Tablet version '+VERSION+' · '+(current?(current===VERSION?'Up to date':'Version '+current+' available — reload the homepage when finished.'):'Update check unavailable');}
     let dialog, frame, lifecycle, lastSync = 'checking', heartbeatPending = false;
     const chartLink = document.getElementById('seatingChartLink');
