@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="referrer" content="no-referrer">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>OxyPeak Seat Display</title>
@@ -1733,7 +1734,7 @@
     </div>
 
     <div class="grid">
-        <a href="https://oxypeak.com" target="_blank" class="app-card card-aviv">
+        <a href="https://oxypeak.com" target="_blank" rel="noopener noreferrer" class="app-card card-aviv">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1753,7 +1754,7 @@
             </div>
         </a>
 
-        <a href="https://my.oxypeak.com" target="_blank" class="app-card card-myoxypeak">
+        <a href="https://my.oxypeak.com" target="_blank" rel="noopener noreferrer" class="app-card card-myoxypeak">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1771,7 +1772,7 @@
                 <span class="app-description">Personal account and forms</span>
             </div>
         </a>
-        <a href="https://m.youtube.com/" target="_blank" class="app-card card-youtube">
+        <a href="https://m.youtube.com/" target="_blank" rel="noopener noreferrer" class="app-card card-youtube">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -1786,7 +1787,7 @@
             </div>
         </a>
 
-        <a href="https://www.google.com" target="_blank" class="app-card card-google">
+        <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" class="app-card card-google">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
@@ -1803,7 +1804,7 @@
             </div>
         </a>
 
-        <a href="https://www.thevillagesdailysun.com" target="_blank" class="app-card card-dailysun">
+        <a href="https://www.thevillagesdailysun.com" target="_blank" rel="noopener noreferrer" class="app-card card-dailysun">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1826,7 +1827,7 @@
             </div>
         </a>
 
-        <a href="https://apnews.com/" target="_blank" class="app-card card-apnews">
+        <a href="https://apnews.com/" target="_blank" rel="noopener noreferrer" class="app-card card-apnews">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1842,7 +1843,7 @@
             </div>
         </a>
 
-        <a href="https://www.reuters.com/" target="_blank" class="app-card card-reuters">
+        <a href="https://www.reuters.com/" target="_blank" rel="noopener noreferrer" class="app-card card-reuters">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1899,7 +1900,7 @@
             </div>
         </a>
 
-        <a href="https://www.brainhq.com" target="_blank" class="app-card card-brainhq">
+        <a href="https://www.brainhq.com" target="_blank" rel="noopener noreferrer" class="app-card card-brainhq">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1914,7 +1915,7 @@
             </div>
         </a>
 
-        <a href="https://www.duolingo.com/" target="_blank" class="app-card card-duolingo">
+        <a href="https://www.duolingo.com/" target="_blank" rel="noopener noreferrer" class="app-card card-duolingo">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1932,7 +1933,7 @@
             </div>
         </a>
 
-        <a href="https://www.iheart.com" target="_blank" class="app-card card-radio">
+        <a href="https://www.iheart.com" target="_blank" rel="noopener noreferrer" class="app-card card-radio">
             <div class="card-top">
                 <div class="app-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1956,7 +1957,12 @@
         const urlParams = new URLSearchParams(window.location.search);
         const CHAMBER_NUMBER = parseInt(urlParams.get('chamber')) || 1;
         const SEAT_NUMBER = parseInt(urlParams.get('seat')) || 1;
-        const API_KEY = urlParams.get('key') || '';
+        const fragmentParams = new URLSearchParams(window.location.hash.slice(1));
+        const credentialStorage = `oxypeak-chart-key:${CHAMBER_NUMBER}:${SEAT_NUMBER}`;
+        let API_KEY = fragmentParams.get('key') || urlParams.get('key') || '';
+        try { if(API_KEY) sessionStorage.setItem(credentialStorage,API_KEY); else API_KEY=sessionStorage.getItem(credentialStorage)||''; } catch (_) {}
+        urlParams.delete('key'); urlParams.delete('api');
+        if(window.location.hash || new URLSearchParams(window.location.search).has('key')) history.replaceState(null,'',window.location.pathname+'?'+urlParams.toString());
         const chartUrl = new URL('seating-chart.html', window.location.href);
         chartUrl.search = urlParams.toString();
         chartUrl.searchParams.delete('key');
@@ -2098,8 +2104,6 @@
         });
 
         function getApiBaseUrl() {
-            const explicit = urlParams.get('api');
-            if (explicit) return explicit.replace(/\/$/, '');
             if (window.location.protocol === 'file:' || window.location.hostname.endsWith('github.io')) {
                 return DEFAULT_REMOTE_API_URL;
             }
@@ -2722,8 +2726,8 @@
         }
     </script>
     <script src="tablet-session.js?v=1.1.0"></script>
-    <script src="tablet-experience.js?v=1.10.0"></script>
-    <script src="tablet-chat-home.js?v=1.10.0"></script>
-    <script src="tablet-support.js?v=1.10.0"></script>
+    <script src="tablet-experience.js?v=1.11.0"></script>
+    <script src="tablet-chat-home.js?v=1.11.0"></script>
+    <script src="tablet-support.js?v=1.11.0"></script>
 </body>
 </html>
