@@ -74,14 +74,17 @@
         @media(max-width:600px) and (orientation:portrait){main{padding:16px}.chamber{height:330px;overflow-x:auto}#seats{min-width:650px}.chamber::after{display:none}h1{font-size:26px}}
         @media(prefers-color-scheme:dark){:root{--bg:#101c29;--card:#1a2b3c;--line:#354b5c;--accent:#83d7c4}.seat{background:#213c41;border-color:#355551}.seat.mine{background:#244e45}.empty{background:var(--card)}}
     </style>
+<link rel="stylesheet" href="seating-chat.css?v=1.9.0">
 </head>
 <body>
 <main>
     <header><div><span class="brand">OxyPeak</span><div class="heading"><h1>Seating Chart</h1><span class="eyebrow" id="suite">Current dive</span></div></div><a id="back" href="seat.html">← Back to home</a></header>
     <p id="status" role="status" aria-live="polite">Loading the current dive…</p>
     <div class="chamber"><div class="station">IA Station</div><ul id="seats" aria-label="Seats in the current dive"></ul></div>
-    <footer><button id="refresh" type="button">Refresh</button></footer>
+    <footer class="chat-footer"><p id="chat-hint" role="status">Connecting dive chat…</p><button id="chat-pause" disabled>Pause my chat</button><button id="refresh" type="button">Refresh</button></footer>
 </main>
+<dialog id="chat-dialog" aria-labelledby="chat-title"><header><h2 id="chat-title">Dive chat</h2><button id="chat-close" aria-label="Close chat">Close</button></header><p class="chat-note">Just you and this guest. Messages clear after the dive. Keep it friendly; profanity is filtered.</p><div id="chat-log" role="log" aria-label="Conversation" aria-live="polite"></div><form id="chat-form"><label>Message<textarea id="chat-draft" maxlength="300" rows="2" placeholder="Say hello…" autocomplete="off" required></textarea></label><button id="chat-send">Send</button></form><p id="chat-message" role="status"></p><button id="chat-block">Block seat</button></dialog>
+<script src="seating-chat.js?v=1.9.0"></script>
 <script>
     const params = new URLSearchParams(location.search);
     const chamber = params.get('chamber') || '1';
@@ -160,6 +163,7 @@
                 item.append(label, name);
                 seats.append(item);
             }
+            window.TabletChat?.decorate();
             const format = new Intl.DateTimeFormat('en-US', { hour:'numeric', minute:'2-digit', timeZone:data.facilityTimeZone || 'America/New_York' });
             status.textContent = `${format.format(new Date(data.dive.startTime))} – ${format.format(new Date(data.dive.endTime))}`;
             expiry = setTimeout(() => {
@@ -173,6 +177,7 @@
             if (current === generation) refresh.disabled = false;
         }
     }
+    if(window.createSeatChat)window.TabletChat=window.createSeatChat({apiBase,apiKey,chamber,seat});
     refresh.addEventListener('click', loadChart);
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {

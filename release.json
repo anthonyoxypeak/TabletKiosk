@@ -1,7 +1,9 @@
 {
-  "version": "1.8.1",
-  "date": "2026-09-30",
+  "version": "1.9.0",
+  "date": "2026-10-01",
   "changes": [
+    "NEW October 1: Tap Chat on an occupied seating-chart seat to message that guest during the same dive. Includes unread badges, an English profanity filter, blocking a seat and pausing your chat. Staff can pause or resume each chamber from the dashboard.",
+    "Chats are temporary: only the current two seat assignments can retrieve a conversation. Old conversations clear at dive end, seat reassignment, staff pause or server restart. Messages are never saved in browser storage. Wi-Fi is required; delivery may wait while the other guest is outside the seating chart. The filter catches common profanity and obfuscations but cannot catch every offensive message.",
     "Louder staff help alert: six sustained alternating tones replace the quiet chime. Test sound previews the new alert. Mute and 30-second reminders still work; overlapping sounds are prevented.",
     "Today’s IA briefing — September 30, 2026. This release brings together all of today’s tablet updates.",
     "NEW: Staff alerts keep checking while the dashboard is in a background tab. Click Enable alerts after signing in to enable a chime and allow desktop notifications. A blinking tab title and red icon identify waiting requests; sound repeats about every 30 seconds until acknowledgment. Test sound and Mute controls are included. Desktop alerts show only suite and seat, not guest names. Alerts pause if the connection cannot be confirmed. Keep the computer awake and the dashboard tab out of browser sleeping mode.",
