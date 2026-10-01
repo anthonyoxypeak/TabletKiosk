@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const cors = require('cors');
+const { PUBLIC_FILES, securityHeaders, originGuard, tabletAuth, staffAuth, audit } = require('./src/security');
 const { DateTime } = require('luxon');
 require('dotenv').config();
 const { buildSeatingChart } = require('./src/seatingChart');
@@ -11,12 +11,10 @@ const { normalizeSessionRow, serializeAppointment } = require('./src/kioskServic
 const os = require('node:os');
 const { createTabletChat } = require('./src/tabletChat');
 const communications = createCommunications({ filePath:process.env.KIOSK_STATE_FILE || path.join(process.env.WEBSITE_SITE_NAME ? '/home/data' : os.tmpdir(), 'oxypeak-tablet-data', 'communications.json') });
-function staffMessagingEnabled() { return Boolean(process.env.KIOSK_STAFF_KEY || API_KEY); }
-function requireStaffControl(req,res,next) {
-    if(!staffMessagingEnabled()) return res.status(503).json({error:'Staff access is not configured.'});
-    if(req.get('x-kiosk-key')!==(process.env.KIOSK_STAFF_KEY || API_KEY)) return res.status(401).json({error:'Staff access required'});
-    next();
-}
+const staffSecurity=staffAuth();
+const requireStaffControl=staffSecurity.middleware;
+const requireKioskApiKey=tabletAuth();
+function staffMessagingEnabled() { return staffSecurity.configured(); }
 const APP_VERSION = require('./package.json').version;
 const tabletStatus = createTabletStatus({ version:APP_VERSION });
 
@@ -40,26 +38,23 @@ const PRE_DIVE_DISPLAY_MINUTES = Number(process.env.KIOSK_PRE_DIVE_DISPLAY_MINUT
 const API_KEY = process.env.KIOSK_API_KEY || '';
 const DEMO_MODE = process.env.KIOSK_DEMO_MODE === 'true';
 
-app.use(cors({
-    origin: process.env.KIOSK_ALLOWED_ORIGINS
-        ? process.env.KIOSK_ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-        : true
-}));
-app.use(express.json());
-app.use('/api', (req, res, next) => { res.set('Cache-Control', 'no-store, private'); next(); });
+app.disable('x-powered-by');
+app.use(securityHeaders);
+app.use('/api', originGuard());
+app.use(express.json({limit:'8kb'}));
+app.use('/api', audit);
+app.get('/api/staff/auth', (req,res)=>res.json({mode:staffSecurity.mode,configured:staffSecurity.configured()}));
+app.get('/api/staff/me', requireStaffControl, (req,res)=>res.json({signedIn:true}));
 
 app.post('/api/tablet/heartbeat', (req, res, next) => {
-    if (!API_KEY && !DEMO_MODE) return res.status(503).json({ error:'Tablet authentication is not configured' });
+    if (!API_KEY && !process.env.KIOSK_DEVICE_KEYS && !DEMO_MODE) return res.status(503).json({ error:'Tablet authentication is not configured' });
     return requireKioskApiKey(req, res, next);
 }, (req, res) => {
     if (!tabletStatus.record(req.body)) return res.status(400).json({ error:'Invalid tablet status' });
     res.json({ version:APP_VERSION });
 });
 
-app.get('/api/staff/tablets', async (req, res) => {
-    const staffKey = process.env.KIOSK_STAFF_KEY || API_KEY;
-    if (!staffKey) return res.status(503).json({ error:'Staff access is not configured' });
-    if (req.get('x-kiosk-key') !== staffKey) return res.status(401).json({ error:'Enter the staff access key' });
+app.get('/api/staff/tablets', requireStaffControl, async (req, res) => {
     try {
         const snapshot=await communications.snapshot({includeTokens:true});
         snapshot.requests=(await Promise.all(snapshot.requests.map(async ({token,...request})=>{
@@ -73,12 +68,6 @@ app.get('/api/staff/tablets', async (req, res) => {
         res.json({ ...tabletStatus.snapshot(), release:require('./release.json'), chat:await tabletChat.settings(), messagingEnabled:staffMessagingEnabled(), ...snapshot });
     }
     catch (_) { res.status(503).json({error:'Staff request status is unavailable. Check tablets directly.'}); }
-});
-
-app.get(['/tablet-chat-home.js', '/seating-chat.js', '/seating-chat.css', '/staff.html', '/staff-alerts.js', '/seat.html', '/tablet-session.js', '/tablet-experience.js', '/tablet-support.js', '/games.html', '/games.js', '/games.css', '/games-core.js', '/game-words.js', '/offline-worker.js'], (req, res) => {
-    res.set('Cache-Control', 'no-store, private');
-    res.set('Referrer-Policy', 'no-referrer');
-    res.sendFile(path.join(__dirname, req.path));
 });
 
 function createDemoProvider() {
@@ -121,7 +110,7 @@ const provider = DEMO_MODE
     : (hasPostgresConfig() ? createPostgresProvider({ diveDurationMinutes: DIVE_DURATION_MINUTES }) : null);
 
 const tabletChat=createTabletChat({
-    requireTablet(req,res,next){if(!API_KEY&&!DEMO_MODE)return res.status(503).json({error:'Tablet authentication is not configured'});return requireKioskApiKey(req,res,next);},
+    requireTablet(req,res,next){if(!API_KEY&&!process.env.KIOSK_DEVICE_KEYS&&!DEMO_MODE)return res.status(503).json({error:'Tablet authentication is not configured'});return requireKioskApiKey(req,res,next);},
     requireStaff:requireStaffControl,
     settingsPath:(process.env.KIOSK_STATE_FILE || path.join(process.env.WEBSITE_SITE_NAME?'/home/data':os.tmpdir(),'oxypeak-tablet-data','communications.json'))+'.chat-settings',
     options:{timeZone:TIME_ZONE,diveDurationMinutes:DIVE_DURATION_MINUTES,chamberPrefix:process.env.KIOSK_CHAMBER_PREFIX||'HBOT'},
@@ -138,7 +127,7 @@ async function currentSeat({chamber,seat}) {
 app.use(createCommunicationRoutes({
     store:communications,
     requireTablet(req,res,next) {
-        if(!API_KEY && !DEMO_MODE) return res.status(503).json({error:'Tablet authentication is not configured'});
+        if(!API_KEY && !process.env.KIOSK_DEVICE_KEYS && !DEMO_MODE) return res.status(503).json({error:'Tablet authentication is not configured'});
         return requireKioskApiKey(req,res,next);
     },
     staffEnabled:staffMessagingEnabled,
@@ -156,13 +145,6 @@ app.use(createCommunicationRoutes({
         });
     }
 }));
-
-function requireKioskApiKey(req, res, next) {
-    if (!API_KEY) return next();
-    const provided = req.get('x-kiosk-key') || req.query.key;
-    if (provided === API_KEY) return next();
-    return res.status(401).json({ error: 'Invalid or missing kiosk API key' });
-}
 
 function getSessionWindow(now = DateTime.now().setZone(TIME_ZONE)) {
     return {
@@ -232,10 +214,10 @@ app.get(['/api/tablet/session', '/api/seat-session'], requireKioskApiKey, async 
         catch (_) { payload.staffMessagingEnabled=false; }
         res.json(payload);
     } catch (error) {
-        console.error('Tablet session lookup failed:', error);
+        console.error('Tablet session lookup failed');
         res.status(500).json({
             error: 'Unable to load tablet session',
-            detail: process.env.NODE_ENV === 'production' ? undefined : error.message
+            detail: undefined
         });
     }
 });
@@ -243,7 +225,7 @@ app.get(['/api/tablet/session', '/api/seat-session'], requireKioskApiKey, async 
 app.get('/api/tablet/seating-chart', (req, res, next) => {
     res.set('Cache-Control', 'no-store, private');
     res.set('Pragma', 'no-cache');
-    if (!API_KEY && !DEMO_MODE) return res.status(503).json({ error: 'Seating chart authentication is not configured' });
+    if (!API_KEY && !process.env.KIOSK_DEVICE_KEYS && !DEMO_MODE) return res.status(503).json({ error: 'Seating chart authentication is not configured' });
     return requireKioskApiKey(req, res, next);
 }, async (req, res) => {
     let location;
@@ -275,16 +257,14 @@ app.get('/api/tablet/seating-chart', (req, res, next) => {
     }
 });
 
-app.get('/seating-chart.html', (req, res) => {
-    res.set('Cache-Control', 'no-store, private');
-    res.set('Referrer-Policy', 'no-referrer');
-    res.sendFile(path.join(__dirname, 'seating-chart.html'));
+app.get('*', (req,res,next)=>{
+    const file=req.path==='/'?'/seat.html':req.path;
+    if(!PUBLIC_FILES.has(file))return res.sendStatus(404);
+    res.sendFile(path.join(__dirname,file));
 });
-
-app.use(express.static(__dirname));
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'seat.html'));
+app.use((error,req,res,next)=>{
+    if(res.headersSent)return next(error);
+    res.status(error.type==='entity.too.large'?413:error instanceof SyntaxError?400:500).json({error:'Request could not be processed'});
 });
 
 if (require.main === module) {

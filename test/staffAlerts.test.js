@@ -21,7 +21,7 @@ function element(){return {hidden:false,textContent:'',value:'',replaceChildren(
 test('dashboard continues authenticated polling while hidden, without rendering guest names, and stops after lock',async()=>{
  const elements=new Map(),events={},intervals=[],updates=[];let calls=0,resets=0;
  const document={hidden:true,getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},addEventListener(name,fn){events[name]=fn;}};
- const context={document,StaffAlerts:{mount:()=>({update:d=>updates.push(d),failed(){},reset(){resets++;}})},AbortController,Date,setTimeout,clearTimeout,setInterval:fn=>intervals.push(fn),fetch:async()=>{calls++;return {ok:true,json:async()=>({fetchedAt:new Date().toISOString(),requests:[{id:'req',guestName:'Private name',status:'requested'}]})};}};
+ const context={document,StaffAlerts:{mount:()=>({update:d=>updates.push(d),failed(){},reset(){resets++;}})},AbortController,Date,setTimeout,clearTimeout,setInterval:fn=>intervals.push(fn),fetch:async url=>{if(url==='/api/staff/auth')return {ok:true,json:async()=>({mode:'key'})};calls++;return {ok:true,json:async()=>({fetchedAt:new Date().toISOString(),requests:[{id:'req',guestName:'Private name',status:'requested'}]})};}};
  vm.runInNewContext(fs.readFileSync(require.resolve('../staff.html'),'utf8').match(/<script>([\s\S]*?)<\/script>/)[1],context);
  document.getElementById('key').value='test-key';document.getElementById('login').submit({preventDefault(){}});await new Promise(r=>setImmediate(r));
  assert.equal(calls,1);assert.equal(updates.length,1);assert.equal(document.getElementById('requests').textContent,'');

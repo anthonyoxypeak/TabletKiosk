@@ -13,6 +13,7 @@ test('durable requests, acknowledgement, reassignment, and exact expiry',async t
  await store.reconcile(6,9,'dive-two');assert.equal((await store.snapshot()).requests.length,0);
  await store.request({...input,id:'request-three',token:'dive-two'});now=5000;
  assert.equal((await store.snapshot()).requests.length,0);assert.equal((await store.forTablet(6,9,'dive-two')).request,null);
+ assert.deepEqual(JSON.parse(await fs.readFile(options.filePath,'utf8')).requests,{});
 });
 test('announcements target only their chamber and dive, count displayed seats once, and cannot be resurrected',async t=>{
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'kiosk-comms-'));t.after(()=>fs.rm(dir,{recursive:true,force:true}));let now=1000;
@@ -25,6 +26,7 @@ test('announcements target only their chamber and dive, count displayed seats on
  assert.equal((await store.snapshot()).announcements[0].displayedCount,1);
  await store.dismiss(input.id);await store.announce(input);assert.equal((await store.snapshot()).announcements.length,0);
  await store.announce({...input,id:'message-two'});now=5000;assert.equal((await store.forTablet(6,9,'dive-one')).announcement,null);
+ assert.deepEqual(JSON.parse(await fs.readFile(path.join(dir,'state.json'),'utf8')).announcements,{});
 });
 test('failed persistence never reports a request as delivered',async t=>{
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'kiosk-comms-'));t.after(()=>fs.rm(dir,{recursive:true,force:true}));

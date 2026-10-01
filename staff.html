@@ -11,29 +11,44 @@ body{background:#eef4f3;color:#173b40}main{max-width:1440px;padding:28px}header 
 </style></head><body><main>
 <header><div><strong>OxyPeak · Staff</strong><h1>Tablet Dashboard</h1></div><button id="signout" hidden>Lock dashboard</button></header>
 <p>Guest assistance and chamber announcements, all in one place.</p>
-<form id="login"><label>Staff access key<input id="key" type="password" autocomplete="off" required></label><button>Open dashboard</button></form>
+<p id="sso-login" hidden><a class="primary" href="/.auth/login/aad?post_login_redirect_uri=%2Fstaff.html">Sign in with Microsoft</a></p><form id="login"><label>Staff access key<input id="key" type="password" autocomplete="off" required></label><button>Open dashboard</button></form>
 <p id="status" role="status" aria-live="polite">Enter your staff access key. If a separate staff key has not been set up, use the existing tablet access key.</p>
 <section id="alert-controls" class="alert-controls" hidden aria-label="Staff alerts"><div class="alert-buttons"><button id="enable-alerts" class="primary">Enable alerts</button><button id="test-alerts">Test sound</button><button id="mute-alerts" hidden>Mute</button></div><p id="alert-status" role="status"></p><p>Keep this dashboard signed in and open. Allow notifications when prompted. Sound requires your computer volume to be on. A sleeping computer or sleeping browser tab may delay alerts.</p></section><section id="release" class="release-panel" hidden><h2 id="release-title"></h2><p id="version-summary"></p><details><summary>What changed &amp; how updates work</summary><ul id="release-notes"></ul><p>Each tablet sends its loaded version every minute while the homepage is running. These are the last versions received; sleeping tablets and other apps may not send updates. Reload the tablet homepage when the guest is finished to load the current release. Reopen Games Hub to refresh its saved games.</p></details></section><div id="metrics" hidden></div>
 <section id="chat-controls" class="panel" hidden><h2>Guest chat</h2><p>One-to-one messaging from the seating chart, during the current dive only. Pausing a chamber clears its conversations. This setting stays paused until staff resume it.</p><div id="chat-settings" class="alert-buttons"></div></section><section id="communications" hidden><section class="panel"><div class="queue-title"><h2>Needs attention</h2><span id="queue-count">0 waiting</span></div><div id="requests" aria-live="polite"></div></section><section class="panel"><h2>Chamber announcement</h2><p id="setup"></p><form id="announce"><label>Send to<select id="chamber"><option value="1">Suite 1</option><option value="3">Suite 3</option><option value="4">Suite 4</option><option value="6">Suite 6</option></select></label><label>Message<input id="announcement-text" maxlength="240" required placeholder="What would you like guests to know?"></label><button id="announce-send" class="primary">Send announcement</button><button type="button" id="preset">Use headphones reminder</button></form><details class="announcement-note"><summary>Delivery and expiry</summary><p>Announcements last two minutes or until the dive ends. Between-dive help requests last 15 minutes. Displayed counts confirm a tablet showed the message, not that someone read it. Sleeping tablets and external apps may miss it.</p></details><p id="action-status" role="status"></p><div id="announcements"></div></section></section><p id="summary"></p><p id="overview-help" class="overview-help" hidden>Tap a suite to see its tablets. “Recently connected” means the homepage contacted us within 2½ minutes. “No recent contact” may mean sleep, another app, or a lost connection—not necessarily a broken tablet.</p><div id="chambers"></div>
 <p class="footnote">No recent check-in may mean a tablet is asleep, using another app, or disconnected. Open its homepage to reconnect. Guest names on help requests come from the current seat assignment; names are not saved in tablet check-ins or the request queue.</p>
-</main><script src="staff-alerts.js?v=1.10.0"></script><script>
+</main><script src="staff-alerts.js?v=1.11.0"></script><script>
 (() => {
+    let authMode='key', signedIn=false;
     let key = '', controller, generation = 0, sending=false, outgoingId='', requestSignature='', loading=false;
     const alerts=StaffAlerts.mount();
     const communications=document.getElementById('communications'), requests=document.getElementById('requests'), announcements=document.getElementById('announcements'), actionStatus=document.getElementById('action-status');
     const status = document.getElementById('status'), chambers = document.getElementById('chambers');
     const summary = document.getElementById('summary'), login = document.getElementById('login'), lock = document.getElementById('signout');
     function clear() { document.getElementById('chat-controls').hidden=true; chambers.replaceChildren(); summary.textContent = ''; communications.hidden=true; requests.replaceChildren();requestSignature=''; announcements.replaceChildren();document.getElementById('metrics').hidden=true;document.getElementById('release').hidden=true;document.getElementById('overview-help').hidden=true; }
-    function signout() { alerts.reset();key = ''; generation++; controller?.abort(); clear(); login.hidden = false; lock.hidden = true; status.textContent = 'Dashboard locked.';document.getElementById('announce').reset();actionStatus.textContent='';outgoingId=''; }
+    function signout(redirect=false) { alerts.reset();signedIn=false;key = ''; generation++; controller?.abort(); clear(); login.hidden = false; lock.hidden = true; status.textContent = 'Dashboard locked.';document.getElementById('announce').reset();actionStatus.textContent='';outgoingId=''; }
     function node(tag, text, className) { const e = document.createElement(tag); e.textContent = text; if(className)e.className = className; return e; }
+    function showLogin(){login.hidden=authMode==='entra';document.getElementById('sso-login').hidden=authMode!=='entra';}
+    async function initializeAuth(){
+        try{
+            const response=await fetch('/api/staff/auth',{cache:'no-store'});if(!response.ok)throw Error();
+            const auth=await response.json();authMode=auth.mode;showLogin();
+            if(authMode==='entra'){
+                status.textContent='Sign in with your approved OxyPeak Microsoft account.';
+                const me=await fetch('/api/staff/me',{cache:'no-store'});
+                signedIn=me.ok;
+                if(me.status===403)status.textContent='Your account needs tablet dashboard access. Contact IT.';
+                if(signedIn){document.getElementById('sso-login').hidden=true;load();}
+            }
+        }catch(_){status.textContent='Sign-in service unavailable. Try reloading.';login.hidden=true;}
+    }
     async function load() {
-        if (!key || loading) return;loading=true;
+        if ((authMode==='entra'?!signedIn:!key) || loading) return;loading=true;
         const started=Date.now(),request = ++generation; controller?.abort(); controller = new AbortController();
         const requestController = controller;
         const timer = setTimeout(() => requestController.abort(), 8000);
         try {
             const response = await fetch('/api/staff/tablets', {cache:'no-store', headers:{'X-Kiosk-Key':key}, signal:controller.signal});
-            if(request!==generation)return;if(response.status===401){signout();status.textContent='Access key not accepted. Sign in again to enable alerts.';return;}
+            if(request!==generation)return;if(response.status===401||response.status===403){signout();showLogin();status.textContent='Sign in with an approved staff account to enable alerts.';return;}
             if (!response.ok) throw Error(response.status === 401 ? 'Access key not accepted.' : 'Status service unavailable.');
             const data = await response.json(); if(request !== generation) return;alerts.update(data,Date.now()-started);login.hidden=true;lock.hidden=false;if(document.hidden){clear();return;}
             chambers.replaceChildren(); login.hidden = true; lock.hidden = false;renderCommunications(data);
@@ -65,9 +80,9 @@ body{background:#eef4f3;color:#173b40}main{max-width:1440px;padding:28px}header 
 
     function actionButton(label,path,body) {const b=node('button',label);b.onclick=async()=>{b.disabled=true;try{await post(path,body);load();}catch(error){actionStatus.textContent=error.message;b.disabled=false;}};return b;}
     async function post(path,body) {
-        if(!key)throw Error('Dashboard locked.');const capturedKey=key;
+        if(authMode==='entra'?!signedIn:!key)throw Error('Dashboard locked.');const capturedKey=key;
         const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
-        try{const response=await fetch(path,{method:'POST',cache:'no-store',signal:controller.signal,headers:{'Content-Type':'application/json','X-Kiosk-Key':capturedKey},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw Error(data.error||'Action not confirmed. Refresh and check its status.');if(key!==capturedKey)throw Error('Dashboard locked.');return data;}
+        try{const response=await fetch(path,{method:'POST',cache:'no-store',signal:controller.signal,headers:{'Content-Type':'application/json','X-Kiosk-Key':capturedKey,'X-Staff-Action':'1'},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw Error(data.error||'Action not confirmed. Refresh and check its status.');if(key!==capturedKey)throw Error('Dashboard locked.');return data;}
         catch(error){throw Error(error.name==='AbortError'?'Delivery not confirmed. Check status before retrying.':error.message);}finally{clearTimeout(timer);}
     }
     const expanded=new Set();
@@ -93,7 +108,8 @@ body{background:#eef4f3;color:#173b40}main{max-width:1440px;padding:28px}header 
     };
 
     login.addEventListener('submit', event=>{event.preventDefault();key=document.getElementById('key').value;document.getElementById('key').value='';load();});
-    lock.addEventListener('click',signout);setInterval(load,5000);
+    lock.addEventListener('click',()=>{signout();showLogin();if(authMode==='entra')location.assign('/.auth/logout?post_logout_redirect_uri=%2Fstaff.html');});setInterval(load,5000);
+    initializeAuth();
     document.addEventListener('visibilitychange',()=>{if(document.hidden){clear();}else load();});
 })();
 </script></body></html>
