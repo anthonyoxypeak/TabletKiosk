@@ -101,13 +101,13 @@ test('open chart automatically replaces names at back-to-back dive boundary and 
     assert.equal(page.calls.at(-1).options.headers['X-Kiosk-Key'],'test-only');
 });
 
-test('gap between dives is empty and the next scheduled dive appears without reopening the chart', async () => {
+test('gap between dives shows unassigned seats and the next scheduled dive appears without reopening the chart', async () => {
     const page = createPage([booking('Earlier','08:00:00'),booking('Later','10:01:00')], '2026-09-30T09:59:58-04:00');
     await page.open();
     await page.advance(2000);
-    assert.deepEqual(page.names(),[]);
+    assert.deepEqual(page.names(),Array(14).fill('Unassigned'));
     await page.advance(59000);
-    assert.deepEqual(page.names(),[]);
+    assert.deepEqual(page.names(),Array(14).fill('Unassigned'));
     await page.advance(15000);
     assert.equal(page.names()[6],'Later');
 });
