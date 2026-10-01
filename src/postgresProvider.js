@@ -68,10 +68,14 @@ function hasPostgresConfig(env = process.env) {
 function buildPoolConfig(env = process.env) {
     const connectionString = env.DATABASE_URL || env.POSTGRES_CONNECTION_STRING;
     const sslDisabled = (env.PGSSLMODE || env.POSTGRES_SSLMODE || '').toLowerCase() === 'disable';
-    const ssl = sslDisabled ? false : { rejectUnauthorized: false };
+    if (sslDisabled && env.WEBSITE_SITE_NAME) throw Error('Azure database connections require TLS');
+    const ssl = sslDisabled ? false : { rejectUnauthorized: true, ...(env.PGSSLROOTCERT_PEM ? {ca:env.PGSSLROOTCERT_PEM} : {}) };
 
     if (connectionString) {
-        return { connectionString, ssl };
+        // pg connection-string TLS options otherwise override the verified SSL object.
+        const url = new URL(connectionString);
+        for (const key of ['sslmode','sslcert','sslkey','sslrootcert','ssl','uselibpqcompat']) url.searchParams.delete(key);
+        return { connectionString:url.toString(), ssl };
     }
 
     return {

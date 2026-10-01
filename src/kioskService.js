@@ -219,7 +219,8 @@ function buildTabletSessionResponse(rows, options = {}) {
         .sort((a, b) => b.toMillis() - a.toMillis())[0] || null;
 
     const activeAppointment = serializeAppointment(active);
-    const nextAppointment = serializeAppointment(next);
+    // Future guest identity must not be delivered to the current guest.
+    const nextAppointment = null;
 
     return {
         state,

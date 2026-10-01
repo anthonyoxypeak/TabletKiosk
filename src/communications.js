@@ -36,7 +36,14 @@ function createCommunications({ filePath, now = Date.now }) {
         queue = work.catch(() => {});
         return work;
     }
-    async function read() { await ready; await queue; }
+    function prune(next) {
+        for(const [key,item] of Object.entries(next.requests))if(!active(item))delete next.requests[key];
+        for(const [key,item] of Object.entries(next.announcements))if(!active(item))delete next.announcements[key];
+    }
+    // Expiry must remove content from persistence, not merely hide it in responses.
+    const cleanup=setInterval(()=>mutate(prune).catch(()=>console.error('Communication expiry cleanup failed')),60000);
+    cleanup.unref();
+    async function read() { await mutate(prune); }
     return {
         async snapshot({ includeTokens = false } = {}) {
             await read();
