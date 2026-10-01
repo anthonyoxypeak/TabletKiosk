@@ -1,6 +1,6 @@
 /* Home remains mounted while the seating chart or games are open. */
 (() => {
-    const VERSION = '1.9.0';
+    const VERSION = '1.10.0';
     function showVersion(current) {const label=document.getElementById('tablet-version');if(label)label.textContent='Tablet version '+VERSION+' · '+(current?(current===VERSION?'Up to date':'Version '+current+' available — reload the homepage when finished.'):'Update check unavailable');}
     let dialog, frame, lifecycle, lastSync = 'checking', heartbeatPending = false;
     const chartLink = document.getElementById('seatingChartLink');
@@ -15,6 +15,7 @@
     function resetGuest() {
         closeChart();
         window.TabletSupport?.reset();
+        window.TabletChatHome?.reset();
         acknowledgedWelcomeSessionKey = '';
         try { sessionStorage.removeItem(WELCOME_ACK_STORAGE_KEY); } catch (_) {}
         resetComfortSettingsForSeat();
@@ -53,6 +54,7 @@
                 endTime:appt.endTime || appt.end_time
             } : null, data.fetchedAt, elapsed);
             window.TabletSupport?.sync(data);
+            window.TabletChatHome?.sync(data);
         },
         failed() { lastSync = 'error'; },
         check() { lifecycle?.check(); },

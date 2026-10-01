@@ -75,7 +75,7 @@ app.get('/api/staff/tablets', async (req, res) => {
     catch (_) { res.status(503).json({error:'Staff request status is unavailable. Check tablets directly.'}); }
 });
 
-app.get(['/seating-chat.js', '/seating-chat.css', '/staff.html', '/staff-alerts.js', '/seat.html', '/tablet-session.js', '/tablet-experience.js', '/tablet-support.js', '/games.html', '/games.js', '/games.css', '/games-core.js', '/game-words.js', '/offline-worker.js'], (req, res) => {
+app.get(['/tablet-chat-home.js', '/seating-chat.js', '/seating-chat.css', '/staff.html', '/staff-alerts.js', '/seat.html', '/tablet-session.js', '/tablet-experience.js', '/tablet-support.js', '/games.html', '/games.js', '/games.css', '/games-core.js', '/game-words.js', '/offline-worker.js'], (req, res) => {
     res.set('Cache-Control', 'no-store, private');
     res.set('Referrer-Policy', 'no-referrer');
     res.sendFile(path.join(__dirname, req.path));
@@ -87,7 +87,7 @@ function createDemoProvider() {
         async fetchChamberSessions({ chamberName }) {
             const start = DateTime.now().setZone(TIME_ZONE).startOf('hour');
             return ['Alex', 'Sam', 'Jo', 'Mary Jane', 'Taylor', 'Chris'].map((name, index) => ({
-                session_id: 'demo-active',
+                session_id: 'demo-active-'+(index+1),
                 first_name: name,
                 chamber_name: chamberName,
                 seat_number: index + 1,
@@ -102,7 +102,7 @@ function createDemoProvider() {
             const date = start.toISODate();
             const startTime = start.toFormat('HH:mm:ss');
             return [{
-                session_id: 'demo-active',
+                session_id: 'demo-active-'+seatNumber,
                 first_name: 'Demo',
                 last_name: 'Patient',
                 status: 'scheduled',
