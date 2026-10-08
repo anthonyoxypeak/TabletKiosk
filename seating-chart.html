@@ -74,7 +74,7 @@
         @media(max-width:600px) and (orientation:portrait){main{padding:16px}.chamber{height:330px;overflow-x:auto}#seats{min-width:650px}.chamber::after{display:none}h1{font-size:26px}}
         @media(prefers-color-scheme:dark){:root{--bg:#101c29;--card:#1a2b3c;--line:#354b5c;--accent:#83d7c4}.seat{background:#213c41;border-color:#355551}.seat.mine{background:#244e45}.empty{background:var(--card)}}
     </style>
-<link rel="stylesheet" href="seating-chat.css?v=1.12.1">
+<link rel="stylesheet" href="seating-chat.css?v=1.12.2">
 </head>
 <body>
 <main>
@@ -84,7 +84,8 @@
     <footer class="chat-footer"><p id="chat-hint" role="status">Connecting dive chat…</p><button id="chat-pause" disabled>Pause my chat</button><button id="refresh" type="button">Refresh</button></footer>
 </main>
 <dialog id="chat-dialog" aria-labelledby="chat-title"><header><h2 id="chat-title">Dive chat</h2><button id="chat-close" aria-label="Close chat">Close</button></header><p class="chat-note">Just you and this guest. Messages clear after the dive. Keep it friendly; profanity is filtered.</p><div id="chat-log" role="log" aria-label="Conversation" aria-live="polite"></div><form id="chat-form"><label>Message<textarea id="chat-draft" maxlength="300" rows="2" placeholder="Say hello…" autocomplete="off" required></textarea></label><button id="chat-send">Send</button></form><p id="chat-message" role="status"></p><button id="chat-block">Block seat</button></dialog>
-<script src="seating-chat.js?v=1.12.1"></script>
+<script src="tablet-polling.js?v=1.12.2"></script>
+<script src="seating-chat.js?v=1.12.2"></script>
 <script>
     const params = new URLSearchParams(location.search);
     const chamber = params.get('chamber') || '1';
@@ -125,7 +126,7 @@
     }
 
     async function loadChart() {
-        if (document.hidden) return;
+        if (document.hidden || window.TabletPolling && !window.TabletPolling.begin('seating-chart', 15000)) return;
         const current = ++generation;
         if (request) request.abort();
         request = new AbortController();
@@ -145,7 +146,7 @@
             clearChart('No dive is currently in progress.');
             if (data.unavailable) { status.textContent = 'Seating chart is unavailable. Please ask a team member.'; return; }
 
-            const remaining = data.dive ? Date.parse(data.validUntil) - Date.parse(data.fetchedAt) - (performance.now() - started) : 25000;
+            const remaining = data.dive ? Date.parse(data.validUntil) - Date.parse(data.fetchedAt) - (performance.now() - started) : 30000;
             if (!Number.isFinite(remaining) || remaining <= 0) return;
             document.getElementById('suite').textContent = `Suite ${chamber} · ${data.dive?'Current dive':'Between dives'}`;
             const ownSeat = Number(data.seatNumber ?? seat);
@@ -168,8 +169,9 @@
             status.textContent = data.dive ? `${format.format(new Date(data.dive.startTime))} – ${format.format(new Date(data.dive.endTime))}` : 'No dive running · Between-dive test chat';
             expiry = setTimeout(() => {
                 clearChart('Refreshing the current dive…');
+                if(data.dive && remaining<=30000 && !window.TabletPolling?.state.failures.get('seating-chart')) window.TabletPolling?.state.due.delete('seating-chart');
                 loadChart();
-            }, Math.min(remaining, 25000));
+            }, Math.min(remaining, 30000));
         } catch (_) {
             if (current === generation) clearChart('Seating chart is unavailable. Tap Refresh to try again.');
         } finally {

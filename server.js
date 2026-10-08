@@ -105,9 +105,10 @@ function createDemoProvider() {
     };
 }
 
-const provider = DEMO_MODE
+const { cacheScheduleProvider } = require('./src/scheduleCache');
+const provider = cacheScheduleProvider(DEMO_MODE
     ? createDemoProvider()
-    : (hasPostgresConfig() ? createPostgresProvider({ diveDurationMinutes: DIVE_DURATION_MINUTES }) : null);
+    : (hasPostgresConfig() ? createPostgresProvider({ diveDurationMinutes: DIVE_DURATION_MINUTES }) : null));
 
 const tabletChat=createTabletChat({
     requireTablet(req,res,next){if(!API_KEY&&!process.env.KIOSK_DEVICE_KEYS&&!DEMO_MODE)return res.status(503).json({error:'Tablet authentication is not configured'});return requireKioskApiKey(req,res,next);},

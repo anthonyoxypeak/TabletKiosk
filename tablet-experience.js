@@ -1,6 +1,6 @@
 /* Home remains mounted while the seating chart or games are open. */
 (() => {
-    const VERSION = '1.12.1';
+    const VERSION = '1.12.2';
     function showVersion(current) {const label=document.getElementById('tablet-version');if(label)label.textContent='Tablet version '+VERSION+' · '+(current?(current===VERSION?'Up to date':'Version '+current+' available — reload the homepage when finished.'):'Update check unavailable');}
     let dialog, frame, lifecycle, lastSync = 'checking', heartbeatPending = false;
     const chartLink = document.getElementById('seatingChartLink');
@@ -29,7 +29,7 @@
         setTimeout(fetchAndDisplayAppointment, 0);
     }
     async function heartbeat() {
-        if (heartbeatPending) return;
+        if (heartbeatPending || document.hidden || window.TabletPolling && !window.TabletPolling.begin('heartbeat', 60000)) return;
         heartbeatPending = true;
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 5000);
@@ -45,6 +45,7 @@
         } catch (_) { showVersion(); }
         finally { clearTimeout(timer); heartbeatPending = false; }
     }
+    window.addEventListener('tablet-auth-required',()=>{ closeChart(); window.TabletSupport?.reset(); window.TabletChatHome?.reset(); });
     window.TabletExperience = {
         sync(data, elapsed) {
             lastSync = 'ok';

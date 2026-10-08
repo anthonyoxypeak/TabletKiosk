@@ -1,6 +1,7 @@
 /* Routine requests and announcements are scoped to the server-issued dive token. */
 (() => {
     let token='', enabled=false, request=null, pendingId='', busy=false, polling=false, epoch=0, dismissed='', deadline=0;
+    let occupied=false;
     let help, announcement, message, status, send, cancel, trigger;
     const id=()=>crypto.randomUUID();
     async function api(path,body) {
@@ -36,7 +37,7 @@
         render();
     }
     async function poll() {
-        if(polling||document.hidden||!token)return;polling=true;
+        if(polling||document.hidden||!token||window.TabletPolling&&!window.TabletPolling.begin('communications',occupied||request&&['requested','acknowledged'].includes(request.status)?15000:60000))return;polling=true;
         const captured=epoch,started=Date.now();
         try {
             const data=await api(`/api/tablet/communications?chamber=${CHAMBER_NUMBER}&seat=${SEAT_NUMBER}&session=${encodeURIComponent(token)}`);
@@ -49,14 +50,14 @@
             message.textContent=a.text;
             announcement.dataset.messageId=a.id;
             if(!announcement.open)announcement.showModal();
-            await api('/api/tablet/announcement-receipt',{id:a.id,chamber:CHAMBER_NUMBER,seat:SEAT_NUMBER,session:token});
+            if(announcement.dataset.receipted!==a.id){await api('/api/tablet/announcement-receipt',{id:a.id,chamber:CHAMBER_NUMBER,seat:SEAT_NUMBER,session:token});announcement.dataset.receipted=a.id;}
             announcement.dataset.messageId=a.id;
         } catch(_) {if(captured===epoch&&help.open)status.textContent='Connection unavailable. Request status cannot be confirmed. Get staff attention directly.';}
         finally {polling=false;}
     }
     function reset() {epoch++;token='';request=null;pendingId='';dismissed='';deadline=0;help?.close();announcement?.close();render();}
     window.TabletSupport={reset,open:()=>{render();help.showModal();poll();},sync(data){
-        const next=data.sessionToken||'';if(next!==token)reset();token=next;enabled=Boolean(data.staffMessagingEnabled);render();poll();
+        occupied=Boolean(data.activeAppointment||data.active_appointment);const next=data.sessionToken||'';if(next!==token)reset();token=next;enabled=Boolean(data.staffMessagingEnabled);render();poll();
     }};
     document.addEventListener('DOMContentLoaded',()=>{
         const style=document.createElement('style');style.textContent=".support-dialog{box-sizing:border-box;width:min(640px,94vw);max-height:94dvh;overflow:auto;border:0;border-radius:24px;padding:26px;background:#fff;color:#173048;font:20px/1.45 system-ui}.support-dialog::backdrop{background:#102a43aa}.support-dialog h2{font-size:28px;margin:0 0 16px}.support-dialog button{font:inherit;min-height:54px;padding:12px 20px;border:1px solid #b7ccca;border-radius:14px;background:white;color:#173048;cursor:pointer}.support-dialog button:focus-visible{outline:3px solid #247f70;outline-offset:3px}.support-dialog button:disabled{opacity:.55}.support-dialog [hidden]{display:none!important}.support-dialog #support-status{white-space:pre-line;font-size:23px;font-weight:650;line-height:1.5;padding:20px;background:#edf6f3;border-radius:16px;margin:0 0 18px}.support-dialog[data-state=requested] #support-status{background:#fff3db}.support-dialog[data-state=acknowledged] #support-status{background:#ddf3e9;border:2px solid #287f70}.support-actions{display:flex;gap:10px;flex-wrap:wrap}.support-dialog #support-send{background:#247f70;color:white;border-color:#247f70;flex:1}.support-dialog #support-close{margin-left:auto}.support-tips{font-size:17px;margin-top:20px}.support-tips summary{cursor:pointer;font-weight:650}.support-tips p{margin:12px 0}.support-urgent{font-size:16px;margin:18px 0 0;color:#526b7c}@media(max-height:520px){.support-dialog{padding:18px;font-size:18px}.support-dialog h2{font-size:25px;margin-bottom:10px}.support-dialog #support-status{font-size:21px;padding:14px;margin-bottom:12px}.support-tips{margin-top:12px}.support-urgent{margin-top:12px}}";document.head.append(style);

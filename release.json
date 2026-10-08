@@ -1,9 +1,10 @@
 {
-  "version": "1.12.1",
-  "date": "2026-10-01",
+  "version": "1.12.2",
+  "date": "2026-10-08",
   "changes": [
-    "Fixed Help and chat sending when the browser is also signed in to the staff dashboard.",
-    "Staff actions work with Microsoft sign-in while tablet requests continue using their existing key.",
-    "Connection errors now show a clear retry message; an empty response is never shown as successful delivery."
+    "Reduced background checks and shared schedule lookups to lower tablet server load.",
+    "Tablets stop retrying invalid credentials and show a clear setup message.",
+    "Empty seats no longer close Games Hub or the seating chart during a dive.",
+    "Chat and help remain available between dives; open conversations still refresh quickly."
   ]
 }
