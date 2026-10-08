@@ -2,7 +2,7 @@ const crypto = require('node:crypto');
 
 const PUBLIC_FILES = new Set([
     '/seat.html','/seating-chart.html','/seating-chat.js','/seating-chat.css',
-    '/tablet-session.js','/tablet-experience.js','/tablet-support.js','/tablet-chat-home.js',
+    '/tablet-polling.js','/tablet-session.js','/tablet-experience.js','/tablet-support.js','/tablet-chat-home.js',
     '/staff.html','/staff-alerts.js','/games.html','/games.js','/games.css','/games-core.js',
     '/game-words.js','/offline-worker.js','/screensaver/index.html','/screensaver/idle.mp4'
 ]);

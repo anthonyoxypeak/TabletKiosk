@@ -35,7 +35,8 @@ function createTabletChat({loadRows,requireTablet,requireStaff,settingsPath,opti
         const chart=buildSeatingChart(rows,{...options,chamberName,now:new Date(at)});
         if(chart.unavailable){rooms.delete(chamber);throw fault(409,'The current dive could not be confirmed.');}
         const testMode=!chart.dive;
-        const future=rows.map(r=>normalizeSessionRow(r,{...options,chamberName})).filter(s=>s&&['scheduled','active','in_progress'].includes(s.status)&&s.start.toMillis()>at).map(s=>s.start.toMillis());
+        const normalized=rows.map(row=>({row,session:normalizeSessionRow(row,{...options,chamberName})}));
+        const future=normalized.map(item=>item.session).filter(s=>s&&['scheduled','active','in_progress'].includes(s.status)&&s.start.toMillis()>at).map(s=>s.start.toMillis());
         const until=testMode?Math.min(at+30*60000,...future):Date.parse(chart.validUntil),scope=testMode?'between-dives':chart.dive.startTime;
         let room=rooms.get(chamber);
         if(!room||room.scope!==scope||room.until<=at){room={scope,until,testMode,members:new Map(),messages:[],sequence:0};rooms.set(chamber,room);}
@@ -44,8 +45,8 @@ function createTabletChat({loadRows,requireTablet,requireStaff,settingsPath,opti
         for(const entry of entries){
             let identity='test-seat:'+entry.seatNumber;
             if(!testMode){
-                const row=rows.find(r=>{const s=normalizeSessionRow(r,{...options,chamberName});return s&&s.seatNumber===entry.seatNumber&&['scheduled','active','in_progress'].includes(s.status)&&s.start.toMillis()<=at&&s.end.toMillis()>at;});
-                const s=row&&normalizeSessionRow(row,{...options,chamberName});
+                const match=normalized.find(({session:s})=>s&&s.seatNumber===entry.seatNumber&&['scheduled','active','in_progress'].includes(s.status)&&s.start.toMillis()<=at&&s.end.toMillis()>at);
+                const row=match?.row,s=match?.session;
                 if(s?.id==null)throw fault(503,'Seat identity could not be confirmed.');
                 // A person retains their conversation when an IA moves them within this dive.
                 identity=JSON.stringify([row.patient_id!=null?'patient:'+row.patient_id:'booking:'+s.id,s.start.toMillis(),row.timeslot_id??null]);
