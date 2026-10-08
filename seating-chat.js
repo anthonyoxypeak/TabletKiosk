@@ -13,7 +13,7 @@ window.createSeatChat=function({apiBase,apiKey,chamber,seat}){
         const remaining=Date.parse(next.validUntil)-Date.parse(next.fetchedAt)-(performance.now()-started);
         if(!(remaining>0)){clear('This dive has ended. Return home for your next dive.');return;}
         if(token&&token!==next.token){locked=true;clear('Your seat changed. Return home before opening chat again.');return;}
-        token=next.token;self=next.self;data=next;for(const [id,value] of Object.entries(next.read||{}))read.set(id,Math.max(read.get(id)||0,value));clearTimeout(expiry);expiry=setTimeout(()=>clear('Checking the current dive. Messages are hidden until reconnected.'),Math.min(remaining,12000));render();
+        token=next.token;self=next.self;data=next;for(const [id,value] of Object.entries(next.read||{}))read.set(id,Math.max(read.get(id)||0,value));clearTimeout(expiry);expiry=setTimeout(()=>clear('Checking the current dive. Messages are hidden until reconnected.'),Math.min(remaining,25000));render();
     }
     function decorate(){
         for(const item of document.querySelectorAll('#seats > li')){
@@ -50,7 +50,7 @@ window.createSeatChat=function({apiBase,apiKey,chamber,seat}){
     }
     function open(id){selected=id;signature='';draft.value='';pending=null;message.textContent='';if(!dialog.open)dialog.showModal();render();if(!draft.disabled)draft.focus();}
     async function poll(){
-        if(document.hidden||busy||locked)return;busy=true;const version=epoch,started=performance.now();
+        if(document.hidden||busy||locked||window.TabletPolling&&!window.TabletPolling.begin('chat',dialog.open?5000:15000))return;busy=true;const version=epoch,started=performance.now();
         try{const next=await api('/api/tablet/chat?'+new URLSearchParams({chamber,seat}));if(version===epoch&&!document.hidden)accept(next,started);}
         catch(e){if(version===epoch){if(e.status===409&&token)locked=true;clear(e.name==='AbortError'?'Chat connection timed out. Trying again…':e.message);}}
         finally{busy=false;}

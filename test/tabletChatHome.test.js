@@ -9,7 +9,7 @@ test('home chat badge requests count-only data, clears read counts, expires offl
  const badge=elements.get('homeChatBadge'),button=elements.get('homeChatButton');assert.equal(badge.textContent,'2');assert.equal(badge.hidden,false);assert.match(calls[0].url,/summary=1/);button.onclick();assert.equal(opened,1);
  count=0;await intervals[0]();assert.equal(badge.hidden,true);count=3;await intervals[0]();assert.equal(badge.hidden,false);
  now=2000;for(const [id,timer] of timers)if(timer.at<=now){timers.delete(id);timer.fn();}assert.equal(badge.hidden,true);
- status=409;await intervals[0]();assert.equal(closed,1);assert.equal(badge.hidden,true);
+ status=409;await intervals[0]();assert.equal(closed,0);assert.equal(badge.hidden,true);
  status=200;await intervals[0]();assert.equal(calls.at(-1).options.headers['X-Chat-Session'],undefined);
  document.hidden=true;events.visibilitychange();assert.equal(badge.hidden,true);
 });

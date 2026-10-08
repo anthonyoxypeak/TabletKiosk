@@ -42,3 +42,10 @@
 - A simpler staff dashboard: Guest assistance, Tablets & updates, and What’s new each have their own place.
 - Help requests come first, with guest names, suite and seat. Announcements are beside the queue; chat controls are tucked below.
 - Shorter release notes and smoother dashboard updates. Microsoft staff sign-in and existing tablet links continue to work.
+
+
+## 1.12.1 — 2026-10-01
+
+- Fixed Help and chat sending when the browser is also signed in to the staff dashboard.
+- Staff actions work with Microsoft sign-in while tablet requests continue using their existing key.
+- Connection errors now show a clear retry message; an empty response is never shown as successful delivery.
