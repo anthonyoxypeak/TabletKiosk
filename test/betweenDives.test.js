@@ -4,6 +4,7 @@ test('empty seats can request help and receive announcements; new bookings clear
  Object.assign(process.env,{KIOSK_DEMO_MODE:'false',KIOSK_API_KEY:'test-key',KIOSK_STAFF_KEY:'test-key',KIOSK_STATE_FILE:path.join(dir,'state.json')});
  let rows=[],unavailable=false;const provider={name:'test',fetchSeatSessions:async({seatNumber})=>{if(unavailable)throw Error('Database offline');return rows.filter(r=>r.seat_number===seatNumber);},fetchChamberSessions:async()=>{if(unavailable)throw Error('Database offline');return rows;}};
  const providerPath=require.resolve('../src/postgresProvider');require.cache[providerPath]={id:providerPath,filename:providerPath,loaded:true,exports:{hasPostgresConfig:()=>true,createPostgresProvider:()=>provider}};
+ const realNow=Date.now;let offset=0;Date.now=()=>realNow()+offset;t.after(()=>{Date.now=realNow;});
  const app=require('../server'),server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(()=>new Promise(r=>server.close(r)));
  const base=`http://127.0.0.1:${server.address().port}`,headers={'X-Kiosk-Key':'test-key','Content-Type':'application/json'};
  const get=url=>fetch(base+url,{headers});const post=(url,body)=>fetch(base+url,{method:'POST',headers,body:JSON.stringify(body)});
@@ -14,6 +15,7 @@ test('empty seats can request help and receive announcements; new bookings clear
  const own=await(await get('/api/tablet/communications?chamber=6&seat=3&session='+idle.sessionToken)).json();assert.equal(own.announcement.text,'Testing between dives');assert.equal(own.request.status,'requested');
  const dashboard=await(await get('/api/staff/tablets')).json();assert.equal(dashboard.announcements[0].targetCount,14);assert.ok(dashboard.requests[0].expiresAt-Date.now()<=15*60000);
  rows=[{session_id:'new-booking',chamber_name:'HBOT 6',seat_number:3,first_name:'Test',start_at:new Date(Date.now()-60000).toISOString(),end_at:new Date(Date.now()+3600000).toISOString(),status:'scheduled'}];
+ offset+=10001;
  const active=await(await get('/api/tablet/session?chamber=6&seat=3')).json();assert.notEqual(active.sessionToken,idle.sessionToken);
  const fresh=await(await get('/api/tablet/communications?chamber=6&seat=3&session='+active.sessionToken)).json();assert.equal(fresh.request,null);assert.equal(fresh.announcement,null);
  assert.equal((await post('/api/tablet/help',req)).status,409);assert.equal((await(await get('/api/staff/tablets')).json()).requests.length,0);
@@ -22,7 +24,7 @@ test('empty seats can request help and receive announcements; new bookings clear
  assert.equal((await post('/api/tablet/help',{...req,id:'named-help-request',session:active.sessionToken})).status,200);
  const named=await(await get('/api/staff/tablets')).json();assert.equal(named.requests[0].guestName,'Sunny T.');assert.equal(named.requests[0].nameStatus,'verified');assert.equal(named.requests[0].token,undefined);
  assert.doesNotMatch(await fs.readFile(path.join(dir,'state.json'),'utf8'),/Sunny|Tester|guestName/);
- unavailable=true;const failed=await(await get('/api/staff/tablets')).json();assert.equal(failed.requests.length,1);assert.equal(failed.requests[0].guestName,null);assert.equal(failed.requests[0].nameStatus,'unavailable');
+ offset+=10001;unavailable=true;const failed=await(await get('/api/staff/tablets')).json();assert.equal(failed.requests.length,1);assert.equal(failed.requests[0].guestName,null);assert.equal(failed.requests[0].nameStatus,'unavailable');
  assert.equal((await post('/api/staff/announcements',{chamber:6,id:'offline-schedule',text:'Must not pretend empty'})).status,503);
  unavailable=false;rows[0].session_id='replacement';rows[0].preferred_name='Replacement';
  assert.equal((await(await get('/api/staff/tablets')).json()).requests.length,0,'dashboard rejects reassigned names before the tablet checks in');
